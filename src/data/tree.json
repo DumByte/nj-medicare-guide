@@ -1,0 +1,2442 @@
+{
+  "meta": {
+    "as_of": "2026-11-03",
+    "start": "A1",
+    "condition_grammar": "A 'when' is a list of clauses that must ALL be true. Clause: {\"var\": name, \"op\": one of eq|ne|in|lt|lte|gt|gte|set|unset, \"value\": ...}. A 'route' is evaluated top to bottom; the first entry whose 'when' passes wins; an entry with no 'when' is the default.",
+    "text_tokens": "{{name}} inside text is replaced by a variable or computed value (see SPEC.md 'Computed values'). {{fact:id}} renders the fact's plain text with its label badge and source link. {{fact:id.value.path}} renders one value with badge and link.",
+    "tone": "Plain English, short sentences, second person ('you'), for a 67-year-old non-expert. No jargon without the glossary pop-up."
+  },
+  "variables": {
+    "ss_collecting": {
+      "type": "enum",
+      "values": [
+        "yes",
+        "no",
+        "unsure"
+      ]
+    },
+    "part_a": {
+      "type": "enum",
+      "values": [
+        "yes",
+        "no"
+      ]
+    },
+    "part_a_date": {
+      "type": "month",
+      "note": "Part A start (entitlement) month from the Medicare card"
+    },
+    "part_b": {
+      "type": "enum",
+      "values": [
+        "yes",
+        "no"
+      ]
+    },
+    "part_b_date": {
+      "type": "month"
+    },
+    "retiree_cov": {
+      "type": "enum",
+      "values": [
+        "yes",
+        "no",
+        "unsure"
+      ]
+    },
+    "last_work_month": {
+      "type": "month"
+    },
+    "job_cov_end": {
+      "type": "date",
+      "default_rule": "last day of last_work_month (fact his_coverage_end_assumption, ASSUMED)"
+    },
+    "wife_birth": {
+      "type": "date",
+      "note": "day matters only if it is the 1st"
+    },
+    "wife_on_his_plan": {
+      "type": "enum",
+      "values": [
+        "yes",
+        "no"
+      ]
+    },
+    "wife_own_offer": {
+      "type": "enum",
+      "values": [
+        "yes",
+        "no",
+        "unsure"
+      ]
+    },
+    "bridge_income": {
+      "type": "enum",
+      "values": [
+        "under_400",
+        "400_600",
+        "over_600",
+        "unsure"
+      ]
+    },
+    "health_needs": {
+      "type": "enum",
+      "values": [
+        "yes",
+        "no",
+        "skip"
+      ]
+    },
+    "doctor_choice": {
+      "type": "enum",
+      "values": [
+        "very",
+        "somewhat",
+        "not"
+      ]
+    },
+    "travel": {
+      "type": "enum",
+      "values": [
+        "yes",
+        "no"
+      ]
+    },
+    "predictability": {
+      "type": "enum",
+      "values": [
+        "fixed",
+        "variable"
+      ]
+    },
+    "budget_ok": {
+      "type": "enum",
+      "values": [
+        "yes",
+        "no"
+      ]
+    },
+    "visits": {
+      "type": "enum",
+      "values": [
+        "few",
+        "some",
+        "many"
+      ]
+    },
+    "hd_ok": {
+      "type": "enum",
+      "values": [
+        "yes",
+        "no"
+      ]
+    },
+    "assignment": {
+      "type": "enum",
+      "values": [
+        "yes",
+        "no",
+        "unsure"
+      ]
+    },
+    "magi_by_tax_year": {
+      "type": "map<int,number>",
+      "note": "joint MAGI estimates keyed by tax year 2025-2030"
+    },
+    "one_time_income": {
+      "type": "map<int,number>",
+      "note": "Roth conversions + capital gains included in that year's MAGI"
+    },
+    "hsa": {
+      "type": "enum",
+      "values": [
+        "yes",
+        "no",
+        "unsure"
+      ]
+    },
+    "employer_20": {
+      "type": "enum",
+      "values": [
+        "yes",
+        "no",
+        "unsure"
+      ]
+    },
+    "drug_creditable": {
+      "type": "enum",
+      "values": [
+        "yes",
+        "no",
+        "unsure"
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "A1",
+      "module": "Where you stand",
+      "type": "info",
+      "title": "Let's figure out your Medicare plan",
+      "text": "This guide asks simple questions about your situation. At the end you get a dated to-do list and the questions to ask HR, Social Security and New Jersey's free Medicare counselors. Facts are as of {{as_of}}. Each fact has a link to the official source.",
+      "next": "A2"
+    },
+    {
+      "id": "A2",
+      "module": "Where you stand",
+      "type": "question",
+      "var": "ss_collecting",
+      "text": "Are you getting Social Security retirement checks right now?",
+      "help": "If you are not sure, log in at ssa.gov/myaccount or look for an SSA-1099 tax form from last year.",
+      "options": [
+        {
+          "label": "Yes",
+          "value": "yes",
+          "sets": {
+            "part_a": "yes"
+          },
+          "next": "A3b"
+        },
+        {
+          "label": "No",
+          "value": "no",
+          "next": "A3"
+        },
+        {
+          "label": "Not sure",
+          "value": "unsure",
+          "next": "A3"
+        }
+      ]
+    },
+    {
+      "id": "A3",
+      "module": "Where you stand",
+      "type": "question",
+      "var": "part_a",
+      "text": "Do you have a red, white and blue Medicare card that says HOSPITAL (PART A)?",
+      "options": [
+        {
+          "label": "Yes",
+          "value": "yes",
+          "next": "A3b"
+        },
+        {
+          "label": "No, I don't have a Medicare card",
+          "value": "no",
+          "sets": {
+            "part_b": "no"
+          },
+          "next": "A5"
+        }
+      ]
+    },
+    {
+      "id": "A3b",
+      "module": "Where you stand",
+      "type": "input",
+      "var": "part_a_date",
+      "input": "month",
+      "text": "What start date is printed next to HOSPITAL (PART A) on your card?",
+      "help": "This date matters for how long your wife can keep COBRA. If you can't find it, choose 'I don't know' and we'll add it to your questions for Social Security.",
+      "allow_unknown": true,
+      "fact_refs": [
+        "cobra_36_month_rule"
+      ],
+      "next": "A4"
+    },
+    {
+      "id": "A4",
+      "module": "Where you stand",
+      "type": "question",
+      "var": "part_b",
+      "text": "Does the same card also say MEDICAL (PART B)?",
+      "options": [
+        {
+          "label": "Yes",
+          "value": "yes",
+          "next": "A4b"
+        },
+        {
+          "label": "No",
+          "value": "no",
+          "next": "A5"
+        }
+      ]
+    },
+    {
+      "id": "A4b",
+      "module": "Where you stand",
+      "type": "input",
+      "var": "part_b_date",
+      "input": "month",
+      "text": "What start date is printed next to MEDICAL (PART B)?",
+      "allow_unknown": true,
+      "next": "A5"
+    },
+    {
+      "id": "A5",
+      "module": "Where you stand",
+      "type": "question",
+      "var": "retiree_cov",
+      "text": "Will your employer keep giving you health coverage after you retire (retiree coverage)?",
+      "help": "This is different from COBRA. Retiree coverage is a benefit for retirees. COBRA is a temporary, usually expensive, continuation.",
+      "options": [
+        {
+          "label": "Yes",
+          "value": "yes",
+          "next": "A6"
+        },
+        {
+          "label": "No",
+          "value": "no",
+          "next": "A6"
+        },
+        {
+          "label": "I don't know",
+          "value": "unsure",
+          "next": "A6"
+        }
+      ]
+    },
+    {
+      "id": "A6",
+      "module": "Where you stand",
+      "type": "input",
+      "var": "last_work_month",
+      "input": "month",
+      "text": "What month do you plan to stop working? (Your best guess is fine. You can change it later and see what changes.)",
+      "validate": {
+        "min": "2026-11",
+        "max": "2030-12"
+      },
+      "next": "A6b"
+    },
+    {
+      "id": "A6b",
+      "module": "Where you stand",
+      "type": "input",
+      "var": "job_cov_end",
+      "input": "date",
+      "text": "When does your job health coverage end after your last day? If you don't know, we'll assume the last day of that month.",
+      "default_from": "his_coverage_end_assumption",
+      "fact_refs": [
+        "his_coverage_end_assumption"
+      ],
+      "next": "A7"
+    },
+    {
+      "id": "A7",
+      "module": "Where you stand",
+      "type": "input",
+      "var": "wife_birth",
+      "input": "date",
+      "text": "What is your wife's date of birth? (Only the month and year matter, unless she was born on the 1st.)",
+      "fact_refs": [
+        "medicare_start_month"
+      ],
+      "next": "A8"
+    },
+    {
+      "id": "A8",
+      "module": "Where you stand",
+      "type": "question",
+      "var": "wife_on_his_plan",
+      "text": "Is your wife covered by your job's health plan right now?",
+      "options": [
+        {
+          "label": "Yes",
+          "value": "yes",
+          "next": "A9"
+        },
+        {
+          "label": "No",
+          "value": "no",
+          "next": "A9"
+        }
+      ]
+    },
+    {
+      "id": "A9",
+      "module": "Where you stand",
+      "type": "question",
+      "var": "wife_own_offer",
+      "text": "Does your wife's own employer offer her a health plan she could join?",
+      "options": [
+        {
+          "label": "Yes",
+          "value": "yes",
+          "next": "A10"
+        },
+        {
+          "label": "No",
+          "value": "no",
+          "next": "A10"
+        },
+        {
+          "label": "Not sure",
+          "value": "unsure",
+          "next": "A10"
+        }
+      ]
+    },
+    {
+      "id": "A10",
+      "module": "Where you stand",
+      "type": "question",
+      "var": "employer_20",
+      "text": "Does your employer have 20 or more employees?",
+      "help": "This decides whether your job plan or Medicare pays first while you work. HR can tell you the count it uses for Medicare.",
+      "fact_refs": [
+        "employer_size_20"
+      ],
+      "options": [
+        {
+          "label": "Yes",
+          "value": "yes",
+          "next": "A11"
+        },
+        {
+          "label": "No",
+          "value": "no",
+          "next": "OUT_SMALL_EMPLOYER"
+        },
+        {
+          "label": "Not sure",
+          "value": "unsure",
+          "next": "A11"
+        }
+      ]
+    },
+    {
+      "id": "OUT_SMALL_EMPLOYER",
+      "module": "Where you stand",
+      "type": "outcome",
+      "title": "Medicare probably pays first for you now",
+      "text": "With fewer than 20 employees, Medicare pays first and your job plan pays second. {{fact:employer_size_20}} You may need Part B now, and waiting could mean a late penalty and bills your job plan won't pay. Much of this guide assumes a larger employer, so call NJ SHIP this week before relying on it.",
+      "add_actions": [
+        "ACT_SHIP_NOW"
+      ],
+      "fact_refs": [
+        "employer_size_20",
+        "nj_ship_contact"
+      ],
+      "next": "A11"
+    },
+    {
+      "id": "A11",
+      "module": "Where you stand",
+      "type": "question",
+      "var": "drug_creditable",
+      "text": "Does your job plan's yearly letter say its drug coverage is 'creditable'?",
+      "help": "Plans send this notice every year, often in the fall. It protects you from the Part D late penalty while you work.",
+      "fact_refs": [
+        "creditable_notice"
+      ],
+      "options": [
+        {
+          "label": "Yes",
+          "value": "yes",
+          "next": "B1"
+        },
+        {
+          "label": "No",
+          "value": "no",
+          "next": "OUT_DRUG_NOT_CREDITABLE"
+        },
+        {
+          "label": "I don't know",
+          "value": "unsure",
+          "next": "B1"
+        }
+      ]
+    },
+    {
+      "id": "OUT_DRUG_NOT_CREDITABLE",
+      "module": "Where you stand",
+      "type": "outcome",
+      "title": "Your drug coverage may not protect you from the Part D penalty",
+      "text": "If your job plan's drug coverage is not creditable, a Part D late penalty may already be building for each month without it. Ask NJ SHIP soon how and when you can join a Medicare drug plan.",
+      "bullets": [
+        "{{fact:creditable_notice}}",
+        "{{fact:partd_penalty}}"
+      ],
+      "add_actions": [
+        "ACT_SHIP_DRUG_NOW"
+      ],
+      "fact_refs": [
+        "creditable_notice",
+        "partd_penalty"
+      ],
+      "next": "B1"
+    },
+    {
+      "id": "B1",
+      "module": "While you're still working",
+      "type": "route",
+      "route": [
+        {
+          "when": [
+            {
+              "var": "part_b",
+              "op": "eq",
+              "value": "yes"
+            }
+          ],
+          "next": "OUT_HAS_PARTB"
+        },
+        {
+          "next": "B_HSA"
+        }
+      ]
+    },
+    {
+      "id": "OUT_HAS_PARTB",
+      "module": "While you're still working",
+      "type": "outcome",
+      "title": "You already have Part B while working",
+      "text": "Your job plan pays first, so Part B mostly pays second. {{fact:employer_size_20}} You pay {{fig:partb_premium}} a month or more for it.",
+      "bullets": [
+        "If your Medigap window has already closed: the federal guaranteed right to buy Medigap does NOT apply when a job plan that pays first ends. {{fact:gi_primary_plan_not_federal}}",
+        "New Jersey's own rule appears to give a broader right when you leave a job plan that pays first. {{fact:gi_nj_state_extension}}",
+        "Dropping Part B now saves the premium, and you can sign up again later without penalty while you work. {{fact:partb_defer_while_working}} It does NOT give you a new Medigap window. {{fact:medigap_oep}}"
+      ],
+      "add_actions": [
+        "ACT_SHIP_PARTB_ALREADY",
+        "ACT_HR_EMPLOYEES"
+      ],
+      "add_questions": [
+        "Q_SHIP_GI_PRIMARY",
+        "Q_SHIP_DROP_B"
+      ],
+      "fact_refs": [
+        "medigap_oep",
+        "gi_primary_plan_not_federal",
+        "gi_nj_state_extension",
+        "employer_size_20",
+        "partb_defer_while_working"
+      ],
+      "next": "B_HSA",
+      "variants": [
+        {
+          "when": [
+            {
+              "var": "medigap_window_open",
+              "op": "ne",
+              "value": "unknown"
+            }
+          ],
+          "text": "Your one-time Medigap window started when Part B started ({{part_b_date}}) and {{medigap_window_status}}."
+        },
+        {
+          "when": [
+            {
+              "var": "medigap_window_open",
+              "op": "eq",
+              "value": "unknown"
+            }
+          ],
+          "text": "We can't tell when your one-time Medigap window was, because your Part B start date is unknown. Ask NJ SHIP (question below)."
+        }
+      ]
+    },
+    {
+      "id": "B_HSA",
+      "module": "While you're still working",
+      "type": "question",
+      "var": "hsa",
+      "text": "Do you, or does your employer, put money into a Health Savings Account (HSA)?",
+      "help": "Check your pay stub for \"HSA\", or ask HR. No HSA money may go in for months you have Medicare, including backdated months.",
+      "options": [
+        {
+          "label": "Yes",
+          "value": "yes",
+          "next": "OUT_HSA_WARNING"
+        },
+        {
+          "label": "No",
+          "value": "no",
+          "next": "B_HSA_NEXT"
+        },
+        {
+          "label": "Not sure",
+          "value": "unsure",
+          "next": "OUT_HSA_WARNING"
+        }
+      ]
+    },
+    {
+      "id": "B_HSA_NEXT",
+      "module": "While you're still working",
+      "type": "route",
+      "route": [
+        {
+          "when": [
+            {
+              "var": "part_b",
+              "op": "eq",
+              "value": "yes"
+            }
+          ],
+          "next": "C1"
+        },
+        {
+          "when": [
+            {
+              "var": "part_a",
+              "op": "eq",
+              "value": "yes"
+            }
+          ],
+          "next": "OUT_WORKING_OK"
+        },
+        {
+          "next": "OUT_ENROLL_PARTA"
+        }
+      ]
+    },
+    {
+      "id": "OUT_HSA_WARNING",
+      "module": "While you're still working",
+      "type": "outcome",
+      "title": "HSA contributions and Medicare",
+      "text": "No HSA money may go in for any month you have Medicare. Money put in for those months counts as an excess contribution.",
+      "bullets": [
+        "{{fact:parta_retro}}",
+        "{{fact:hsa_medicare}}"
+      ],
+      "variants": [
+        {
+          "when": [
+            {
+              "var": "part_a",
+              "op": "ne",
+              "value": "yes"
+            }
+          ],
+          "text": "Part A is backdated when you sign up (see below), so this reaches back to months you have already worked. Talk to HR (and a tax adviser) before you sign up."
+        },
+        {
+          "when": [
+            {
+              "var": "part_a",
+              "op": "eq",
+              "value": "yes"
+            }
+          ],
+          "text": "You already have Medicare, so no HSA money may go in now. Ask HR to stop contributions, and ask a tax adviser about removing any excess."
+        },
+        {
+          "when": [
+            {
+              "var": "hsa",
+              "op": "eq",
+              "value": "unsure"
+            }
+          ],
+          "text": "You weren't sure whether HSA money goes in for you. Find out from HR soon."
+        }
+      ],
+      "add_questions": [
+        "Q_HR_HSA"
+      ],
+      "fact_refs": [
+        "parta_retro",
+        "hsa_medicare"
+      ],
+      "next": "B_HSA_NEXT"
+    },
+    {
+      "id": "OUT_ENROLL_PARTA",
+      "module": "While you're still working",
+      "type": "outcome",
+      "title": "Part A (hospital): when to sign up",
+      "text": "Part A (hospital insurance) has no monthly premium for most people with enough work history. {{fact:parta_premium_free}} When you sign up also decides how long your wife can keep COBRA, as explained below.",
+      "bullets": [
+        "{{fact:parta_retro}}",
+        "Part A pays second to your job plan on hospital bills. {{fact:employer_size_20}}",
+        "It can lengthen your wife's COBRA if your Part A start date is less than 18 months before you stop working. {{fact:cobra_36_month_rule}}"
+      ],
+      "add_actions": [
+        "ACT_ASK_HR_PARTA_OK",
+        "ACT_ENROLL_PARTA",
+        "ACT_ENROLL_PARTA_WINDOW"
+      ],
+      "fact_refs": [
+        "parta_premium_free",
+        "parta_retro",
+        "cobra_36_month_rule",
+        "employer_size_20"
+      ],
+      "next": "OUT_WORKING_OK",
+      "variants": [
+        {
+          "when": [
+            {
+              "var": "retire_after_36_cutoff",
+              "op": "ne",
+              "value": true
+            }
+          ],
+          "text": "With a sign-up by {{parta_signup_by}}, your Part A start would be about {{part_a_projected_start}}. If your wife is on your plan, her COBRA could then run to about {{wife_cobra_end_if_parta_now}}, as long as you stop working by {{retire_by_for_36}}. Confirm with your plan administrator."
+        },
+        {
+          "when": [
+            {
+              "var": "retire_after_36_cutoff",
+              "op": "eq",
+              "value": true
+            },
+            {
+              "var": "wife_on_his_plan",
+              "op": "eq",
+              "value": "yes"
+            },
+            {
+              "var": "cobra_gap_months",
+              "op": "gt",
+              "value": 0
+            }
+          ],
+          "text": "You plan to stop working after {{retire_by_for_36}}, so signing up now is too early to lengthen your wife's COBRA. A sign-up between {{parta_signup_earliest_for_36}} and {{parta_signup_latest_for_36}} can lengthen it: the later in that window you sign up, the longer it lasts, up to about {{wife_cobra_end_if_parta_latest}} (instead of {{wife_cobra_end}}) with a sign-up in the month you stop working. Confirm with the plan administrator and Social Security before choosing a month."
+        },
+        {
+          "when": [
+            {
+              "var": "retire_after_36_cutoff",
+              "op": "eq",
+              "value": true
+            },
+            {
+              "var": "wife_on_his_plan",
+              "op": "eq",
+              "value": "yes"
+            },
+            {
+              "var": "cobra_gap_months",
+              "op": "lte",
+              "value": 0
+            }
+          ],
+          "text": "Your wife's regular COBRA already reaches her Medicare start, so when you sign up for Part A doesn't change her coverage."
+        },
+        {
+          "when": [
+            {
+              "var": "retire_after_36_cutoff",
+              "op": "eq",
+              "value": true
+            },
+            {
+              "var": "wife_on_his_plan",
+              "op": "eq",
+              "value": "no"
+            }
+          ],
+          "text": "Your wife isn't on your job plan, so the COBRA timing doesn't apply to her."
+        },
+        {
+          "when": [
+            {
+              "var": "hsa",
+              "op": "in",
+              "value": [
+                "yes",
+                "unsure"
+              ]
+            }
+          ],
+          "text": "If you sign up for Part A, you and your employer must stop HSA contributions from your (backdated) Part A start month until you retire. That is the cost of signing up early."
+        }
+      ],
+      "add_questions": [
+        "Q_SSA_PARTA_START",
+        "Q_HR_PARTA_ENTITLEMENT"
+      ]
+    },
+    {
+      "id": "OUT_WORKING_OK",
+      "module": "While you're still working",
+      "type": "outcome",
+      "title": "While you work: Part B and drug coverage",
+      "text": "When your employer has 20 or more workers, its plan pays first, and you can wait for Part B with no penalty until your job or job coverage ends.",
+      "bullets": [
+        "{{fact:partb_defer_while_working}}",
+        "{{fact:employer_size_20}}",
+        "Keep the yearly 'creditable coverage' letter from your plan. {{fact:creditable_notice}}",
+        "Medicare Open Enrollment does not apply to you unless you already have a Medicare drug or Advantage plan. {{fact:medicare_oep}}"
+      ],
+      "add_actions": [
+        "ACT_GET_CREDITABLE_LETTER",
+        "ACT_HR_QUESTIONS",
+        "ACT_HR_EMPLOYEES"
+      ],
+      "fact_refs": [
+        "partb_defer_while_working",
+        "employer_size_20",
+        "creditable_notice",
+        "medicare_oep"
+      ],
+      "next": "C1",
+      "variants": [
+        {
+          "when": [
+            {
+              "var": "employer_20",
+              "op": "eq",
+              "value": "unsure"
+            }
+          ],
+          "text": "You weren't sure your employer has 20 or more workers. This screen assumes it does. Ask HR this month (on your to-do list)."
+        },
+        {
+          "when": [
+            {
+              "var": "employer_20",
+              "op": "eq",
+              "value": "no"
+            }
+          ],
+          "text": "Your employer has fewer than 20 workers, so this screen probably does not apply to you. See the earlier warning and call NJ SHIP."
+        },
+        {
+          "when": [
+            {
+              "var": "drug_creditable",
+              "op": "eq",
+              "value": "unsure"
+            }
+          ],
+          "text": "You weren't sure your drug coverage is creditable. Get the yearly letter before relying on this screen."
+        },
+        {
+          "when": [
+            {
+              "var": "drug_creditable",
+              "op": "eq",
+              "value": "no"
+            }
+          ],
+          "text": "Your drug coverage may not be creditable. See the earlier warning."
+        }
+      ]
+    },
+    {
+      "id": "C1",
+      "module": "Retiree coverage",
+      "type": "route",
+      "route": [
+        {
+          "when": [
+            {
+              "var": "retiree_cov",
+              "op": "eq",
+              "value": "yes"
+            }
+          ],
+          "next": "OUT_RETIREE_COV"
+        },
+        {
+          "when": [
+            {
+              "var": "retiree_cov",
+              "op": "eq",
+              "value": "unsure"
+            }
+          ],
+          "next": "OUT_ASK_RETIREE"
+        },
+        {
+          "next": "D1"
+        }
+      ]
+    },
+    {
+      "id": "OUT_RETIREE_COV",
+      "module": "Retiree coverage",
+      "type": "outcome",
+      "title": "You have retiree coverage: check it before choosing anything else",
+      "text": "After you retire, Medicare pays first and your retiree plan pays second. Many retiree plans won't pay unless you have both Part A and Part B. Joining an outside Medigap, drug or Advantage plan could cost you (and your wife) the retiree coverage.",
+      "bullets": [
+        "{{fact:retiree_coverage_check}}",
+        "Ask whether retiree coverage includes your wife before she turns 65. That could solve her bridge."
+      ],
+      "add_questions": [
+        "Q_HR_RETIREE_DETAILS"
+      ],
+      "fact_refs": [
+        "retiree_coverage_check"
+      ],
+      "next": "D1"
+    },
+    {
+      "id": "OUT_ASK_RETIREE",
+      "module": "Retiree coverage",
+      "type": "outcome",
+      "title": "Find out about retiree coverage first",
+      "text": "Ask HR whether any retiree health coverage exists. Until you know, this guide assumes there is none. (ASSUMED)",
+      "add_questions": [
+        "Q_HR_RETIREE_DETAILS"
+      ],
+      "next": "D1"
+    },
+    {
+      "id": "D1",
+      "module": "Your wife's coverage",
+      "type": "route",
+      "comment": "Uses computed values bridge_months and wife_cobra_end (SPEC.md).",
+      "route": [
+        {
+          "when": [
+            {
+              "var": "wife_on_his_plan",
+              "op": "eq",
+              "value": "no"
+            }
+          ],
+          "next": "OUT_WIFE_NOT_ON_PLAN"
+        },
+        {
+          "when": [
+            {
+              "var": "bridge_months",
+              "op": "lte",
+              "value": 0
+            }
+          ],
+          "next": "OUT_BRIDGE_NONE"
+        },
+        {
+          "when": [
+            {
+              "var": "cobra_gap_months",
+              "op": "lte",
+              "value": 0
+            }
+          ],
+          "next": "OUT_BRIDGE_COBRA"
+        },
+        {
+          "next": "D2"
+        }
+      ]
+    },
+    {
+      "id": "OUT_WIFE_NOT_ON_PLAN",
+      "module": "Your wife's coverage",
+      "type": "outcome",
+      "title": "Your retirement doesn't change your wife's coverage",
+      "text": "She isn't on your job plan, so nothing ends for her when you retire. Skip to her 65th-birthday steps below.",
+      "next": "OUT_WIFE_AT_65",
+      "variants": [
+        {
+          "when": [
+            {
+              "var": "wife_own_offer",
+              "op": "in",
+              "value": [
+                "no",
+                "unsure"
+              ]
+            }
+          ],
+          "text": "If she has no health coverage now, she can buy a plan through Get Covered NJ during open enrollment. {{fact:gcnj_oe_2027}}"
+        }
+      ],
+      "fact_refs": [
+        "gcnj_oe_2027"
+      ]
+    },
+    {
+      "id": "OUT_BRIDGE_NONE",
+      "module": "Your wife's coverage",
+      "type": "outcome",
+      "title": "No gap for your wife",
+      "text": "Your job coverage lasts until her Medicare starts ({{wife_medicare_start}}). She needs no bridge coverage.",
+      "next": "OUT_WIFE_AT_65",
+      "variants": [
+        {
+          "when": [
+            {
+              "var": "wife_on_medicare_at_retire",
+              "op": "eq",
+              "value": true
+            }
+          ],
+          "text": "She will already be on Medicare when your job coverage ends. Like you, she must sign up for Part B and join a drug plan before your job coverage ends, so she has no gap or penalty. Her Part B can start {{wife_partb_start}}, and her own 6-month Medigap window then runs to {{wife_medigap_window_close}}. {{fact:partb_sep}}"
+        }
+      ],
+      "add_actions": [
+        "ACT_WIFE_PARTB_FILE",
+        "ACT_WIFE_DRUG"
+      ],
+      "fact_refs": [
+        "partb_sep",
+        "medigap_oep",
+        "partd_sep_effective_date"
+      ]
+    },
+    {
+      "id": "OUT_BRIDGE_COBRA",
+      "module": "Your wife's coverage",
+      "type": "outcome",
+      "title": "COBRA can carry your wife to Medicare",
+      "text": "Your coverage ends {{job_cov_end}}. Her Medicare starts {{wife_medicare_start}}: a {{bridge_months}}-month gap. COBRA can cover her up to {{wife_cobra_end}} ({{wife_cobra_rule}}).",
+      "bullets": [
+        "{{fact:cobra_basics}}",
+        "Ask HR for her single-coverage COBRA price now. The COBRA fact above says the most it can cost.",
+        "Compare that price with a Get Covered NJ plan. Losing your job plan opens a special window for her to enroll there. {{fact:gcnj_sep_loss}}",
+        "Choose between COBRA and Get Covered NJ when your job plan ends. If she starts COBRA and drops it early, she can't switch to Get Covered NJ until open enrollment. {{fact:cobra_drop_no_sep}}"
+      ],
+      "add_actions": [
+        "ACT_WIFE_COBRA_ELECT"
+      ],
+      "add_questions": [
+        "Q_HR_COBRA_COST",
+        "Q_HR_COBRA_36"
+      ],
+      "fact_refs": [
+        "cobra_basics",
+        "cobra_36_month_rule",
+        "gcnj_sep_loss",
+        "cobra_drop_no_sep"
+      ],
+      "next": "OUT_WIFE_AT_65"
+    },
+    {
+      "id": "D2",
+      "module": "Your wife's coverage",
+      "type": "question",
+      "var": "bridge_income",
+      "text": "In the years after you retire but before your wife turns 65, what do you expect your total household income to be? Count pensions, IRA withdrawals, investment gains, and ALL Social Security (even the tax-free part).",
+      "help": "These lines are for 2027 coverage. Poverty lines change each year, so the lines for later years will differ. {{fact:fpl_lines_household2}} {{fact:aca_magi_includes_ss}}",
+      "fact_refs": [
+        "fpl_lines_household2",
+        "aca_magi_includes_ss"
+      ],
+      "options": [
+        {
+          "label": "Under {{fact:fpl_lines_household2.value.pct400}}",
+          "value": "under_400",
+          "next": "OUT_BRIDGE_GAP"
+        },
+        {
+          "label": "Between {{fact:fpl_lines_household2.value.pct400}} and {{fact:fpl_lines_household2.value.pct600}}",
+          "value": "400_600",
+          "next": "OUT_BRIDGE_GAP"
+        },
+        {
+          "label": "Over {{fact:fpl_lines_household2.value.pct600}}",
+          "value": "over_600",
+          "next": "OUT_BRIDGE_GAP"
+        },
+        {
+          "label": "Not sure",
+          "value": "unsure",
+          "next": "OUT_BRIDGE_GAP"
+        }
+      ]
+    },
+    {
+      "id": "OUT_BRIDGE_GAP",
+      "module": "Your wife's coverage",
+      "type": "outcome",
+      "title": "Your wife needs about {{cobra_gap_months}} months of coverage after COBRA",
+      "text": "Your coverage ends {{job_cov_end}}. COBRA can cover her until {{wife_cobra_end}}. Her Medicare starts {{wife_medicare_start}}. That leaves {{cobra_gap_months}} months to cover another way.",
+      "variants": [
+        {
+          "when": [
+            {
+              "var": "bridge_income",
+              "op": "eq",
+              "value": "under_400"
+            }
+          ],
+          "text": "At this income she may get both federal and New Jersey help on Get Covered NJ. {{fact:nj_health_plan_savings}}"
+        },
+        {
+          "when": [
+            {
+              "var": "bridge_income",
+              "op": "eq",
+              "value": "400_600"
+            }
+          ],
+          "text": "At this income there is no federal help, but New Jersey's own subsidy may apply. {{fact:federal_ptc_400_cliff}} {{fact:nj_health_plan_savings}}"
+        },
+        {
+          "when": [
+            {
+              "var": "bridge_income",
+              "op": "eq",
+              "value": "over_600"
+            }
+          ],
+          "text": "At this income she pays full price on Get Covered NJ. Compare that with her own employer's plan and with you working a few months longer. {{fact:federal_ptc_400_cliff}}"
+        },
+        {
+          "when": [
+            {
+              "var": "bridge_income",
+              "op": "eq",
+              "value": "unsure"
+            }
+          ],
+          "text": "Her price depends on your income in those years. Below {{fact:fpl_lines_household2.value.pct600}} she may get New Jersey help; below {{fact:fpl_lines_household2.value.pct400}}, federal help too."
+        }
+      ],
+      "bullets": [
+        "Options: (1) work longer so the gap shrinks; (2) her own employer's plan, if offered; (3) Get Covered NJ; (4) a mix: COBRA first, then Get Covered NJ when COBRA runs out.",
+        "If she gets advance tax credits and your income comes in higher than you estimated, you must repay all of the extra. {{fact:ptc_full_repayment}}",
+        "If her own employer offers affordable coverage, she can't get marketplace credits. {{fact:employer_offer_blocks_ptc}}",
+        "Income from Roth conversions, gains and IRA withdrawals in these years raises her marketplace price in the same year.",
+        "If she later leaves her own small employer's plan, New Jersey's state continuation may apply to that plan. {{fact:nj_mini_cobra}}",
+        "Choose between COBRA and Get Covered NJ when your job plan ends. If she starts COBRA and drops it early, she can't switch to Get Covered NJ until open enrollment. {{fact:cobra_drop_no_sep}}"
+      ],
+      "add_actions": [
+        "ACT_WIFE_COBRA_ELECT",
+        "ACT_PRICE_GCNJ",
+        "ACT_WIFE_GCNJ_ENROLL"
+      ],
+      "add_questions": [
+        "Q_HR_COBRA_COST",
+        "Q_HR_COBRA_36"
+      ],
+      "fact_refs": [
+        "federal_ptc_400_cliff",
+        "nj_health_plan_savings",
+        "ptc_full_repayment",
+        "employer_offer_blocks_ptc",
+        "gcnj_sep_loss",
+        "nj_mini_cobra",
+        "fpl_2026",
+        "fpl_lines_household2",
+        "cobra_drop_no_sep"
+      ],
+      "next": "OUT_WIFE_AT_65"
+    },
+    {
+      "id": "OUT_WIFE_AT_65",
+      "module": "Your wife's coverage",
+      "type": "outcome",
+      "title": "When your wife turns 65 ({{wife_medicare_start}})",
+      "text": "Which plan pays first for her at 65 depends on where her coverage comes from.",
+      "bullets": [
+        "If she is on your plan and you are still working at a 20+ employer: your plan pays first, and she can wait for Part B. {{fact:partb_defer_while_working}}",
+        "If her coverage is from her own employer with fewer than 20 workers: Medicare pays first. She should sign up for Parts A and B when first eligible. {{fact:employer_size_20}}",
+        "If she is on COBRA or a marketplace plan: she should sign up for Medicare in her Initial Enrollment Period. {{fact:iep_window}} COBRA does not protect her from the Part B penalty. {{fact:partb_sep}}",
+        "Her own one-time Medigap window starts when her Part B starts. She needs her own policy. {{fact:medigap_needs_ab_no_drugs}}",
+        "Once she is on Medicare, IRMAA applies to her too, and she files her own SSA-44. {{fact:lce_reporter_only}}"
+      ],
+      "add_actions": [
+        "ACT_WIFE_MEDICARE_SIGNUP"
+      ],
+      "fact_refs": [
+        "partb_defer_while_working",
+        "employer_size_20",
+        "partb_sep",
+        "medigap_needs_ab_no_drugs",
+        "lce_reporter_only",
+        "iep_window"
+      ],
+      "next": "E1"
+    },
+    {
+      "id": "E1",
+      "module": "Signing up when you retire",
+      "type": "route",
+      "route": [
+        {
+          "when": [
+            {
+              "var": "part_b",
+              "op": "eq",
+              "value": "yes"
+            }
+          ],
+          "next": "OUT_SIGNUP_HAS_B"
+        },
+        {
+          "next": "OUT_SIGNUP_TIMELINE"
+        }
+      ]
+    },
+    {
+      "id": "OUT_SIGNUP_TIMELINE",
+      "module": "Signing up when you retire",
+      "type": "outcome",
+      "title": "Your Medicare sign-up timeline",
+      "text": "Job coverage ends {{job_cov_end}}. Here is what to do and when.",
+      "timeline": [
+        {
+          "date": "{{partb_file_by}}",
+          "text": "Ask HR to sign Form CMS-L564. Apply for Part B online at SSA or with Form CMS-40B. Ask for Part B to start {{partb_start}}. {{fact:partb_forms}} {{fact:partb_sep_start_date}}"
+        },
+        {
+          "date": "{{ma_window_open}}",
+          "text": "Earliest date to apply for a Medicare Advantage plan, if you choose one. {{fact:ma_window_new_to_b}}"
+        },
+        {
+          "date": "{{drug_enroll_by_no_gap}}",
+          "deadline": true,
+          "text": "Join a Medicare drug plan (or an Advantage plan with drug coverage) by this date so it starts {{partb_start}}, right after your job coverage ends. {{fact:partd_sep_effective_date}}"
+        },
+        {
+          "date": "{{partb_start}}",
+          "text": "Part B starts. Your one-time 6-month Medigap window opens. {{fact:medigap_oep}}"
+        },
+        {
+          "date": "{{drug_enroll_by_no_penalty}}",
+          "deadline": true,
+          "text": "Last day to join a drug plan without a lifetime Part D penalty. Joining after {{drug_enroll_by_no_gap}} still leaves weeks with no drug coverage. {{fact:partd_penalty}}"
+        },
+        {
+          "date": "{{ma_window_close}}",
+          "text": "Your window to join a Medicare Advantage or drug plan closes. {{fact:ma_pd_sep_employer_loss}}"
+        },
+        {
+          "date": "{{medigap_window_close}}",
+          "deadline": true,
+          "text": "Last day to buy Medigap with no health questions. After this, NJ companies can turn you down. {{fact:nj_underwriting_after_window}}"
+        },
+        {
+          "date": "{{partb_sep_end}}",
+          "deadline": true,
+          "text": "Absolute last day of your 8-month Part B window. Missing it means a lifetime penalty and possibly months with no coverage. COBRA does not extend it. {{fact:partb_sep}} {{fact:partb_penalty}} If missed: {{fact:gep}}"
+        }
+      ],
+      "add_actions": [
+        "ACT_PARTB_FILE",
+        "ACT_PLAN_SHOP",
+        "ACT_SSA44",
+        "ACT_ENROLL_DRUG"
+      ],
+      "fact_refs": [
+        "partb_forms",
+        "partb_sep_start_date",
+        "ma_window_new_to_b",
+        "medigap_oep",
+        "partd_penalty",
+        "ma_pd_sep_employer_loss",
+        "nj_underwriting_after_window",
+        "partb_sep",
+        "partb_penalty",
+        "gep",
+        "partd_base_2026",
+        "partd_base_2027",
+        "partd_sep_effective_date"
+      ],
+      "next": "F1"
+    },
+    {
+      "id": "OUT_SIGNUP_HAS_B",
+      "module": "Signing up when you retire",
+      "type": "outcome",
+      "title": "You already have Part B: what changes at retirement",
+      "text": "You don't need to sign up again. Your Medigap window {{medigap_window_status}}.",
+      "bullets": [
+        "Drug coverage: join a Medicare drug or Advantage plan by {{drug_enroll_by_no_gap}} so it starts right after your job coverage ends. The last day to join without a Part D penalty is {{drug_enroll_by_no_penalty}}. {{fact:partd_sep_effective_date}} {{fact:partd_penalty}}",
+        "If your Medigap window has closed, NJ companies can ask health questions. {{fact:nj_underwriting_after_window}} {{fact:gi_primary_plan_not_federal}} {{fact:gi_nj_state_extension}}",
+        "One option to keep a Medigap right: take COBRA for yourself after retiring. Because you already have Medicare, COBRA pays second, and when COBRA ends you get a guaranteed right to buy Medigap. {{fact:gi_after_cobra}} {{fact:cobra_medicare_before_election}} (Cost tradeoff: full COBRA premium. Confirm with NJ SHIP.)",
+        "{{fact:gi_63_days}}"
+      ],
+      "add_actions": [
+        "ACT_PLAN_SHOP",
+        "ACT_SSA44",
+        "ACT_ENROLL_DRUG",
+        "ACT_NJ_GI_CONFIRM"
+      ],
+      "add_questions": [
+        "Q_SHIP_GI_PRIMARY",
+        "Q_SHIP_NJ_GI_PLANS"
+      ],
+      "fact_refs": [
+        "ma_pd_sep_employer_loss",
+        "partd_penalty",
+        "nj_underwriting_after_window",
+        "gi_primary_plan_not_federal",
+        "gi_nj_state_extension",
+        "gi_after_cobra",
+        "cobra_medicare_before_election",
+        "gi_63_days",
+        "partd_sep_effective_date"
+      ],
+      "next": "F1",
+      "variants": [
+        {
+          "when": [
+            {
+              "var": "nj_gi_window_close",
+              "op": "set"
+            }
+          ],
+          "text": "New Jersey's rule appears to give you a guaranteed right to buy some Medigap plans for 63 days after your job plan ends (until about {{nj_gi_window_close}}). Which plans is not confirmed: ask NJ SHIP before you rely on it. {{fact:gi_nj_state_extension}}"
+        }
+      ]
+    },
+    {
+      "id": "F1",
+      "module": "Medigap or Medicare Advantage?",
+      "type": "info",
+      "title": "Two ways to get Medicare",
+      "text": "Way 1: Original Medicare + a Medigap plan (like Plan G) + a drug plan. Any doctor in the U.S. who takes Medicare; higher monthly cost; very few surprise bills. Way 2: Medicare Advantage. A private plan with a network. You still pay the Part B premium, and many plans charge little or nothing on top of it. {{fact:ma_requires_partb}} You pay copays up to a yearly limit (up to {{fig:ma_moop.in_network}} in-network). The next few questions weigh cost, keeping your doctors, and predictable bills equally.",
+      "fact_refs": [
+        "medigap_needs_ab_no_drugs",
+        "ma_moop_2027",
+        "nj_ma_2027_landscape",
+        "medigap_not_with_ma",
+        "ma_requires_partb"
+      ],
+      "next": "F2"
+    },
+    {
+      "id": "F2",
+      "module": "Medigap or Medicare Advantage?",
+      "type": "question",
+      "var": "health_needs",
+      "text": "Do you see a specialist regularly, have an ongoing condition, or expect a surgery in the next few years?",
+      "help": "Your answer stays on this device. It only helps weigh the options.",
+      "options": [
+        {
+          "label": "Yes",
+          "value": "yes",
+          "next": "F3"
+        },
+        {
+          "label": "No",
+          "value": "no",
+          "next": "F3"
+        },
+        {
+          "label": "Prefer not to say",
+          "value": "skip",
+          "next": "F3"
+        }
+      ]
+    },
+    {
+      "id": "F3",
+      "module": "Medigap or Medicare Advantage?",
+      "type": "question",
+      "var": "doctor_choice",
+      "text": "How important is it to see any doctor or hospital that takes Medicare, including big hospitals in New York City or Philadelphia, without referrals?",
+      "options": [
+        {
+          "label": "Very important",
+          "value": "very",
+          "next": "F4"
+        },
+        {
+          "label": "Somewhat",
+          "value": "somewhat",
+          "next": "F4"
+        },
+        {
+          "label": "Not important; I'm fine with a local network",
+          "value": "not",
+          "next": "F4"
+        }
+      ]
+    },
+    {
+      "id": "F4",
+      "module": "Medigap or Medicare Advantage?",
+      "type": "question",
+      "var": "travel",
+      "text": "Do you spend weeks at a time outside New Jersey?",
+      "options": [
+        {
+          "label": "Yes",
+          "value": "yes",
+          "next": "F5"
+        },
+        {
+          "label": "No",
+          "value": "no",
+          "next": "F5"
+        }
+      ]
+    },
+    {
+      "id": "F5",
+      "module": "Medigap or Medicare Advantage?",
+      "type": "question",
+      "var": "predictability",
+      "text": "Which would bother you more?",
+      "options": [
+        {
+          "label": "A higher bill every month, but almost no surprise bills",
+          "value": "fixed",
+          "next": "F6"
+        },
+        {
+          "label": "A low monthly bill, but maybe a few thousand dollars in a bad year",
+          "value": "variable",
+          "next": "F6"
+        }
+      ]
+    },
+    {
+      "id": "F6",
+      "module": "Medigap or Medicare Advantage?",
+      "type": "question",
+      "var": "budget_ok",
+      "text": "In June 2026, Medigap Plan G cost about {{fact:nj_medigap_rates_jun2026.value.plan_g.low}} to {{fact:nj_medigap_rates_jun2026.value.plan_g.high}} a month at age 65 in New Jersey (more at your age), plus a drug plan. Is that affordable for you?",
+      "fact_refs": [
+        "nj_medigap_rates_jun2026"
+      ],
+      "options": [
+        {
+          "label": "Yes",
+          "value": "yes",
+          "next": "F7"
+        },
+        {
+          "label": "No",
+          "value": "no",
+          "next": "F7"
+        }
+      ]
+    },
+    {
+      "id": "F7",
+      "module": "Medigap or Medicare Advantage?",
+      "type": "score",
+      "comment": "Scoring rules in SPEC.md 'Medigap vs Advantage scoring'.",
+      "route": [
+        {
+          "when": [
+            {
+              "var": "medigap_window_open",
+              "op": "eq",
+              "value": "unknown"
+            }
+          ],
+          "next": "OUT_CLOSE_CALL",
+          "add_questions": [
+            "Q_SHIP_GI_PRIMARY"
+          ]
+        },
+        {
+          "when": [
+            {
+              "var": "medigap_window_open",
+              "op": "eq",
+              "value": false
+            },
+            {
+              "var": "gi_right",
+              "op": "eq",
+              "value": false
+            }
+          ],
+          "next": "OUT_NO_MEDIGAP_WINDOW"
+        },
+        {
+          "when": [
+            {
+              "var": "path_score",
+              "op": "gte",
+              "value": 2
+            }
+          ],
+          "next": "OUT_LEAN_MEDIGAP"
+        },
+        {
+          "when": [
+            {
+              "var": "path_score",
+              "op": "lte",
+              "value": -2
+            }
+          ],
+          "next": "OUT_LEAN_MA"
+        },
+        {
+          "next": "OUT_CLOSE_CALL"
+        }
+      ]
+    },
+    {
+      "id": "OUT_LEAN_MEDIGAP",
+      "module": "Medigap or Medicare Advantage?",
+      "type": "outcome",
+      "title": "Your answers lean toward Original Medicare + Medigap",
+      "text": "You put weight on choosing doctors and on predictable bills. The key risk is timing: buy Medigap inside your 6-month window ({{partb_start}} to {{medigap_window_close}}). Leaving Medigap later is easy; getting back in may not be.",
+      "bullets": [
+        "{{fact:medigap_oep}}",
+        "{{fact:nj_underwriting_after_window}}",
+        "You also need a separate drug plan. {{fact:medigap_needs_ab_no_drugs}}"
+      ],
+      "fact_refs": [
+        "medigap_oep",
+        "nj_underwriting_after_window",
+        "medigap_needs_ab_no_drugs"
+      ],
+      "next": "G1",
+      "variants": [
+        {
+          "when": [
+            {
+              "var": "part_b",
+              "op": "eq",
+              "value": "yes"
+            },
+            {
+              "var": "medigap_window_open",
+              "op": "eq",
+              "value": true
+            }
+          ],
+          "text": "Your one-time window is open now, while your job plan still pays first. Buying Medigap now means paying for it about {{months_until_retire}} months before you need it, but it locks in no health questions. Ask NJ SHIP before deciding."
+        }
+      ],
+      "add_questions": [
+        "Q_SHIP_DROP_B"
+      ],
+      "add_actions": [
+        "ACT_MEDIGAP_APPLY",
+        "ACT_MEDIGAP_QUOTES_HAS_B"
+      ]
+    },
+    {
+      "id": "OUT_LEAN_MA",
+      "module": "Medigap or Medicare Advantage?",
+      "type": "outcome",
+      "title": "Your answers lean toward Medicare Advantage",
+      "text": "You put weight on a low monthly cost and are fine with a network. Before you choose, know what is hard to undo: if you skip Medigap now and want it later, NJ companies can ask health questions and say no.",
+      "bullets": [
+        "Worst case in a bad year: up to {{fig:ma_moop.in_network}} in-network for medical care, plus drug costs up to {{fig:partd_limits.oop_cap}}.",
+        "Check that your doctors and hospitals are in the plan's network on Medicare.gov Plan Finder. Networks can change each year.",
+        "{{fact:nj_underwriting_after_window}}",
+        "At your age you would likely have no trial right to switch back to Medigap with guaranteed acceptance, so treat joining Advantage as hard to undo. Ask NJ SHIP (question below). {{fact:ma_trial_right_at_your_age}}",
+        "{{fact:ma_oep}}"
+      ],
+      "add_actions": [
+        "ACT_PLAN_SHOP"
+      ],
+      "fact_refs": [
+        "ma_moop_2027",
+        "partd_limits_2027",
+        "nj_underwriting_after_window",
+        "ma_oep",
+        "ma_trial_right_at_your_age"
+      ],
+      "next": "H1",
+      "add_questions": [
+        "Q_SHIP_TRIAL"
+      ]
+    },
+    {
+      "id": "OUT_CLOSE_CALL",
+      "module": "Medigap or Medicare Advantage?",
+      "type": "outcome",
+      "title": "It's a close call for you",
+      "text": "Your answers point both ways. One fact can break the tie: the Medigap choice is the one that's hard to get back into. Book a free NJ SHIP session and bring your doctor list and prescriptions.",
+      "bullets": [
+        "{{fact:nj_underwriting_after_window}}",
+        "{{fact:nj_ship_contact}}"
+      ],
+      "add_actions": [
+        "ACT_BOOK_SHIP"
+      ],
+      "fact_refs": [
+        "nj_underwriting_after_window",
+        "nj_ship_contact"
+      ],
+      "next": "G1"
+    },
+    {
+      "id": "OUT_NO_MEDIGAP_WINDOW",
+      "module": "Medigap or Medicare Advantage?",
+      "type": "outcome",
+      "title": "Your 6-month Medigap window has passed. A New Jersey right may still apply",
+      "text": "NJ companies can now look at your health and say no or charge more. You can still apply; if a company accepts you, the policy works the same. Otherwise Medicare Advantage is open to you during your enrollment windows.",
+      "bullets": [
+        "{{fact:nj_underwriting_after_window}}",
+        "{{fact:gi_primary_plan_not_federal}}",
+        "{{fact:gi_nj_state_extension}}",
+        "{{fact:gi_after_cobra}}"
+      ],
+      "add_questions": [
+        "Q_SHIP_GI_PRIMARY",
+        "Q_SHIP_NJ_GI_PLANS"
+      ],
+      "add_actions": [
+        "ACT_BOOK_SHIP",
+        "ACT_NJ_GI_CONFIRM"
+      ],
+      "fact_refs": [
+        "nj_underwriting_after_window",
+        "gi_primary_plan_not_federal",
+        "gi_nj_state_extension",
+        "gi_after_cobra"
+      ],
+      "next": "H1",
+      "variants": [
+        {
+          "when": [
+            {
+              "var": "nj_gi_window_close",
+              "op": "set"
+            }
+          ],
+          "text": "New Jersey's rule appears to give you a guaranteed right to buy some Medigap plans for 63 days after your job plan ends (until about {{nj_gi_window_close}}). Which plans is not confirmed: ask NJ SHIP before you rely on it. {{fact:gi_nj_state_extension}}"
+        }
+      ]
+    },
+    {
+      "id": "G1",
+      "module": "Which Medigap plan?",
+      "type": "question",
+      "var": "visits",
+      "text": "In a typical year, how many doctor visits do you have?",
+      "help": "Plans G, N and High-Deductible G all pay big hospital bills the same way. They differ in small, frequent costs.",
+      "fact_refs": [
+        "plan_g_benefits",
+        "plan_n_differences",
+        "hdg_deductible"
+      ],
+      "options": [
+        {
+          "label": "0-4",
+          "value": "few",
+          "next": "G2"
+        },
+        {
+          "label": "5-10",
+          "value": "some",
+          "next": "G2"
+        },
+        {
+          "label": "More than 10",
+          "value": "many",
+          "next": "G2"
+        }
+      ]
+    },
+    {
+      "id": "G2",
+      "module": "Which Medigap plan?",
+      "type": "question",
+      "var": "hd_ok",
+      "text": "If a big medical bill came, could you comfortably pay up to {{fig:hdg_deductible}} yourself before the plan starts paying?",
+      "options": [
+        {
+          "label": "Yes",
+          "value": "yes",
+          "next": "G3"
+        },
+        {
+          "label": "No",
+          "value": "no",
+          "next": "G3"
+        }
+      ]
+    },
+    {
+      "id": "G3",
+      "module": "Which Medigap plan?",
+      "type": "question",
+      "var": "assignment",
+      "text": "Do all your doctors accept Medicare's approved rate as full payment (called 'taking assignment')?",
+      "help": "Ask each office: 'Do you accept Medicare assignment?' If a doctor doesn't, they can bill up to 15% more. Plan G pays that; Plan N doesn't.",
+      "options": [
+        {
+          "label": "Yes",
+          "value": "yes",
+          "next": "G4"
+        },
+        {
+          "label": "No / some don't",
+          "value": "no",
+          "next": "G4"
+        },
+        {
+          "label": "Not sure",
+          "value": "unsure",
+          "next": "G4"
+        }
+      ]
+    },
+    {
+      "id": "G4",
+      "module": "Which Medigap plan?",
+      "type": "route",
+      "route": [
+        {
+          "when": [
+            {
+              "var": "hd_ok",
+              "op": "eq",
+              "value": "yes"
+            },
+            {
+              "var": "visits",
+              "op": "eq",
+              "value": "few"
+            }
+          ],
+          "next": "OUT_PLAN_HDG"
+        },
+        {
+          "when": [
+            {
+              "var": "assignment",
+              "op": "eq",
+              "value": "yes"
+            },
+            {
+              "var": "visits",
+              "op": "in",
+              "value": [
+                "few",
+                "some"
+              ]
+            }
+          ],
+          "next": "OUT_PLAN_N_OR_G"
+        },
+        {
+          "next": "OUT_PLAN_G"
+        }
+      ]
+    },
+    {
+      "id": "OUT_PLAN_G",
+      "module": "Which Medigap plan?",
+      "type": "outcome",
+      "title": "Plan G fits your answers best",
+      "text": "Plan G covers almost everything Original Medicare leaves to you except the Part B deductible ({{fig:partb_deductible}}).",
+      "bullets": [
+        "{{fact:plan_g_benefits}}",
+        "{{fact:plans_cf_closed}}",
+        "Every company's Plan G has the same benefits. Shop on price and on how fast the price has risen. {{fact:nj_premium_changes}}"
+      ],
+      "calculator": "MEDIGAP_COMPARE",
+      "add_actions": [
+        "ACT_MEDIGAP_QUOTES",
+        "ACT_MEDIGAP_APPLY",
+        "ACT_MEDIGAP_QUOTES_HAS_B"
+      ],
+      "add_questions": [
+        "Q_SHIP_PRICING"
+      ],
+      "fact_refs": [
+        "plan_g_benefits",
+        "plans_cf_closed",
+        "nj_premium_changes",
+        "partb_deductible_2026",
+        "parta_deductible_2026"
+      ],
+      "next": "H1"
+    },
+    {
+      "id": "OUT_PLAN_N_OR_G",
+      "module": "Which Medigap plan?",
+      "type": "outcome",
+      "title": "Plan N could save money; compare it with Plan G",
+      "text": "Plan N costs less each month. You pay small copays and any excess charges. Enter real quotes below to see which costs less for your number of visits.",
+      "bullets": [
+        "{{fact:plan_n_differences}}",
+        "{{fact:plan_g_benefits}}"
+      ],
+      "calculator": "MEDIGAP_COMPARE",
+      "add_actions": [
+        "ACT_MEDIGAP_QUOTES",
+        "ACT_MEDIGAP_APPLY",
+        "ACT_MEDIGAP_QUOTES_HAS_B"
+      ],
+      "fact_refs": [
+        "plan_n_differences",
+        "plan_g_benefits"
+      ],
+      "next": "H1"
+    },
+    {
+      "id": "OUT_PLAN_HDG",
+      "module": "Which Medigap plan?",
+      "type": "outcome",
+      "title": "High-Deductible Plan G could save money",
+      "text": "Its premium is much lower ({{fact:nj_medigap_rates_jun2026.value.hd_plan_g.low}} to {{fact:nj_medigap_rates_jun2026.value.hd_plan_g.high}} a month at 65). You pay the first {{fig:hdg_deductible}} each year yourself, then it works like Plan G.",
+      "bullets": [
+        "{{fact:hdg_deductible}}",
+        "Compare: yearly premium savings vs. the deductible you might pay in a bad year."
+      ],
+      "calculator": "MEDIGAP_COMPARE",
+      "add_actions": [
+        "ACT_MEDIGAP_QUOTES",
+        "ACT_MEDIGAP_APPLY",
+        "ACT_MEDIGAP_QUOTES_HAS_B"
+      ],
+      "fact_refs": [
+        "hdg_deductible",
+        "nj_medigap_rates_jun2026"
+      ],
+      "next": "H1"
+    },
+    {
+      "id": "H1",
+      "module": "Income-based premiums (IRMAA)",
+      "type": "calculator",
+      "calculator": "IRMAA",
+      "title": "Will your income raise your Medicare premiums?",
+      "text": "Medicare charges more when income is high. It uses an earlier year's tax return, so your last full-salary years can raise your first Medicare premiums. {{fact:irmaa_lookback}} Enter your expected joint income for each tax year.",
+      "fact_refs": [
+        "irmaa_table_2026",
+        "irmaa_lookback",
+        "irmaa_magi_definition",
+        "irmaa_per_person",
+        "partb_2027_status",
+        "irmaa_tier_steps"
+      ],
+      "next": "H2"
+    },
+    {
+      "id": "H2",
+      "module": "Income-based premiums (IRMAA)",
+      "type": "outcome",
+      "title": "How to lower those surcharges",
+      "text": "Retiring is a 'work stoppage', one of the 8 events that let you ask Social Security to use your newer, lower income.",
+      "bullets": [
+        "{{fact:lce_list}}",
+        "{{fact:lce_attestation}}",
+        "{{fact:lce_effective}}",
+        "{{fact:lce_nonqualifying}} So in the years that set your premiums, large Roth conversions or sales with big gains can't be appealed.",
+        "{{fact:lce_spouse_event}} {{fact:lce_reporter_only}}",
+        "{{fact:ssa44_form}}",
+        "Social Security timing: waiting past full retirement age raises your check (see source) and keeps it out of your income for now. Once you start it, the taxable part counts toward IRMAA income and all of it counts toward your wife's marketplace income. {{fact:ss_delayed_credits}} {{fact:aca_magi_includes_ss}}"
+      ],
+      "add_actions": [
+        "ACT_SSA44"
+      ],
+      "fact_refs": [
+        "lce_list",
+        "lce_attestation",
+        "lce_effective",
+        "lce_nonqualifying",
+        "lce_spouse_event",
+        "lce_reporter_only",
+        "ssa44_form",
+        "ss_delayed_credits",
+        "aca_magi_includes_ss"
+      ],
+      "next": "I1"
+    },
+    {
+      "id": "I1",
+      "module": "Your plan",
+      "type": "summary",
+      "title": "Your dated to-do list and questions",
+      "text": "Print or save this page. Bring it to HR, Social Security and NJ SHIP. Dates are based on your answers; change an answer to see them update.",
+      "renders": [
+        "actions",
+        "questions",
+        "sources",
+        "open_items"
+      ]
+    }
+  ],
+  "actions": {
+    "ACT_GET_CREDITABLE_LETTER": {
+      "when_text": "Now",
+      "date_rule": "today",
+      "text": "Get this year's 'creditable prescription drug coverage' letter from your plan and keep it. Do this before relying on this guide's drug-plan timing.",
+      "fact_refs": [
+        "creditable_notice"
+      ]
+    },
+    "ACT_HR_QUESTIONS": {
+      "when_text": "Next 30 days",
+      "date_rule": "today+30d",
+      "text": "Ask HR the questions on the HR list below.",
+      "fact_refs": []
+    },
+    "ACT_ASK_HR_PARTA_OK": {
+      "when_text": "Next 2 weeks, before signing up for Part A",
+      "date_rule": "today+14d",
+      "text": "Confirm with HR that having Part A doesn't change your job plan.",
+      "fact_refs": []
+    },
+    "ACT_ENROLL_PARTA": {
+      "when_text": "By {{parta_signup_by}}, after HR confirms",
+      "date_rule": "parta_signup_by",
+      "text": "Sign up for Part A only at ssa.gov/medicare/sign-up. Note the start date on your card.",
+      "fact_refs": [
+        "parta_retro"
+      ],
+      "when": [
+        {
+          "var": "retire_after_36_cutoff",
+          "op": "ne",
+          "value": true
+        }
+      ]
+    },
+    "ACT_SHIP_PARTB_ALREADY": {
+      "when_text": "Next 60 days",
+      "date_rule": "today+60d",
+      "text": "Call NJ SHIP about keeping or dropping Part B while working, and about your Medigap rights at retirement.",
+      "fact_refs": [
+        "nj_ship_contact"
+      ]
+    },
+    "ACT_BOOK_SHIP": {
+      "when_text": "6 months before retiring",
+      "date_rule": "job_cov_end-6m",
+      "text": "Book a free NJ SHIP session. Bring your doctor list and prescriptions.",
+      "fact_refs": [
+        "nj_ship_contact"
+      ]
+    },
+    "ACT_PARTB_FILE": {
+      "when_text": "By {{partb_file_by}}",
+      "date_rule": "partb_file_by",
+      "text": "Get Form CMS-L564 signed by HR. Apply for Part B (online at SSA or Form CMS-40B) with a start date of {{partb_start}}.",
+      "fact_refs": [
+        "partb_forms",
+        "partb_sep_start_date",
+        "partb_signup_lead_time"
+      ]
+    },
+    "ACT_PLAN_SHOP": {
+      "when_text": "2-3 months before coverage ends",
+      "date_rule": "job_cov_end-75d",
+      "text": "Compare drug plans (and Advantage plans, if considering) on Medicare.gov Plan Finder with your exact prescriptions.",
+      "fact_refs": [
+        "ma_window_new_to_b"
+      ]
+    },
+    "ACT_MEDIGAP_QUOTES": {
+      "when_text": "2 months before Part B starts",
+      "date_rule": "partb_start-60d",
+      "text": "Get Medigap quotes at your age from several NJ companies. Ask how each prices by age and its recent increases. Apply so the policy starts with Part B.",
+      "fact_refs": [
+        "nj_medigap_rates_jun2026",
+        "nj_premium_changes",
+        "medigap_oep"
+      ],
+      "when": [
+        {
+          "var": "part_b",
+          "op": "ne",
+          "value": "yes"
+        }
+      ]
+    },
+    "ACT_SSA44": {
+      "when_text": "After your last day of work: when the IRMAA letter arrives, or in January of your first Medicare year",
+      "date_rule": "ssa44_date",
+      "text": "File Form SSA-44 for 'work stoppage' with an estimate of this year's and next year's income. Repeat for the second year if needed.",
+      "fact_refs": [
+        "ssa44_form",
+        "lce_effective"
+      ]
+    },
+    "ACT_WIFE_COBRA_ELECT": {
+      "when_text": "About 60 days after your coverage ends (the COBRA notice gives the exact deadline)",
+      "date_rule": "job_cov_end+60d",
+      "text": "Your wife elects COBRA (or enrolls in another plan) so she has no gap.",
+      "fact_refs": [
+        "cobra_basics"
+      ]
+    },
+    "ACT_PRICE_GCNJ": {
+      "when_text": "During Get Covered NJ open enrollment before you retire",
+      "date_rule": "gcnj_oe_before_retire",
+      "text": "Use Get Covered NJ's Shop and Compare tool to price plans for your wife at her age and your expected income.",
+      "fact_refs": [
+        "gcnj_oe_2027"
+      ]
+    },
+    "ACT_WIFE_GCNJ_ENROLL": {
+      "when_text": "Within 60 days before or after her COBRA ends",
+      "date_rule": "wife_cobra_end-30d",
+      "text": "Your wife enrolls in a Get Covered NJ plan.",
+      "fact_refs": [
+        "gcnj_sep_loss"
+      ]
+    },
+    "ACT_WIFE_MEDICARE_SIGNUP": {
+      "when_text": "3 months before her 65th birthday month",
+      "date_rule": "wife_medicare_start-3m",
+      "text": "Your wife signs up for Medicare Parts A and B (unless she is still on your job plan while you work), then picks Medigap + drug plan or Advantage in her own windows.",
+      "fact_refs": [
+        "partb_sep",
+        "medigap_oep",
+        "iep_window"
+      ]
+    },
+    "ACT_ENROLL_PARTA_WINDOW": {
+      "when": [
+        {
+          "var": "retire_after_36_cutoff",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "when_text": "Between {{parta_signup_earliest_for_36}} and {{parta_signup_latest_for_36}}",
+      "date_rule": "parta_signup_earliest_for_36",
+      "text": "Sign up for Part A only, at ssa.gov/medicare/sign-up, in this window if you want your wife's COBRA to last longer: the later in the window, the longer it lasts. If her regular COBRA already reaches her Medicare start, the month doesn't matter for her. Confirm with the plan administrator first, and note the start date on your card.",
+      "fact_refs": [
+        "parta_retro",
+        "cobra_36_month_rule"
+      ]
+    },
+    "ACT_MEDIGAP_APPLY": {
+      "when": [
+        {
+          "var": "part_b",
+          "op": "ne",
+          "value": "yes"
+        }
+      ],
+      "when_text": "About a month before Part B starts",
+      "date_rule": "partb_start-30d",
+      "text": "Apply for your Medigap policy so it starts {{partb_start}}, the day your Part B starts.",
+      "fact_refs": [
+        "medigap_oep"
+      ]
+    },
+    "ACT_MEDIGAP_QUOTES_HAS_B": {
+      "when": [
+        {
+          "var": "part_b",
+          "op": "eq",
+          "value": "yes"
+        },
+        {
+          "var": "medigap_window_open",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "when_text": "At least 2 months before your Medigap window closes ({{medigap_window_close}})",
+      "date_rule": "medigap_window_close-60d",
+      "text": "After talking with NJ SHIP, get Medigap quotes from several NJ companies and decide before your window closes.",
+      "fact_refs": [
+        "medigap_oep",
+        "nj_premium_changes"
+      ]
+    },
+    "ACT_ENROLL_DRUG": {
+      "when_text": "By {{drug_enroll_by_no_gap}}",
+      "date_rule": "drug_enroll_by_no_gap",
+      "text": "Join a Medicare drug plan (or an Advantage plan with drug coverage) so it starts right after your job coverage ends ({{job_cov_end}} is the last day). Join no later than {{drug_enroll_by_no_penalty}}, or a lifetime Part D penalty applies.",
+      "fact_refs": [
+        "partd_sep_effective_date",
+        "partd_penalty"
+      ]
+    },
+    "ACT_NJ_GI_CONFIRM": {
+      "when": [
+        {
+          "var": "nj_gi_window_close",
+          "op": "set"
+        }
+      ],
+      "when_text": "3 months before your job coverage ends",
+      "date_rule": "job_cov_end-90d",
+      "text": "Ask NJ SHIP which Medigap plans New Jersey's 63-day right lets you buy when your job plan ends (until about {{nj_gi_window_close}}).",
+      "fact_refs": [
+        "gi_nj_state_extension",
+        "nj_ship_contact"
+      ]
+    },
+    "ACT_WIFE_PARTB_FILE": {
+      "when": [
+        {
+          "var": "wife_on_medicare_at_retire",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "when_text": "By {{wife_partb_file_by}}",
+      "date_rule": "wife_partb_file_by",
+      "text": "Your wife applies for Part B (Form CMS-40B, with her own CMS-L564 signed by your HR) with a start date of {{wife_partb_start}}.",
+      "fact_refs": [
+        "partb_forms",
+        "partb_sep_start_date"
+      ]
+    },
+    "ACT_WIFE_DRUG": {
+      "when": [
+        {
+          "var": "wife_on_medicare_at_retire",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "when_text": "By {{drug_enroll_by_no_gap}}",
+      "date_rule": "drug_enroll_by_no_gap",
+      "text": "Your wife joins her own Medicare drug plan (or an Advantage plan with drug coverage) so it starts right after your job coverage ends.",
+      "fact_refs": [
+        "partd_sep_effective_date"
+      ]
+    },
+    "ACT_SHIP_NOW": {
+      "when_text": "This week",
+      "date_rule": "today+7d",
+      "text": "Call NJ SHIP: with fewer than 20 employees, Medicare may already pay first for you.",
+      "fact_refs": [
+        "nj_ship_contact",
+        "employer_size_20"
+      ]
+    },
+    "ACT_SHIP_DRUG_NOW": {
+      "when_text": "Next 2 weeks",
+      "date_rule": "today+14d",
+      "text": "Ask NJ SHIP whether your drug coverage counts as creditable, and when you can join a Medicare drug plan.",
+      "fact_refs": [
+        "creditable_notice",
+        "nj_ship_contact"
+      ]
+    },
+    "ACT_HR_EMPLOYEES": {
+      "when": [
+        {
+          "var": "employer_20",
+          "op": "eq",
+          "value": "unsure"
+        }
+      ],
+      "when_text": "Next 30 days",
+      "date_rule": "today+30d",
+      "text": "Ask HR how many employees the company counts for Medicare, and whether its plan pays before Medicare for you.",
+      "fact_refs": [
+        "employer_size_20"
+      ]
+    }
+  },
+  "questions": {
+    "Q_HR_EMPLOYEES": {
+      "to": "HR",
+      "text": "How many employees does the company count for Medicare purposes? Does our plan pay before Medicare for me?"
+    },
+    "Q_HR_CREDITABLE": {
+      "to": "HR",
+      "text": "Can I have the written notice that our drug coverage is creditable?"
+    },
+    "Q_HR_RETIREE_DETAILS": {
+      "to": "HR",
+      "text": "Is there retiree medical coverage for me and my wife? Does it require Parts A and B? Would joining Medigap, a drug plan or Medicare Advantage end it?"
+    },
+    "Q_HR_COVERAGE_END": {
+      "to": "HR",
+      "text": "If my last day is in a given month, on what exact date does my health coverage end?"
+    },
+    "Q_HR_COBRA_COST": {
+      "to": "HR",
+      "text": "What will COBRA cost per month for my wife alone?"
+    },
+    "Q_HR_COBRA_36": {
+      "to": "HR",
+      "text": "If my Part A start (entitlement) date is {{his_entitlement}}, how long can my wife keep COBRA? Please confirm the 36-month rule in writing.",
+      "when": [
+        {
+          "var": "cobra36_eligible",
+          "op": "eq",
+          "value": true
+        }
+      ]
+    },
+    "Q_HR_L564": {
+      "to": "HR",
+      "text": "Who signs Form CMS-L564 for me, and how long does it take?"
+    },
+    "Q_HR_PAYOUTS": {
+      "to": "HR",
+      "text": "Can severance, bonus or unused-vacation pay be paid in a particular tax year?"
+    },
+    "Q_SHIP_TIMING": {
+      "to": "NJ SHIP",
+      "text": "Given my Part A and B status, on what date should my Part B start?"
+    },
+    "Q_SHIP_GI_PRIMARY": {
+      "to": "NJ SHIP",
+      "text": "My Medigap window has passed. Does New Jersey give me a guaranteed right to buy Medigap when my job plan (which pays before Medicare) ends? Would taking COBRA first give me that right when COBRA ends?"
+    },
+    "Q_SHIP_DROP_B": {
+      "to": "NJ SHIP",
+      "text": "Should I keep Part B while I'm still working, or drop it and re-enroll at retirement?",
+      "when": [
+        {
+          "var": "part_b",
+          "op": "eq",
+          "value": "yes"
+        }
+      ]
+    },
+    "Q_SHIP_PRICING": {
+      "to": "NJ SHIP",
+      "text": "Which NJ Medigap companies raise prices with age, and what were their recent rate increases?"
+    },
+    "Q_SHIP_TRIAL": {
+      "to": "NJ SHIP",
+      "text": "If I try Medicare Advantage first at my age, do I have any right to switch back to Medigap later?"
+    },
+    "Q_SHIP_NETWORK": {
+      "to": "NJ SHIP",
+      "text": "Which Advantage plans include my doctors and hospitals?"
+    },
+    "Q_SSA_STATUS": {
+      "to": "Social Security",
+      "text": "What is my Part A start (entitlement) date? Am I enrolled in Part B?"
+    },
+    "Q_SSA_SEP": {
+      "to": "Social Security",
+      "text": "If I file for Part B before my last day of work, can it start the first day after my job coverage ends?"
+    },
+    "Q_SSA_44": {
+      "to": "Social Security",
+      "text": "What proof of work stoppage do you want with Form SSA-44? Can I file before I receive an IRMAA notice?"
+    },
+    "Q_SSA_SPOUSE_LCE": {
+      "to": "Social Security",
+      "text": "Can my wife's retirement count as my life-changing event?"
+    },
+    "Q_SSA_CLAIMING": {
+      "to": "Social Security",
+      "text": "If I start Social Security now, how will Part B and IRMAA be taken from my check?"
+    },
+    "Q_HR_HSA": {
+      "to": "HR",
+      "text": "Do I or the company put money into an HSA for me? When can those contributions stop, so none go in for the months my Part A will be backdated?"
+    },
+    "Q_SSA_PARTA_START": {
+      "to": "Social Security",
+      "when": [
+        {
+          "var": "retire_after_36_cutoff",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "text": "If I apply for Part A only, what start date will my card show? If I apply in the month of {{parta_signup_latest_for_36}} instead of now, what start date would I get?"
+    },
+    "Q_HR_PARTA_ENTITLEMENT": {
+      "to": "HR",
+      "when": [
+        {
+          "var": "retire_after_36_cutoff",
+          "op": "eq",
+          "value": true
+        }
+      ],
+      "text": "Does the plan count my backdated Part A start date as my Medicare entitlement date for my wife's 36-month COBRA rule?"
+    },
+    "Q_SHIP_NJ_GI_PLANS": {
+      "to": "NJ SHIP",
+      "when": [
+        {
+          "var": "nj_gi_window_close",
+          "op": "set"
+        }
+      ],
+      "text": "Which Medigap plans does New Jersey's guaranteed right let me buy when I leave my job plan, and does it include Plan G?"
+    }
+  },
+  "always_include_questions": [
+    "Q_HR_EMPLOYEES",
+    "Q_HR_CREDITABLE",
+    "Q_HR_COVERAGE_END",
+    "Q_HR_L564",
+    "Q_HR_PAYOUTS",
+    "Q_SHIP_TIMING",
+    "Q_SHIP_TRIAL",
+    "Q_SHIP_NETWORK",
+    "Q_SSA_STATUS",
+    "Q_SSA_SEP",
+    "Q_SSA_44",
+    "Q_SSA_SPOUSE_LCE",
+    "Q_SSA_CLAIMING"
+  ],
+  "glossary": {
+    "part_a": {
+      "term": "Part A",
+      "text": "Hospital insurance: hospital stays, skilled nursing after a hospital stay, hospice.",
+      "fact": "parta_premium_free"
+    },
+    "part_b": {
+      "term": "Part B",
+      "text": "Medical insurance: doctors, outpatient care, tests and equipment. It has a monthly premium.",
+      "fact": "partb_premium_2026"
+    },
+    "part_d": {
+      "term": "Part D",
+      "text": "Prescription drug coverage, sold by private plans.",
+      "fact": "partd_penalty"
+    },
+    "medigap": {
+      "term": "Medigap",
+      "text": "A private policy that pays most of what Original Medicare (Parts A and B) leaves for you to pay. Plans have letters, like G and N.",
+      "fact": "medigap_oep"
+    },
+    "medicare_advantage": {
+      "term": "Medicare Advantage",
+      "text": "A private plan that replaces Original Medicare, usually with a network of doctors and copays up to a yearly limit.",
+      "fact": "ma_moop_2027"
+    },
+    "irmaa": {
+      "term": "IRMAA",
+      "text": "An extra amount added to Part B and Part D premiums when income is above a set level.",
+      "fact": "irmaa_table_2026"
+    },
+    "cobra": {
+      "term": "COBRA",
+      "text": "A way to keep a job health plan for a limited time after it would end, usually at full price.",
+      "fact": "cobra_basics"
+    },
+    "creditable_coverage": {
+      "term": "creditable coverage",
+      "text": "Drug coverage that is expected to pay at least as much as standard Medicare drug coverage.",
+      "fact": "creditable_notice"
+    },
+    "guaranteed_issue": {
+      "term": "guaranteed issue",
+      "text": "A situation where a company must sell you a Medigap policy without looking at your health.",
+      "fact": "gi_63_days"
+    },
+    "take_assignment": {
+      "term": "take assignment",
+      "text": "A doctor who takes assignment accepts Medicare's approved amount as full payment.",
+      "fact": "plan_g_benefits"
+    },
+    "ship": {
+      "term": "SHIP",
+      "text": "New Jersey's State Health Insurance Assistance Program: free, unbiased Medicare counseling.",
+      "fact": "nj_ship_contact"
+    }
+  },
+  "open_items": [
+    {
+      "text": "Official 2027 Part B premium and IRMAA brackets (CMS, expected mid-November 2026).",
+      "fact_refs": [
+        "partb_2027_status"
+      ]
+    },
+    {
+      "text": "Your Part A start date (Social Security). It decides how long your wife can keep COBRA.",
+      "fact_refs": [
+        "cobra_36_month_rule"
+      ]
+    },
+    {
+      "text": "The exact date your job coverage ends (HR).",
+      "fact_refs": [
+        "his_coverage_end_assumption"
+      ]
+    },
+    {
+      "text": "Which Medigap plans New Jersey's 63-day right covers today, and whether the rule is still current (NJ SHIP or NJ DOBI).",
+      "fact_refs": [
+        "gi_nj_state_extension"
+      ]
+    },
+    {
+      "text": "Whether a first-time Advantage enrollee at your age has any trial right (NJ SHIP).",
+      "fact_refs": [
+        "ma_trial_right_at_your_age"
+      ]
+    },
+    {
+      "text": "Your wife's COBRA price and her own employer's plan cost (HR; her employer).",
+      "fact_refs": []
+    },
+    {
+      "text": "Whether Congress changes marketplace subsidies for 2027-2029.",
+      "fact_refs": [
+        "federal_ptc_400_cliff"
+      ]
+    }
+  ],
+  "key_deadlines": [
+    {
+      "var": "job_cov_end",
+      "text": "Your job health coverage ends"
+    },
+    {
+      "var": "partb_file_by",
+      "text": "Apply for Part B (with HR's signed CMS-L564)"
+    },
+    {
+      "var": "partb_start",
+      "when": [
+        {
+          "var": "part_b",
+          "op": "ne",
+          "value": "yes"
+        }
+      ],
+      "text": "Your Part B starts; your 6-month Medigap window opens"
+    },
+    {
+      "var": "drug_enroll_by_no_gap",
+      "deadline": true,
+      "text": "Join a drug plan by this date for no gap in drug coverage"
+    },
+    {
+      "var": "drug_enroll_by_no_penalty",
+      "deadline": true,
+      "text": "Last day to join a drug plan without a Part D penalty"
+    },
+    {
+      "var": "medigap_window_close",
+      "deadline": true,
+      "text": "Your Medigap window closes (after this, companies can ask health questions)",
+      "when": [
+        {
+          "var": "medigap_window_open",
+          "op": "ne",
+          "value": false
+        }
+      ]
+    },
+    {
+      "var": "partb_sep_end",
+      "deadline": true,
+      "when": [
+        {
+          "var": "part_b",
+          "op": "ne",
+          "value": "yes"
+        }
+      ],
+      "text": "Last day of your 8-month Part B window"
+    },
+    {
+      "var": "nj_gi_window_close",
+      "deadline": true,
+      "text": "New Jersey's 63-day Medigap right ends (confirm with NJ SHIP)"
+    },
+    {
+      "var": "wife_partb_file_by",
+      "text": "Your wife applies for Part B"
+    },
+    {
+      "var": "wife_cobra_end",
+      "when": [
+        {
+          "var": "wife_on_his_plan",
+          "op": "eq",
+          "value": "yes"
+        },
+        {
+          "var": "wife_on_medicare_at_retire",
+          "op": "eq",
+          "value": false
+        }
+      ],
+      "text": "Your wife's COBRA can last until"
+    },
+    {
+      "var": "wife_medicare_start",
+      "text": "Your wife's Medicare starts"
+    },
+    {
+      "var": "wife_medigap_window_close",
+      "deadline": true,
+      "text": "Your wife's Medigap window closes"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+node_modules/
+*.log
+.claude/
+inputs/
+CLAUDE_CODE_PROMPT.md
+review/
+REVIEW_FINDINGS.md

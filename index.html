@@ -1,0 +1,1624 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<title>Medicare Decision Guide</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --fg: #111111;
+  --muted: #3d3d3d;
+  --line: #8a8a8a;
+  --panel: #f3f4f6;
+  --accent: #0b4f8a;
+  --accent-fg: #ffffff;
+  --accent-soft: #e3eef8;
+  --focus: #b35c00;
+  --danger: #a3161a;
+  --v-bg: #e6e6e6; --v-fg: #1a1a1a;
+  --u-bg: #ffe08a; --u-fg: #4a3000;
+  --i-bg: #cfe3ff; --i-fg: #0a3466;
+  --a-bg: #ffd2d2; --a-fg: #7a0000;
+  --p-bg: #d9d9d9; --p-fg: #333333;
+  --warn-bg: #fff4d6; --warn-line: #8a5a00; --warn-fg: #4a3000;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121212; --fg: #f2f2f2; --muted: #d0d0d0; --line: #8f8f8f; --panel: #1f2328;
+    --accent: #7fb8ff; --accent-fg: #0b0b0b; --accent-soft: #15314f; --focus: #ffb35c; --danger: #ff8a8a;
+    --v-bg: #3a3a3a; --v-fg: #f2f2f2; --u-bg: #6b5200; --u-fg: #fff3c4; --i-bg: #143d6b; --i-fg: #dcebff;
+    --a-bg: #6b1414; --a-fg: #ffe0e0; --p-bg: #444; --p-fg: #eee; --warn-bg: #3a2f10; --warn-line: #e0b34c; --warn-fg: #fff3c4;
+  }
+}
+* { box-sizing: border-box; }
+html { font-size: 20px; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.55; }
+main, .top, .tools, .footer { max-width: 46rem; margin: 0 auto; padding: 0 16px; }
+main { padding-bottom: 1rem; outline: none; }
+h1 { font-size: 1.5rem; line-height: 1.3; margin: 0.8rem 0 0.4rem; }
+h1:focus { outline: none; }
+h2 { font-size: 1.2rem; margin: 1.4rem 0 0.5rem; }
+p, li { max-width: 70ch; }
+a { color: var(--accent); }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.skip { position: absolute; left: -999px; }
+.skip:focus { left: 16px; top: 8px; background: var(--bg); padding: 8px; z-index: 5; }
+.top { padding-top: 0.6rem; border-bottom: 2px solid var(--line); }
+.brand { margin: 0; font-weight: 700; }
+.unofficial { font-weight: 400; color: var(--muted); }
+.progress-line { margin: 0.3rem 0 0.5rem; color: var(--muted); }
+.bar { height: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 5px; overflow: hidden; margin-bottom: 0.6rem; }
+.bar > span { display: block; height: 100%; background: var(--accent); }
+button, .btn { font: inherit; min-height: 48px; padding: 0.5rem 1.1rem; border-radius: 8px; border: 2px solid var(--accent); background: var(--accent); color: var(--accent-fg); cursor: pointer; }
+button.secondary { background: var(--bg); color: var(--accent); }
+button.tertiary { background: none; border-color: transparent; color: var(--muted); text-decoration: underline; padding: 0.5rem 0.4rem; }
+button.danger { background: var(--danger); border-color: var(--danger); color: var(--bg); }
+button.option { display: block; width: 100%; text-align: left; margin: 0.5rem 0; background: var(--bg); color: var(--fg); border-color: var(--line); }
+button.option[aria-pressed="true"] { border-color: var(--accent); border-width: 3px; background: var(--accent-soft); font-weight: 700; }
+button.option:hover { border-color: var(--accent); }
+.nav { display: flex; gap: 0.8rem; flex-wrap: wrap; margin: 1.2rem 0; }
+/* Fact and estimate marks: at least 16px text and a 44px tap area (the ::after extends the hit box). */
+.badge { font: inherit; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.02em; min-height: 0; padding: 0.1rem 0.45rem; border-radius: 4px; border: 1px solid currentColor; vertical-align: 0.05em; margin: 0 0.2rem; position: relative; }
+.badge::after { content: ""; position: absolute; inset: -10px -4px; }
+.badge.VERIFIED { background: var(--v-bg); color: var(--v-fg); }
+.badge.UNVERIFIED { background: var(--u-bg); color: var(--u-fg); }
+.badge.INFERRED { background: var(--i-bg); color: var(--i-fg); }
+.badge.ASSUMED { background: var(--a-bg); color: var(--a-fg); }
+.badge.PENDING { background: var(--p-bg); color: var(--p-fg); }
+span.badge::after { content: none; }
+.src { font-size: 0.8rem; margin-right: 0.2rem; display: inline-block; padding: 0.55rem 0.1rem; margin-block: -0.55rem; }
+.stale { font-size: 0.9rem; color: var(--warn-fg); background: var(--warn-bg); border: 1px solid var(--warn-line); padding: 0 0.3rem; border-radius: 4px; }
+.heading-marks { margin: 0 0 0.8rem; font-size: 0.85rem; color: var(--muted); line-height: 2.2; }
+.mark-label { font-weight: 600; color: var(--fg); }
+.gloss { font: inherit; background: none; border: none; padding: 0; min-height: 0; color: inherit; text-decoration: underline dotted 2px; text-underline-offset: 3px; cursor: help; position: relative; }
+.gloss::after { content: ""; position: absolute; inset: -10px 0; }
+details { margin: 0.8rem 0; }
+summary { cursor: pointer; min-height: 48px; display: flex; align-items: center; color: var(--accent); font-weight: 600; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 0.6rem 1rem; margin: 1rem 0; }
+.warn { background: var(--warn-bg); border: 2px solid var(--warn-line); border-radius: 8px; padding: 0.6rem 1rem; margin: 1rem 0; }
+.small { font-size: 0.85rem; color: var(--muted); }
+.timeline { list-style: none; padding: 0; }
+.timeline li { border-left: 4px solid var(--accent); padding: 0.2rem 0 0.8rem 0.8rem; }
+.timeline li.deadline { border-left-color: var(--danger); }
+.timeline .when { font-weight: 700; display: block; }
+.timeline li.deadline .when::before { content: "Deadline: "; color: var(--danger); }
+label.field { display: block; margin: 0.8rem 0 0.2rem; font-weight: 600; }
+select, input[type="number"], input[type="text"] { font: inherit; min-height: 48px; padding: 0.3rem 0.5rem; border: 2px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); max-width: 100%; }
+.row { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: end; }
+.row > div { display: flex; flex-direction: column; min-width: 0; }
+.error { color: var(--a-fg); background: var(--a-bg); padding: 0.3rem 0.6rem; border-radius: 6px; }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+th, td { border: 1px solid var(--line); padding: 0.35rem 0.5rem; text-align: left; vertical-align: top; }
+th { background: var(--panel); }
+td.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+table.deadlines td.num { text-align: left; }
+table.deadlines tr.deadline td { background: var(--warn-bg); }
+details.taxyear { border: 1px solid var(--line); border-radius: 8px; padding: 0 0.8rem; margin: 0.5rem 0; }
+details.taxyear[open] { padding-bottom: 0.6rem; }
+/* IRMAA results: cards on narrow screens, the table on wider ones. */
+.irmaa-cards { list-style: none; padding: 0; margin: 1rem 0; }
+.irmaa-cards .result { border: 1px solid var(--line); border-radius: 8px; padding: 0.5rem 0.8rem; margin: 0 0 0.6rem; }
+.irmaa-cards .card-title { font-weight: 700; margin: 0 0 0.3rem; }
+.irmaa-cards dl { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.2rem 0.8rem; margin: 0; }
+.irmaa-cards dt { color: var(--muted); }
+.irmaa-cards dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.irmaa-table { display: none; }
+@media (min-width: 640px) { .irmaa-table { display: block; } .irmaa-cards { display: none; } }
+.tools { border-top: 2px solid var(--line); padding-top: 0.6rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+.confirm { display: inline-flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+.confirm[hidden] { display: none; }
+.remember { display: flex; align-items: center; gap: 0.5rem; min-height: 48px; }
+.remember input { width: 28px; height: 28px; }
+.footer { padding: 0.8rem 16px 2rem; font-size: 0.9rem; color: var(--muted); }
+dialog { max-width: min(40rem, calc(100vw - 32px)); border: 2px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--fg); }
+dialog::backdrop { background: rgba(0, 0, 0, 0.45); }
+.past { font-weight: 700; }
+ul.qs li, ul.acts li { margin-bottom: 0.6rem; }
+@media print {
+  .no-print, .nav, .tools, .top nav, .skip, button.badge, .heading-marks, .irmaa-cards, .src-hide { display: none !important; }
+  .irmaa-table { display: block !important; }
+  html { font-size: 13pt; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 9pt; word-break: break-all; }
+  a.src[href]::after { content: none; }
+  .src { display: none; }
+  .panel, .warn, table.deadlines tr { break-inside: avoid; }
+  h2 { break-after: avoid; }
+}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the question</a>
+<header class="top">
+  <p class="brand">Medicare decision guide <span class="unofficial">(unofficial, New Jersey)</span></p>
+  <nav id="progress" aria-label="Progress"></nav>
+</header>
+<main id="main" tabindex="-1"></main>
+<section class="tools no-print" aria-label="Your answers on this device">
+  <label class="remember"><input type="checkbox" id="remember"> Remember my answers on this device</label>
+  <button type="button" id="clear" class="tertiary">Clear my answers</button>
+  <span id="clear-confirm" class="confirm" hidden><span>Clear every answer?</span>
+    <button type="button" id="clear-yes" class="danger">Yes, clear</button>
+    <button type="button" id="clear-no" class="secondary">Cancel</button></span>
+  <p id="storage-note" class="small" role="status"></p>
+</section>
+<footer id="footer" class="footer"></footer>
+<dialog id="pop" aria-labelledby="pop-title">
+  <div id="pop-body"></div>
+  <form method="dialog"><button type="submit" class="secondary">Close</button></form>
+</dialog>
+<script type="application/json" id="facts-data">{"meta":{"as_of":"2026-11-03","jurisdiction":"New Jersey + federal","label_definitions":{"VERIFIED":"Read directly on a primary source (CMS, Medicare.gov, SSA/POMS, IRS, DOL, HHS, NJ DOBI, NJ SHIP, Get Covered NJ), or 2+ independent originating sources.","UNVERIFIED":"Some evidence, but the primary page was not opened or does not state it directly. Always carries a confidence.","INFERRED":"Derived from VERIFIED facts by stated arithmetic or reasoning. Always carries a confidence and the derivation.","ASSUMED":"Taken without evidence; must be confirmed by the user or a named office.","PENDING":"Official figure not yet published as of meta.as_of. Show the projection only if labeled as a projection."},"display_rule":"Every number or rule shown in the app must reference a fact id below. The UI shows the label badge, confidence (if any), and a link to source.url. Facts past review_after show a 'may be out of date' banner."},"facts":[{"id":"partb_premium_2026","plain":"Standard Part B premium in 2026","value":202.9,"unit":"USD/month","effective":"2026","label":"VERIFIED","source":{"title":"2026 Medicare Parts A & B Premiums and Deductibles (CMS fact sheet, Nov 14, 2025)","url":"https://www.cms.gov/newsroom/fact-sheets/2026-medicare-parts-b-premiums-deductibles"},"review_after":"2026-11-20"},{"id":"partb_deductible_2026","plain":"Part B yearly deductible in 2026","value":283,"unit":"USD/year","effective":"2026","label":"VERIFIED","source":{"title":"2026 Medicare Parts A & B Premiums and Deductibles (CMS)","url":"https://www.cms.gov/newsroom/fact-sheets/2026-medicare-parts-b-premiums-deductibles"},"review_after":"2026-11-20"},{"id":"parta_deductible_2026","plain":"Part A hospital deductible per benefit period in 2026","value":1736,"unit":"USD","effective":"2026","label":"VERIFIED","source":{"title":"2026 Medicare Parts A & B Premiums and Deductibles (CMS)","url":"https://www.cms.gov/newsroom/fact-sheets/2026-medicare-parts-b-premiums-deductibles"},"review_after":"2026-11-20"},{"id":"parta_premium_free","plain":"About 99% of people pay no Part A premium because they (or a spouse) have 40+ quarters of Medicare-covered work","value":"premium-free with 40 quarters","effective":"ongoing","label":"VERIFIED","source":{"title":"2026 Medicare Parts A & B Premiums and Deductibles (CMS)","url":"https://www.cms.gov/newsroom/fact-sheets/2026-medicare-parts-b-premiums-deductibles"}},{"id":"partb_2027_status","plain":"The official 2027 Part B premium, deductible and income brackets were not yet published","value":null,"projection":{"premium":209.5,"deductible":292,"basis":"2026 Medicare Trustees Report intermediate projection, as reported by several dated secondary sources; not an official CMS figure"},"effective":"2027","label":"PENDING","source":{"title":"CMS Newsroom (check for '2027 Medicare Parts A & B Premiums and Deductibles')","url":"https://www.cms.gov/about-cms/contact/newsroom"},"note":"Projection label: UNVERIFIED, medium. Replace this fact and irmaa_table_2026 with the 2027 CMS fact sheet when published (expected mid-November 2026).","review_after":"2026-11-20"},{"id":"irmaa_table_2026","plain":"2026 income-related surcharges (IRMAA) for married couples filing jointly","effective":"2026 premiums, based on the tax return from 2 years earlier (normally 2024)","label":"VERIFIED","value":[{"tier":0,"joint_magi_min":0,"joint_magi_max":218000,"partb_total":202.9,"partb_irmaa":0,"partd_irmaa":0},{"tier":1,"joint_magi_min":218001,"joint_magi_max":274000,"partb_total":284.1,"partb_irmaa":81.2,"partd_irmaa":14.5},{"tier":2,"joint_magi_min":274001,"joint_magi_max":342000,"partb_total":405.8,"partb_irmaa":202.9,"partd_irmaa":37.5},{"tier":3,"joint_magi_min":342001,"joint_magi_max":410000,"partb_total":527.5,"partb_irmaa":324.6,"partd_irmaa":60.4},{"tier":4,"joint_magi_min":410001,"joint_magi_max":749999,"partb_total":649.2,"partb_irmaa":446.3,"partd_irmaa":83.3},{"tier":5,"joint_magi_min":750000,"joint_magi_max":null,"partb_total":689.9,"partb_irmaa":487,"partd_irmaa":91}],"boundary_note":"CMS wording: tier 1 is 'greater than $218,000 and less than or equal to $274,000'; tier 4 is 'greater than $410,000 and less than $750,000'; tier 5 is 'greater than or equal to $750,000'. Implement with these exact comparisons.","source":{"title":"2026 Medicare Parts A & B Premiums and Deductibles; 2026 Part D IRMAA (CMS)","url":"https://www.cms.gov/newsroom/fact-sheets/2026-medicare-parts-b-premiums-deductibles"},"review_after":"2026-11-20"},{"id":"irmaa_per_person","plain":"IRMAA is charged per person on Medicare. A married couple's joint income sets the tier, and each spouse who has Part B or Part D pays the surcharge.","label":"INFERRED","confidence":"high","derivation":"CMS table is per beneficiary premium; thresholds are applied to joint MAGI for joint filers (irmaa_table_2026). Only beneficiaries enrolled in Part B/Part D pay a premium.","source":{"title":"2026 Medicare Parts A & B Premiums and Deductibles (CMS)","url":"https://www.cms.gov/newsroom/fact-sheets/2026-medicare-parts-b-premiums-deductibles"}},{"id":"irmaa_tier_steps","plain":"Extra yearly cost per person for crossing each IRMAA line (2026 amounts, Part B + Part D surcharges)","label":"INFERRED","confidence":"high","value":[{"from_tier":0,"to_tier":1,"usd_per_year":1148.4},{"from_tier":1,"to_tier":2,"usd_per_year":1736.4},{"from_tier":2,"to_tier":3,"usd_per_year":1735.2},{"from_tier":3,"to_tier":4,"usd_per_year":1735.2},{"from_tier":4,"to_tier":5,"usd_per_year":580.8}],"derivation":"(difference in partb_irmaa + difference in partd_irmaa) x 12, from irmaa_table_2026. Corrects the earlier report, which said each line is worth $1,148-$1,736; the top line is worth $580.80.","source":{"title":"2026 Medicare Parts A & B Premiums and Deductibles (CMS)","url":"https://www.cms.gov/newsroom/fact-sheets/2026-medicare-parts-b-premiums-deductibles"}},{"id":"irmaa_lookback","plain":"Social Security uses the most recent tax return the IRS can give it, normally the one from 2 years before the premium year, and never one more than 3 years old","label":"VERIFIED","source":{"title":"SSA POMS HI 01101.001 (PY-2 / PY-3) and HI 01194.020 (IRMAA notice text)","url":"https://secure.ssa.gov/poms.nsf/lnx/0601194020"},"also":[{"title":"SSA POMS HI 01101.001","url":"https://secure.ssa.gov/POMS.nsf/lnx/0601101001"}]},{"id":"irmaa_magi_definition","plain":"Income for IRMAA = adjusted gross income (Form 1040 line 11) + tax-exempt interest (line 2a). Only the taxable part of Social Security counts.","label":"VERIFIED","source":{"title":"SSA POMS HI 01101.010 Modified Adjusted Gross Income (TN 36, 12-25)","url":"https://secure.ssa.gov/POMS.NSF/lnx/0601101010"}},{"id":"lce_list","plain":"Only 8 life-changing events qualify for an IRMAA reduction: death of spouse, marriage, divorce/annulment, work reduction, work stoppage, loss of income-producing property, loss of employer pension, employer settlement payment","label":"VERIFIED","source":{"title":"SSA POMS HI 01120.005 Life Changing Events","url":"https://secure.ssa.gov/poms.nsf/lnx/0601120005"}},{"id":"lce_spouse_event","plain":"The event can happen to the beneficiary or to the beneficiary's spouse (so a spouse's retirement can count)","label":"VERIFIED","source":{"title":"SSA POMS HI 01120.005 section A","url":"https://secure.ssa.gov/poms.nsf/lnx/0601120005"}},{"id":"lce_reporter_only","plain":"A reduction applies only to the person who files. Each spouse on Medicare must file separately.","label":"VERIFIED","source":{"title":"SSA POMS HI 01120.005 section A, NOTE","url":"https://secure.ssa.gov/poms.nsf/lnx/0601120005"}},{"id":"lce_attestation","plain":"SSA accepts the person's sworn statement that the event caused the income drop. If the current year's return is not filed, the person gives an income estimate for this year and may give one for next year (otherwise this year's estimate is reused).","label":"VERIFIED","source":{"title":"SSA POMS HI 01120.005 section A","url":"https://secure.ssa.gov/poms.nsf/lnx/0601120005"}},{"id":"lce_effective","plain":"A new decision normally takes effect in January of the year you ask (or your first Part B month). It reaches back to last year only if the event happened October-December and you file by March 31.","label":"VERIFIED","source":{"title":"SSA POMS HI 01120.005 section B","url":"https://secure.ssa.gov/poms.nsf/lnx/0601120005"}},{"id":"lce_nonqualifying","plain":"One-time income does not qualify for a reduction: capital gains from selling property, IRA conversions, cashing bonds, lottery or casino winnings","label":"VERIFIED","source":{"title":"SSA POMS HI 01120.005 section D","url":"https://secure.ssa.gov/poms.nsf/lnx/0601120005"}},{"id":"ssa44_form","plain":"Form SSA-44 is the optional form to report a life-changing event; you can also call SSA at 1-800-772-1213","label":"VERIFIED","source":{"title":"SSA: Request to lower an IRMAA","url":"https://www.ssa.gov/medicare/lower-irmaa"},"also":[{"title":"Form SSA-44 (PDF)","url":"https://www.ssa.gov/forms/ssa-44.pdf"},{"title":"SSA POMS HI 01120.005: Life-changing events (\"the optional Form SSA-44\")","url":"https://secure.ssa.gov/poms.nsf/lnx/0601120005"}],"note":"Opened 2026-11-03 in a browser. The SSA page lists +1 800-772-1213 and says the request can be made online, by fax or mail, or by phone. POMS HI 01120.005 calls Form SSA-44 optional."},{"id":"partb_defer_while_working","plain":"While you (or your spouse) are working and covered by that job's group health plan, you can wait to sign up for Part B with no penalty","label":"VERIFIED","source":{"title":"Medicare.gov: Working past 65","url":"https://www.medicare.gov/basics/get-started-with-medicare/medicare-basics/working-past-65"}},{"id":"employer_size_20","plain":"If the employer has 20 or more employees, its plan pays first and Medicare pays second for a worker 65+ (or a working spouse's dependent 65+). Under 20 employees, Medicare pays first.","label":"VERIFIED","source":{"title":"CMS Medigap Bulletin 04-01 (Mar 2004), section II.B","url":"https://www.cms.gov/medicare/health-plans/medigap/downloads/mdgp0401.pdf"}},{"id":"partb_sep","plain":"Part B Special Enrollment Period: ends 8 months after the job or the job-based coverage ends, whichever comes first. COBRA is not job-based coverage and does not extend it.","label":"VERIFIED","source":{"title":"Medicare.gov: When does Medicare coverage start?","url":"https://www.medicare.gov/basics/get-started-with-medicare/sign-up/when-does-medicare-coverage-start"},"also":[{"title":"Medicare.gov: Working past 65","url":"https://www.medicare.gov/basics/get-started-with-medicare/medicare-basics/working-past-65"}]},{"id":"partb_sep_start_date","plain":"If you sign up for Part B while you still have job coverage, or in the first full month after it ends, Part B can start on the 1st of the month you sign up, or on the 1st of any of the next 3 months that you choose. If you sign up in a later month of the 8-month window, it starts the month after you sign up.","label":"VERIFIED","source":{"title":"42 U.S.C. 1395q(e): Commencement of coverage for special enrollment periods (Cornell LII)","url":"https://www.law.cornell.edu/uscode/text/42/1395q"},"also":[{"title":"Medicare.gov: When does Medicare coverage start?","url":"https://www.medicare.gov/basics/get-started-with-medicare/sign-up/when-does-medicare-coverage-start"}],"note":"Opened 2026-11-03 in a browser. Subsection (e)(1) gives the same-month start, or any of the following three months at your option; (e)(2) covers later months."},{"id":"partb_signup_lead_time","plain":"Medicare advises checking when job coverage ends and signing up about a month earlier to avoid a gap","label":"VERIFIED","source":{"title":"Medicare.gov: Working past 65","url":"https://www.medicare.gov/basics/get-started-with-medicare/medicare-basics/working-past-65"}},{"id":"partb_forms","plain":"If you already have Part A: apply online at SSA or file Form CMS-40B with Form CMS-L564 (employer confirms your job coverage). If you need both A and B: Form CMS-18-F-5 or online.","label":"VERIFIED","source":{"title":"SSA: Sign up for Part B only","url":"https://www.ssa.gov/medicare/sign-up/part-b-only"},"also":[{"title":"Form CMS-40B (PDF)","url":"https://www.cms.gov/Medicare/CMS-Forms/CMS-Forms/Downloads/CMS40B-E.pdf"},{"title":"Form CMS-18-F-5 (PDF)","url":"https://www.cms.gov/files/document/cms-18f5.pdf"}],"note":"CMS-L564 is named on the SSA page; its direct PDF link was not opened. Link to the SSA page for it."},{"id":"gep","plain":"If the 8-month window is missed: sign up January 1-March 31 (General Enrollment Period); coverage starts the next month, and a late penalty may apply","label":"VERIFIED","source":{"title":"Medicare.gov: When does Medicare coverage start?","url":"https://www.medicare.gov/basics/get-started-with-medicare/sign-up/when-does-medicare-coverage-start"}},{"id":"parta_retro","plain":"You can sign up for premium-free Part A any time after 65. Coverage starts 6 months back from when you sign up (or apply for Social Security), but not before the month you turned 65.","label":"VERIFIED","source":{"title":"Medicare.gov: When does Medicare coverage start?","url":"https://www.medicare.gov/basics/get-started-with-medicare/sign-up/when-does-medicare-coverage-start"}},{"id":"partb_penalty","plain":"Part B late penalty: an extra 10% of the standard premium for each full 12 months you could have had Part B but didn't, usually for life. Not charged if you qualify for a Special Enrollment Period.","label":"VERIFIED","example":"24 months late in 2026: $202.90 + 20% = $243.48, billed as $243.50/month","source":{"title":"Medicare.gov: Avoid late enrollment penalties","url":"https://www.medicare.gov/basics/costs/medicare-costs/avoid-penalties"},"value":{"pct_per_full_12_months":10,"round_to":0.1},"value_note":"Structured copy of numbers already stated in this fact's \"plain\" text (added for the app engine; no new claim)."},{"id":"partd_penalty","plain":"Part D late penalty: 1% of the national base premium for each month without creditable drug coverage once a gap reaches 63 days, rounded to $0.10, added for as long as you have Medicare drug coverage","label":"VERIFIED","source":{"title":"Medicare.gov: Avoid late enrollment penalties","url":"https://www.medicare.gov/basics/costs/medicare-costs/avoid-penalties"},"value":{"pct_per_month":1,"gap_days":63,"round_to":0.1},"value_note":"Structured copy of numbers already stated in this fact's \"plain\" text (added for the app engine; no new claim)."},{"id":"partd_sep_effective_date","plain":"A Medicare drug plan joined in a special enrollment period starts on the 1st of the month after you join. When you leave job coverage, you can join while still covered and choose a start date up to 3 months later.","label":"VERIFIED","source":{"title":"42 CFR 423.40(c): Effective dates (Cornell LII)","url":"https://www.law.cornell.edu/cfr/text/42/423.40"},"also":[{"title":"42 CFR 423.38(c)(11): leaving employer coverage to join a Part D plan (Cornell LII)","url":"https://www.law.cornell.edu/cfr/text/42/423.38"}],"note":"Opened 2026-11-03 in a browser. 423.40(c): coverage \"is effective the first day of the calendar month following the month in which the election is made\". 423.38(c)(11)(ii): the person \"may choose an effective date ... no later than up to 3 months after the month in which the election is made\"."},{"id":"partd_base_2026","plain":"National base beneficiary premium (used for the Part D penalty), 2026","value":38.99,"unit":"USD/month","effective":"2026","label":"VERIFIED","source":{"title":"Medicare.gov: Avoid late enrollment penalties","url":"https://www.medicare.gov/basics/costs/medicare-costs/avoid-penalties"}},{"id":"partd_base_2027","plain":"National base beneficiary premium (used for the Part D penalty), 2027","value":41.33,"unit":"USD/month","effective":"2027","label":"VERIFIED","source":{"title":"CMS: Medicare Part D 2027 National Average Monthly Bid Amount Information (Jul 28, 2026)","url":"https://www.cms.gov/newsroom/fact-sheets/medicare-part-d-2027-national-average-monthly-bid-amount-information"}},{"id":"partd_limits_2027","plain":"2027 Part D: maximum deductible $700; yearly out-of-pocket cap on covered drugs $2,400 (2026: $615 and $2,100)","value":{"deductible":700,"oop_cap":2400},"effective":"2027","label":"UNVERIFIED","confidence":"high","note":"CMS 2027 Rate Announcement (Apr 6, 2026) states these are updated by statutory formula, but the Attachment V table with the numbers was not read. Values reported consistently by multiple dated outlets citing that announcement (Kiplinger, Newsweek, Becker's).","source":{"title":"CMS CY 2027 Rate Announcement (PDF), Attachment V","url":"https://www.cms.gov/files/document/2027-announcement.pdf"}},{"id":"creditable_notice","plain":"Your employer plan must tell you in writing each year whether its drug coverage is 'creditable'. Keep it; a Medicare drug plan may ask for it. No Part D penalty as long as you never go 63+ days without creditable drug coverage.","label":"VERIFIED","source":{"title":"Medicare.gov: Working past 65","url":"https://www.medicare.gov/basics/get-started-with-medicare/medicare-basics/working-past-65"}},{"id":"ma_window_new_to_b","plain":"If you have Part A and add Part B later, your window to join a Medicare Advantage plan starts 3 months before you first have both A and B and ends 2 months after","label":"VERIFIED","source":{"title":"Medicare.gov: Joining a plan (Initial Enrollment Period - New to Part B)","url":"https://www.medicare.gov/basics/get-started-with-medicare/get-more-coverage/joining-a-plan"},"note":"Corrects the earlier report, which mentioned only the 2-months-after window."},{"id":"ma_pd_sep_employer_loss","plain":"After leaving employer coverage (including COBRA), you can join a Medicare Advantage or drug plan for 2 full months after the month that coverage ends","label":"VERIFIED","source":{"title":"Medicare.gov: Special Enrollment Periods","url":"https://www.medicare.gov/basics/get-started-with-medicare/get-more-coverage/joining-a-plan/special-enrollment-periods"}},{"id":"medicare_oep","plain":"Medicare Open Enrollment, October 15-December 7: people already on Medicare can switch, join or drop Medicare Advantage and drug plans; changes start January 1. It does not affect Part B sign-up or Medigap.","label":"VERIFIED","source":{"title":"Medicare.gov: Joining a plan","url":"https://www.medicare.gov/basics/get-started-with-medicare/get-more-coverage/joining-a-plan"},"also":[{"title":"NJ SHIP: Important Information (Medigap not tied to fall enrollment)","url":"https://www.nj.gov/humanservices/doas/documents/SHIP_Important_Info.pdf"}]},{"id":"ma_oep","plain":"Medicare Advantage Open Enrollment, January 1-March 31 (and the first 3 months you have Medicare): people in an Advantage plan can switch plans once or go back to Original Medicare","label":"VERIFIED","source":{"title":"Medicare.gov: Joining a plan","url":"https://www.medicare.gov/basics/get-started-with-medicare/get-more-coverage/joining-a-plan"}},{"id":"ma_moop_2027","plain":"2027 Medicare Advantage legal maximum out-of-pocket for covered Part A/B services: $9,850 in-network; $14,800 in- and out-of-network combined (plans can set lower). Drug costs are separate.","value":{"in_network":9850,"combined":14800},"effective":"2027","label":"UNVERIFIED","confidence":"high","note":"From CMS 'Final Contract Year 2027 Standards for Part C Benefits' memo (Apr 22, 2026) as reported by a dated secondary source; the CMS memo itself was not opened. 2026 values ($9,250 / $13,900) are VERIFIED via KFF and Medicare Interactive.","source":{"title":"KFF: Medicare Advantage Out-of-Pocket Limits (2026 values)","url":"https://www.kff.org/medicare/medicare-advantage-out-of-pocket-limits-variation-and-trends/"}},{"id":"ma_requires_partb","plain":"To join a Medicare Advantage plan you must have Part A and be enrolled in Part B, so you keep paying the Part B premium","label":"INFERRED","confidence":"high","derivation":"42 CFR 422.50(a)(1) requires Part A entitlement and Part B enrollment to join; anyone enrolled in Part B owes its premium (fact partb_premium_2026).","source":{"title":"42 CFR 422.50: Eligibility to elect an MA plan (Cornell LII)","url":"https://www.law.cornell.edu/cfr/text/42/422.50"},"note":"Opened 2026-11-03 in a browser."},{"id":"medigap_oep","plain":"Medigap Open Enrollment: a one-time 6 months starting the first month you are 65+ and have Part B. It starts even if you sign up for Part B while still on job coverage. No health questions during this window.","label":"VERIFIED","source":{"title":"Medicare.gov: When can I buy a Medigap policy?","url":"https://www.medicare.gov/health-drug-plans/medigap/ready-to-buy/when"}},{"id":"medigap_needs_ab_no_drugs","plain":"You must have Parts A and B to buy Medigap. Medigap does not cover prescriptions; you need a separate Part D plan. Each spouse needs a separate policy.","label":"VERIFIED","source":{"title":"NJ SHIP: Important Information","url":"https://www.nj.gov/humanservices/doas/documents/SHIP_Important_Info.pdf"}},{"id":"medigap_not_with_ma","plain":"It is illegal for someone to sell you a Medigap policy while you have a Medicare Advantage plan","label":"VERIFIED","source":{"title":"Medicare.gov: When can I buy a Medigap policy?","url":"https://www.medicare.gov/health-drug-plans/medigap/ready-to-buy/when"}},{"id":"nj_underwriting_after_window","plain":"In New Jersey, after your first 6 months of Part B, companies do not have to sell you a Medigap policy; they can look at your health, turn you down, or charge more (except in a guaranteed-issue situation)","label":"VERIFIED","source":{"title":"NJ SHIP: Important Information","url":"https://www.nj.gov/humanservices/doas/documents/SHIP_Important_Info.pdf"}},{"id":"nj_premium_changes","plain":"NJ Medigap premiums can rise each year as you age; ask each company how it uses age. NJ DOBI can approve increases any time of year.","label":"VERIFIED","source":{"title":"NJ SHIP: Important Information","url":"https://www.nj.gov/humanservices/doas/documents/SHIP_Important_Info.pdf"}},{"id":"gi_primary_plan_not_federal","plain":"Federal rule: losing a job plan that paid FIRST (20+ employer, still working) does NOT give a federal guaranteed right to buy Medigap. The federal right applies when a plan that paid SECOND to Medicare ends.","label":"VERIFIED","source":{"title":"CMS Medigap Bulletin 04-01 (Mar 2004), section II.B","url":"https://www.cms.gov/medicare/health-plans/medigap/downloads/mdgp0401.pdf"},"note":"Matters only if he already has Part B and his 6-month Medigap window has passed. Corrects the earlier report, which called this unclear."},{"id":"gi_after_cobra","plain":"Federal rule: if you are on Medicare and then take COBRA (which pays second), you get a guaranteed right to buy Medigap when COBRA ends","label":"VERIFIED","source":{"title":"CMS Medigap Bulletin 04-01, footnote viii","url":"https://www.cms.gov/medicare/health-plans/medigap/downloads/mdgp0401.pdf"},"also":[{"title":"Medicare.gov: When can I buy a Medigap policy? (63-day rule)","url":"https://www.medicare.gov/health-drug-plans/medigap/ready-to-buy/when"}]},{"id":"gi_nj_state_extension","plain":"New Jersey's Medigap rule lists, as eligible for guaranteed issue, a person enrolled in a job plan that pays before Medicare who leaves that plan. The right ends 63 days after leaving the plan.","label":"UNVERIFIED","confidence":"high","note":"Opened 2026-11-03 in a browser. Read (c)2 (\"enrolled under an employee welfare benefit plan that is primary to Medicare ... or the individual leaves the plan\") and (d)6 (ends 63 days after the effective date of disenrollment). Not VERIFIED because: the copy shows its last amendment in 2005; its list of plans that must be offered (A, B, C, F, high-deductible F, K, L) predates the 2020 closure of Plans C and F, so which plans apply today (for example Plan G) is not confirmed. Confirm with NJ SHIP or NJ DOBI.","source":{"title":"N.J.A.C. 11:4-23.12, Guaranteed issue for eligible persons (Cornell LII copy)","url":"https://www.law.cornell.edu/regulations/new-jersey/N-J-A-C-11-4-23-12"},"value":{"window_days_after":63},"value_note":"Structured copy of the number in this fact's \"plain\" text.","also":[{"title":"CMS Medigap Bulletin 04-01, footnotes vi-vii (New Jersey listed)","url":"https://www.cms.gov/medicare/health-plans/medigap/downloads/mdgp0401.pdf"}]},{"id":"gi_63_days","plain":"In most guaranteed-issue situations you must apply no later than 63 days after the old coverage ends (you can apply up to 60 days before)","label":"VERIFIED","source":{"title":"Medicare.gov: When can I buy a Medigap policy?","url":"https://www.medicare.gov/health-drug-plans/medigap/ready-to-buy/when"}},{"id":"ma_trial_right","plain":"Trial right: if you joined a Medicare Advantage plan when first eligible at 65 (or dropped Medigap to join one for the first time) and leave within 12 months, you can return to Original Medicare with a guaranteed right to buy Medigap","label":"VERIFIED","source":{"title":"Medicare.gov: Special Enrollment Periods (other special situations)","url":"https://www.medicare.gov/basics/get-started-with-medicare/get-more-coverage/joining-a-plan/special-enrollment-periods"},"note":"VERIFIED for the age-65 case on the cited page. Joining Advantage for the first time at 68-70 without having had Medigap: see fact ma_trial_right_at_your_age."},{"id":"ma_trial_right_at_your_age","plain":"If you first join Medicare Advantage after you were first eligible at 65, and you never had Medigap, the trial right to switch back to Medigap with guaranteed acceptance does not appear to apply to you","label":"INFERRED","confidence":"high","derivation":"42 U.S.C. 1395ss(s)(3)(B)(vi) covers only people who join Advantage \"upon first becoming eligible for benefits under part A at age 65\"; clause (v) covers only people who dropped a Medigap policy to join Advantage for the first time. N.J.A.C. 11:4-23.12(c)7 uses the same \"upon first becoming eligible\" test.","source":{"title":"42 U.S.C. 1395ss(s)(3)(B) (Cornell LII)","url":"https://www.law.cornell.edu/uscode/text/42/1395ss"},"also":[{"title":"N.J.A.C. 11:4-23.12(c)7 (Cornell LII copy)","url":"https://www.law.cornell.edu/regulations/new-jersey/N-J-A-C-11-4-23-12"}],"note":"Opened 2026-11-03 in a browser. Ask NJ SHIP to confirm before relying on it."},{"id":"plans_cf_closed","plain":"Plans C and F (including high-deductible F) can only be bought by people whose Part A started before January 1, 2020","label":"VERIFIED","source":{"title":"NJ SHIP Medigap Benefits Chart 2026 (rev. Nov 19, 2025)","url":"https://nj.gov/humanservices/doas/documents/SHIP_Medigap_Benefits%20Star%20Chart%202026%20Nov19%2025.pdf"},"also":[{"title":"CMS CY 2027 Medigap High Deductible Options F, G & J","url":"https://www.cms.gov/files/document/cy-2027-medigap-high-deductible-options-fjg.pdf"}]},{"id":"plan_g_benefits","plain":"Plan G pays the Part A deductible, hospital and skilled-nursing coinsurance, the 20% Part B coinsurance, Part B excess charges (up to 15% over Medicare's rate when a doctor doesn't take assignment), the first 3 pints of blood, and 80% of foreign emergency care after a small deductible. It does not pay the Part B deductible.","label":"VERIFIED","source":{"title":"NJ SHIP Medigap Benefits Chart 2026","url":"https://nj.gov/humanservices/doas/documents/SHIP_Medigap_Benefits%20Star%20Chart%202026%20Nov19%2025.pdf"},"note":"The chart's check-mark grid did not extract as text; the per-plan assignment of each row is cross-checked against Medicare.gov's standardized chart (not opened this session). Treat the row-by-plan mapping as UNVERIFIED-high until a human eyeballs the PDF.","also":[{"title":"Medicare.gov: Compare Medigap plan benefits","url":"https://www.medicare.gov/health-drug-plans/medigap/basics/compare-plan-benefits"}]},{"id":"plan_n_differences","plain":"Plan N is like Plan G except: you pay up to $20 per office visit and up to $50 per ER visit (waived if admitted), and it does not pay Part B excess charges","label":"UNVERIFIED","confidence":"high","note":"The $20/$50 copays are VERIFIED on the NJ SHIP 2026 chart. The excess-charge exclusion for Plan N is standard federal design but was not read on a primary page this session.","source":{"title":"NJ SHIP Medigap Benefits Chart 2026","url":"https://nj.gov/humanservices/doas/documents/SHIP_Medigap_Benefits%20Star%20Chart%202026%20Nov19%2025.pdf"},"also":[{"title":"Medicare.gov: Compare Medigap plan benefits","url":"https://www.medicare.gov/health-drug-plans/medigap/basics/compare-plan-benefits"}],"value":{"office_copay":20,"er_copay":50},"value_note":"Structured copy of numbers already stated in this fact's \"plain\" text (added for the app engine; no new claim)."},{"id":"hdg_deductible","plain":"High-Deductible Plan G: same benefits as Plan G after you pay a yearly deductible of $2,950 (2026) or $3,050 (2027). Available to people new to Medicare on or after Jan 1, 2020.","value":{"2026":2950,"2027":3050},"label":"VERIFIED","source":{"title":"CMS: CY 2027 Medigap High Deductible Options F, G & J (Oct 2026)","url":"https://www.cms.gov/files/document/cy-2027-medigap-high-deductible-options-fjg.pdf"},"also":[{"title":"NJ SHIP Medigap Benefits Chart 2026","url":"https://nj.gov/humanservices/doas/documents/SHIP_Medigap_Benefits%20Star%20Chart%202026%20Nov19%2025.pdf"}]},{"id":"nj_medigap_rates_jun2026","plain":"NJ Medigap monthly premiums, man, preferred rate, AGE 65 (June 2026). At 68-70 his quotes will differ; get quotes from companies.","value":{"plan_g":{"low":164.31,"low_company":"Bankers Life (Washington National)","high":299.88,"high_company":"Aetna Health Ins. Co."},"plan_n":{"low":117.79,"low_company":"First Health Life & Health","high":200.84,"high_company":"Aetna Health Ins. Co."},"hd_plan_g":{"low":50.83,"low_company":"Philadelphia American Life (non-Newark ZIPs)","high":80.53,"high_company":"WoodmanLife"}},"effective":"chart revised 2026-06-02","label":"VERIFIED","source":{"title":"NJ SHIP: Male Preferred Rates, Medigap Monthly Premium at Age 65 (June 2026)","url":"https://www.nj.gov/humanservices/doas/documents/6%202%2026%20Male-at-age-65-chart.pdf"},"note":"Do not show company names as recommendations; show only the range. Chart says companies may turn applicants down after the first six months of Part B.","review_after":"2027-01-15"},{"id":"nj_ma_2027_landscape","plain":"2027 NJ Medicare Advantage: about 72 plans; average premium about $20/month; $0-premium plans available","label":"UNVERIFIED","confidence":"medium","note":"From secondary summaries of CMS's 2027 state fact sheet; the CMS PDF was too large to read. Use Medicare.gov Plan Finder for real choices.","source":{"title":"Medicare.gov Plan Finder","url":"https://www.medicare.gov/plan-compare/"},"review_after":"2026-12-07"},{"id":"cobra_basics","plain":"COBRA (employers with 20+ employees): up to 18 months after a job ends; cost up to 102% of the full plan cost; at least 60 days to elect; the plan may end it early if the person on COBRA becomes entitled to Medicare after electing it","label":"VERIFIED","source":{"title":"U.S. DOL: An Employee's Guide to Health Benefits Under COBRA (Sep 2022)","url":"https://www.dol.gov/sites/dolgov/files/ebsa/about-ebsa/our-activities/resource-center/publications/an-employees-guide-health-benefits-under-cobra-2022.pdf"},"value":{"months":18,"max_premium_pct":102,"elect_days":60},"value_note":"Structured copy of numbers already stated in this fact's \"plain\" text (added for the app engine; no new claim)."},{"id":"cobra_36_month_rule","plain":"If the worker became entitled to Medicare less than 18 months before leaving the job, the spouse can keep COBRA up to 36 months after the worker's Medicare entitlement date","label":"VERIFIED","source":{"title":"U.S. DOL COBRA guide, Duration of Continuation Coverage","url":"https://www.dol.gov/sites/dolgov/files/ebsa/about-ebsa/our-activities/resource-center/publications/an-employees-guide-health-benefits-under-cobra-2022.pdf"},"note":"'Entitled to Medicare' generally means the Part A start date. Confirm with the plan administrator how it reads his Part A date (ASSUMED)."},{"id":"cobra_medicare_before_election","plain":"If Medicare A or B is already in effect on or before the day you elect COBRA, the plan cannot end your COBRA because of Medicare","label":"VERIFIED","source":{"title":"U.S. DOL COBRA guide, Medicare section","url":"https://www.dol.gov/sites/dolgov/files/ebsa/about-ebsa/our-activities/resource-center/publications/an-employees-guide-health-benefits-under-cobra-2022.pdf"}},{"id":"nj_mini_cobra","plain":"NJ state continuation (mini-COBRA): insured plans of employers with 50 or fewer employees; same 18/36-month lengths; up to 102%; ends at Medicare entitlement","label":"VERIFIED","source":{"title":"NJ DOBI: COBRA and New Jersey Small Group Continuation","url":"https://www.nj.gov/dobi/division_consumers/insurance/cobra.html"},"note":"Applies to her own small employer's plan if she leaves that job; his 20+ employer uses federal COBRA."},{"id":"gcnj_oe_2027","plain":"Get Covered NJ open enrollment for 2027 coverage: November 1, 2026 - January 31, 2027","label":"VERIFIED","source":{"title":"NJ DOBI press release (Aug 10, 2026)","url":"https://www.nj.gov/dobi/pressreleases/pr260810.html"},"value":{"start":"2026-11-01","end":"2027-01-31"},"value_note":"Structured copy of numbers already stated in this fact's \"plain\" text (added for the app engine; no new claim)."},{"id":"gcnj_sep_loss","plain":"Losing job-based coverage involuntarily opens a Get Covered NJ special enrollment window: from 60 days before the loss to 60 days after it","label":"VERIFIED","source":{"title":"NJ Treasury: Income or Life Changes (Loss of Health Insurance)","url":"https://www.nj.gov/treasury/njhealthinsurancemandate/incomelifechanges.shtml"},"also":[{"title":"Get Covered NJ: When can I buy health insurance?","url":"https://www.nj.gov/getcoverednj/getstarted/buy"},{"title":"N.J.A.C. 11:20-24.2A (Justia copy)","url":"https://regulations.justia.com/states/new-jersey/title-11/chapter-20/subchapter-24/section-11-20-24-2a"}],"value":{"days_after":60,"days_before":60},"value_note":"Structured copy of numbers already stated in this fact's \"plain\" text (added for the app engine; no new claim).","note":"Opened 2026-11-03 in a browser. The NJ Treasury page: \"lost health coverage in the last 60 days or expects to lose coverage in the next 60 days\"."},{"id":"cobra_drop_no_sep","plain":"Choosing to drop COBRA early, or to stop paying for it, does not open a special window to buy a marketplace plan. Only open enrollment, or COBRA running out, does.","label":"VERIFIED","source":{"title":"HealthCare.gov: COBRA coverage when you're unemployed","url":"https://www.healthcare.gov/unemployed/cobra-coverage/"},"also":[{"title":"NJ Treasury: Income or Life Changes (special enrollment events)","url":"https://www.nj.gov/treasury/njhealthinsurancemandate/incomelifechanges.shtml"}],"note":"Opened 2026-11-03 in a browser. HealthCare.gov: \"Voluntarily dropping COBRA doesn't count.\" The New Jersey page lists only involuntary loss of job-based coverage."},{"id":"nj_health_plan_savings","plain":"New Jersey's own subsidy (NJ Health Plan Savings) continues for 2027 for household income up to 600% of the federal poverty level","label":"VERIFIED","source":{"title":"NJ DOBI press release (Aug 10, 2026)","url":"https://www.nj.gov/dobi/pressreleases/pr260810.html"}},{"id":"federal_ptc_400_cliff","plain":"Enhanced federal premium tax credits expired after 2025. For 2027, people above 400% of the poverty level get no federal credit and pay full price.","label":"VERIFIED","source":{"title":"KFF: 9 Things to Watch for the 2027 ACA Open Enrollment Period (Oct 30, 2026)","url":"https://www.kff.org/affordable-care-act/9-things-to-watch-for-the-2027-aca-open-enrollment-period/"},"also":[{"title":"NJ DOBI press release (Aug 10, 2026)","url":"https://www.nj.gov/dobi/pressreleases/pr260810.html"}],"review_after":"2027-01-31","note":"Congress could change this; recheck before relying on it."},{"id":"ptc_full_repayment","plain":"Starting with tax year 2026, anyone who got more advance premium tax credit than they qualified for must repay all of it; the old repayment caps are gone","label":"VERIFIED","source":{"title":"IRS: Repayment caps eliminated for excess advance payments of the PTC","url":"https://www.irs.gov/tax-professionals/eitc-central/repayment-caps-eliminated-for-excess-advance-payments-of-the-premium-tax-credit"}},{"id":"fpl_2026","plain":"2026 federal poverty guideline, household of 2 (48 states)","value":21640,"unit":"USD/year","label":"VERIFIED","source":{"title":"HHS ASPE: 2026 Poverty Guidelines","url":"https://aspe.hhs.gov/poverty-guidelines"}},{"id":"fpl_lines_household2","plain":"For 2027 coverage, household of 2: 400% = $86,560 (federal credit cutoff); 600% = $129,840 (NJ subsidy cutoff)","value":{"pct400":86560,"pct600":129840},"label":"INFERRED","confidence":"high","derivation":"fpl_2026 x 4 and x 6. Assumes 2027 coverage uses the 2026 guidelines (marketplace credits use the prior year's guidelines).","source":{"title":"HHS ASPE: 2026 Poverty Guidelines","url":"https://aspe.hhs.gov/poverty-guidelines"}},{"id":"aca_magi_includes_ss","plain":"Marketplace income counts ALL Social Security (taxable and non-taxable) plus tax-exempt interest. This differs from Medicare's IRMAA income, which counts only taxable Social Security.","label":"VERIFIED","source":{"title":"HealthCare.gov: What to include as income","url":"https://healthcare.gov/income-and-household-information/income/"},"also":[{"title":"SSA POMS HI 01101.010","url":"https://secure.ssa.gov/POMS.NSF/lnx/0601101010"}]},{"id":"employer_offer_blocks_ptc","plain":"If her own employer offers her coverage that is 'affordable' (2026: employee-only cost at or under 9.96% of household income) and meets minimum value, she cannot get marketplace credits. For family members, affordability is judged on the family premium.","label":"UNVERIFIED","confidence":"high","note":"Family-premium rule VERIFIED in CMS guidance; the 9.96% 2026 figure is from a state exchange FAQ (Pennie) and a benefits bulletin, not the IRS Rev. Proc. itself. Moot above 400% FPL (no federal credit anyway).","source":{"title":"CMS: Affordability of employer coverage for family members","url":"https://www.cms.gov/files/document/affordability-employer-coverage-family-members-employees.pdf"}},{"id":"ss_delayed_credits","plain":"Social Security grows 8% per year (2/3 of 1% per month) for each year you wait past full retirement age, up to age 70","label":"VERIFIED","source":{"title":"SSA: Delayed Retirement Credits","url":"https://www.ssa.gov/benefits/retirement/planner/delayret.html"},"note":"Opened 2026-11-03 in a browser. The page states 8.0% a year (2/3 of 1% a month) for people born 1943 or later, and that the increase stops at age 70."},{"id":"retiree_coverage_check","plain":"Retiree coverage may not pay unless you have both Part A and Part B. Ask whether joining a non-employer plan would make you or your family lose retiree coverage.","label":"VERIFIED","source":{"title":"Medicare.gov: Working past 65","url":"https://www.medicare.gov/basics/get-started-with-medicare/medicare-basics/working-past-65"}},{"id":"medicare_start_month","plain":"Premium-free Part A starts the month you turn 65 (if your birthday is on the 1st, the month before)","label":"VERIFIED","source":{"title":"Medicare.gov: When does Medicare coverage start?","url":"https://www.medicare.gov/basics/get-started-with-medicare/sign-up/when-does-medicare-coverage-start"}},{"id":"his_coverage_end_assumption","plain":"Job coverage ends on the last day of the month he stops working","label":"ASSUMED","note":"Many plans work this way, but some end on the last day worked. Confirm with HR; the app must let the user enter the actual end date."},{"id":"nj_ship_contact","plain":"NJ SHIP (free, unbiased Medicare counseling): 1-800-792-8820","label":"VERIFIED","source":{"title":"NJ SHIP: Important Information","url":"https://www.nj.gov/humanservices/doas/documents/SHIP_Important_Info.pdf"},"value":"1-800-792-8820","value_note":"Structured copy of numbers already stated in this fact's \"plain\" text (added for the app engine; no new claim)."},{"id":"medigap_compare_year_types","plain":"Simplified yearly Medicare-covered cost-sharing used by the Medigap comparison: healthy year, moderate year, bad year (one hospital stay = Part A deductible plus extra)","value":{"healthy":500,"moderate":2000,"bad_extra":5000},"label":"ASSUMED","note":"Design assumption from SPEC 5c, not a Medicare figure. Change here to change the calculator."},{"id":"path_score_weights","plain":"Points used to weigh Medigap (+) against Medicare Advantage (-) from your answers","value":{"health_needs":{"yes":1,"no":-1,"skip":0},"budget_ok":{"no":-2},"doctor_choice":{"very":1,"somewhat":0,"not":-1},"travel":{"yes":1},"predictability":{"fixed":1,"variable":-1},"reversibility":1,"lean_threshold":2},"label":"ASSUMED","note":"Transparent design weights from SPEC 4 (three goals weighted equally). Not a Medicare rule."},{"id":"irmaa_cliff_margin","plain":"The calculator warns when an income estimate is within this many dollars below an IRMAA line","value":10000,"label":"ASSUMED","note":"Design choice from SPEC 5a."},{"id":"hsa_medicare","plain":"Starting with the first month you are enrolled in Medicare, you can no longer contribute to an HSA. This includes backdated (retroactive) Medicare months: money put in for those months is an excess contribution. Medicare.gov advises that you and your employer stop HSA contributions 6 months before you retire.","label":"VERIFIED","source":{"title":"IRS Publication 969, Health Savings Accounts: \"Enrolled in Medicare\"","url":"https://www.irs.gov/publications/p969"},"also":[{"title":"Medicare.gov: Working past 65 (HSA section)","url":"https://www.medicare.gov/basics/get-started-with-medicare/medicare-basics/working-past-65"}],"note":"Read on both pages on 2026-11-03. The 6-month backdating itself is fact parta_retro."},{"id":"iep_window","plain":"Initial Enrollment Period: 7 months, starting 3 months before the month you turn 65 and ending 3 months after the month you turn 65.","label":"VERIFIED","source":{"title":"Medicare.gov: When does Medicare coverage start?","url":"https://www.medicare.gov/basics/get-started-with-medicare/sign-up/when-does-medicare-coverage-start"},"note":"Read on Medicare.gov on 2026-11-03."}]}</script>
+<script type="application/json" id="tree-data">{"meta":{"as_of":"2026-11-03","start":"A1","condition_grammar":"A 'when' is a list of clauses that must ALL be true. Clause: {\"var\": name, \"op\": one of eq|ne|in|lt|lte|gt|gte|set|unset, \"value\": ...}. A 'route' is evaluated top to bottom; the first entry whose 'when' passes wins; an entry with no 'when' is the default.","text_tokens":"{{name}} inside text is replaced by a variable or computed value (see SPEC.md 'Computed values'). {{fact:id}} renders the fact's plain text with its label badge and source link. {{fact:id.value.path}} renders one value with badge and link.","tone":"Plain English, short sentences, second person ('you'), for a 67-year-old non-expert. No jargon without the glossary pop-up."},"variables":{"ss_collecting":{"type":"enum","values":["yes","no","unsure"]},"part_a":{"type":"enum","values":["yes","no"]},"part_a_date":{"type":"month","note":"Part A start (entitlement) month from the Medicare card"},"part_b":{"type":"enum","values":["yes","no"]},"part_b_date":{"type":"month"},"retiree_cov":{"type":"enum","values":["yes","no","unsure"]},"last_work_month":{"type":"month"},"job_cov_end":{"type":"date","default_rule":"last day of last_work_month (fact his_coverage_end_assumption, ASSUMED)"},"wife_birth":{"type":"date","note":"day matters only if it is the 1st"},"wife_on_his_plan":{"type":"enum","values":["yes","no"]},"wife_own_offer":{"type":"enum","values":["yes","no","unsure"]},"bridge_income":{"type":"enum","values":["under_400","400_600","over_600","unsure"]},"health_needs":{"type":"enum","values":["yes","no","skip"]},"doctor_choice":{"type":"enum","values":["very","somewhat","not"]},"travel":{"type":"enum","values":["yes","no"]},"predictability":{"type":"enum","values":["fixed","variable"]},"budget_ok":{"type":"enum","values":["yes","no"]},"visits":{"type":"enum","values":["few","some","many"]},"hd_ok":{"type":"enum","values":["yes","no"]},"assignment":{"type":"enum","values":["yes","no","unsure"]},"magi_by_tax_year":{"type":"map\u003cint,number>","note":"joint MAGI estimates keyed by tax year 2025-2030"},"one_time_income":{"type":"map\u003cint,number>","note":"Roth conversions + capital gains included in that year's MAGI"},"hsa":{"type":"enum","values":["yes","no","unsure"]},"employer_20":{"type":"enum","values":["yes","no","unsure"]},"drug_creditable":{"type":"enum","values":["yes","no","unsure"]}},"nodes":[{"id":"A1","module":"Where you stand","type":"info","title":"Let's figure out your Medicare plan","text":"This guide asks simple questions about your situation. At the end you get a dated to-do list and the questions to ask HR, Social Security and New Jersey's free Medicare counselors. Facts are as of {{as_of}}. Each fact has a link to the official source.","next":"A2"},{"id":"A2","module":"Where you stand","type":"question","var":"ss_collecting","text":"Are you getting Social Security retirement checks right now?","help":"If you are not sure, log in at ssa.gov/myaccount or look for an SSA-1099 tax form from last year.","options":[{"label":"Yes","value":"yes","sets":{"part_a":"yes"},"next":"A3b"},{"label":"No","value":"no","next":"A3"},{"label":"Not sure","value":"unsure","next":"A3"}]},{"id":"A3","module":"Where you stand","type":"question","var":"part_a","text":"Do you have a red, white and blue Medicare card that says HOSPITAL (PART A)?","options":[{"label":"Yes","value":"yes","next":"A3b"},{"label":"No, I don't have a Medicare card","value":"no","sets":{"part_b":"no"},"next":"A5"}]},{"id":"A3b","module":"Where you stand","type":"input","var":"part_a_date","input":"month","text":"What start date is printed next to HOSPITAL (PART A) on your card?","help":"This date matters for how long your wife can keep COBRA. If you can't find it, choose 'I don't know' and we'll add it to your questions for Social Security.","allow_unknown":true,"fact_refs":["cobra_36_month_rule"],"next":"A4"},{"id":"A4","module":"Where you stand","type":"question","var":"part_b","text":"Does the same card also say MEDICAL (PART B)?","options":[{"label":"Yes","value":"yes","next":"A4b"},{"label":"No","value":"no","next":"A5"}]},{"id":"A4b","module":"Where you stand","type":"input","var":"part_b_date","input":"month","text":"What start date is printed next to MEDICAL (PART B)?","allow_unknown":true,"next":"A5"},{"id":"A5","module":"Where you stand","type":"question","var":"retiree_cov","text":"Will your employer keep giving you health coverage after you retire (retiree coverage)?","help":"This is different from COBRA. Retiree coverage is a benefit for retirees. COBRA is a temporary, usually expensive, continuation.","options":[{"label":"Yes","value":"yes","next":"A6"},{"label":"No","value":"no","next":"A6"},{"label":"I don't know","value":"unsure","next":"A6"}]},{"id":"A6","module":"Where you stand","type":"input","var":"last_work_month","input":"month","text":"What month do you plan to stop working? (Your best guess is fine. You can change it later and see what changes.)","validate":{"min":"2026-11","max":"2030-12"},"next":"A6b"},{"id":"A6b","module":"Where you stand","type":"input","var":"job_cov_end","input":"date","text":"When does your job health coverage end after your last day? If you don't know, we'll assume the last day of that month.","default_from":"his_coverage_end_assumption","fact_refs":["his_coverage_end_assumption"],"next":"A7"},{"id":"A7","module":"Where you stand","type":"input","var":"wife_birth","input":"date","text":"What is your wife's date of birth? (Only the month and year matter, unless she was born on the 1st.)","fact_refs":["medicare_start_month"],"next":"A8"},{"id":"A8","module":"Where you stand","type":"question","var":"wife_on_his_plan","text":"Is your wife covered by your job's health plan right now?","options":[{"label":"Yes","value":"yes","next":"A9"},{"label":"No","value":"no","next":"A9"}]},{"id":"A9","module":"Where you stand","type":"question","var":"wife_own_offer","text":"Does your wife's own employer offer her a health plan she could join?","options":[{"label":"Yes","value":"yes","next":"A10"},{"label":"No","value":"no","next":"A10"},{"label":"Not sure","value":"unsure","next":"A10"}]},{"id":"A10","module":"Where you stand","type":"question","var":"employer_20","text":"Does your employer have 20 or more employees?","help":"This decides whether your job plan or Medicare pays first while you work. HR can tell you the count it uses for Medicare.","fact_refs":["employer_size_20"],"options":[{"label":"Yes","value":"yes","next":"A11"},{"label":"No","value":"no","next":"OUT_SMALL_EMPLOYER"},{"label":"Not sure","value":"unsure","next":"A11"}]},{"id":"OUT_SMALL_EMPLOYER","module":"Where you stand","type":"outcome","title":"Medicare probably pays first for you now","text":"With fewer than 20 employees, Medicare pays first and your job plan pays second. {{fact:employer_size_20}} You may need Part B now, and waiting could mean a late penalty and bills your job plan won't pay. Much of this guide assumes a larger employer, so call NJ SHIP this week before relying on it.","add_actions":["ACT_SHIP_NOW"],"fact_refs":["employer_size_20","nj_ship_contact"],"next":"A11"},{"id":"A11","module":"Where you stand","type":"question","var":"drug_creditable","text":"Does your job plan's yearly letter say its drug coverage is 'creditable'?","help":"Plans send this notice every year, often in the fall. It protects you from the Part D late penalty while you work.","fact_refs":["creditable_notice"],"options":[{"label":"Yes","value":"yes","next":"B1"},{"label":"No","value":"no","next":"OUT_DRUG_NOT_CREDITABLE"},{"label":"I don't know","value":"unsure","next":"B1"}]},{"id":"OUT_DRUG_NOT_CREDITABLE","module":"Where you stand","type":"outcome","title":"Your drug coverage may not protect you from the Part D penalty","text":"If your job plan's drug coverage is not creditable, a Part D late penalty may already be building for each month without it. Ask NJ SHIP soon how and when you can join a Medicare drug plan.","bullets":["{{fact:creditable_notice}}","{{fact:partd_penalty}}"],"add_actions":["ACT_SHIP_DRUG_NOW"],"fact_refs":["creditable_notice","partd_penalty"],"next":"B1"},{"id":"B1","module":"While you're still working","type":"route","route":[{"when":[{"var":"part_b","op":"eq","value":"yes"}],"next":"OUT_HAS_PARTB"},{"next":"B_HSA"}]},{"id":"OUT_HAS_PARTB","module":"While you're still working","type":"outcome","title":"You already have Part B while working","text":"Your job plan pays first, so Part B mostly pays second. {{fact:employer_size_20}} You pay {{fig:partb_premium}} a month or more for it.","bullets":["If your Medigap window has already closed: the federal guaranteed right to buy Medigap does NOT apply when a job plan that pays first ends. {{fact:gi_primary_plan_not_federal}}","New Jersey's own rule appears to give a broader right when you leave a job plan that pays first. {{fact:gi_nj_state_extension}}","Dropping Part B now saves the premium, and you can sign up again later without penalty while you work. {{fact:partb_defer_while_working}} It does NOT give you a new Medigap window. {{fact:medigap_oep}}"],"add_actions":["ACT_SHIP_PARTB_ALREADY","ACT_HR_EMPLOYEES"],"add_questions":["Q_SHIP_GI_PRIMARY","Q_SHIP_DROP_B"],"fact_refs":["medigap_oep","gi_primary_plan_not_federal","gi_nj_state_extension","employer_size_20","partb_defer_while_working"],"next":"B_HSA","variants":[{"when":[{"var":"medigap_window_open","op":"ne","value":"unknown"}],"text":"Your one-time Medigap window started when Part B started ({{part_b_date}}) and {{medigap_window_status}}."},{"when":[{"var":"medigap_window_open","op":"eq","value":"unknown"}],"text":"We can't tell when your one-time Medigap window was, because your Part B start date is unknown. Ask NJ SHIP (question below)."}]},{"id":"B_HSA","module":"While you're still working","type":"question","var":"hsa","text":"Do you, or does your employer, put money into a Health Savings Account (HSA)?","help":"Check your pay stub for \"HSA\", or ask HR. No HSA money may go in for months you have Medicare, including backdated months.","options":[{"label":"Yes","value":"yes","next":"OUT_HSA_WARNING"},{"label":"No","value":"no","next":"B_HSA_NEXT"},{"label":"Not sure","value":"unsure","next":"OUT_HSA_WARNING"}]},{"id":"B_HSA_NEXT","module":"While you're still working","type":"route","route":[{"when":[{"var":"part_b","op":"eq","value":"yes"}],"next":"C1"},{"when":[{"var":"part_a","op":"eq","value":"yes"}],"next":"OUT_WORKING_OK"},{"next":"OUT_ENROLL_PARTA"}]},{"id":"OUT_HSA_WARNING","module":"While you're still working","type":"outcome","title":"HSA contributions and Medicare","text":"No HSA money may go in for any month you have Medicare. Money put in for those months counts as an excess contribution.","bullets":["{{fact:parta_retro}}","{{fact:hsa_medicare}}"],"variants":[{"when":[{"var":"part_a","op":"ne","value":"yes"}],"text":"Part A is backdated when you sign up (see below), so this reaches back to months you have already worked. Talk to HR (and a tax adviser) before you sign up."},{"when":[{"var":"part_a","op":"eq","value":"yes"}],"text":"You already have Medicare, so no HSA money may go in now. Ask HR to stop contributions, and ask a tax adviser about removing any excess."},{"when":[{"var":"hsa","op":"eq","value":"unsure"}],"text":"You weren't sure whether HSA money goes in for you. Find out from HR soon."}],"add_questions":["Q_HR_HSA"],"fact_refs":["parta_retro","hsa_medicare"],"next":"B_HSA_NEXT"},{"id":"OUT_ENROLL_PARTA","module":"While you're still working","type":"outcome","title":"Part A (hospital): when to sign up","text":"Part A (hospital insurance) has no monthly premium for most people with enough work history. {{fact:parta_premium_free}} When you sign up also decides how long your wife can keep COBRA, as explained below.","bullets":["{{fact:parta_retro}}","Part A pays second to your job plan on hospital bills. {{fact:employer_size_20}}","It can lengthen your wife's COBRA if your Part A start date is less than 18 months before you stop working. {{fact:cobra_36_month_rule}}"],"add_actions":["ACT_ASK_HR_PARTA_OK","ACT_ENROLL_PARTA","ACT_ENROLL_PARTA_WINDOW"],"fact_refs":["parta_premium_free","parta_retro","cobra_36_month_rule","employer_size_20"],"next":"OUT_WORKING_OK","variants":[{"when":[{"var":"retire_after_36_cutoff","op":"ne","value":true}],"text":"With a sign-up by {{parta_signup_by}}, your Part A start would be about {{part_a_projected_start}}. If your wife is on your plan, her COBRA could then run to about {{wife_cobra_end_if_parta_now}}, as long as you stop working by {{retire_by_for_36}}. Confirm with your plan administrator."},{"when":[{"var":"retire_after_36_cutoff","op":"eq","value":true},{"var":"wife_on_his_plan","op":"eq","value":"yes"},{"var":"cobra_gap_months","op":"gt","value":0}],"text":"You plan to stop working after {{retire_by_for_36}}, so signing up now is too early to lengthen your wife's COBRA. A sign-up between {{parta_signup_earliest_for_36}} and {{parta_signup_latest_for_36}} can lengthen it: the later in that window you sign up, the longer it lasts, up to about {{wife_cobra_end_if_parta_latest}} (instead of {{wife_cobra_end}}) with a sign-up in the month you stop working. Confirm with the plan administrator and Social Security before choosing a month."},{"when":[{"var":"retire_after_36_cutoff","op":"eq","value":true},{"var":"wife_on_his_plan","op":"eq","value":"yes"},{"var":"cobra_gap_months","op":"lte","value":0}],"text":"Your wife's regular COBRA already reaches her Medicare start, so when you sign up for Part A doesn't change her coverage."},{"when":[{"var":"retire_after_36_cutoff","op":"eq","value":true},{"var":"wife_on_his_plan","op":"eq","value":"no"}],"text":"Your wife isn't on your job plan, so the COBRA timing doesn't apply to her."},{"when":[{"var":"hsa","op":"in","value":["yes","unsure"]}],"text":"If you sign up for Part A, you and your employer must stop HSA contributions from your (backdated) Part A start month until you retire. That is the cost of signing up early."}],"add_questions":["Q_SSA_PARTA_START","Q_HR_PARTA_ENTITLEMENT"]},{"id":"OUT_WORKING_OK","module":"While you're still working","type":"outcome","title":"While you work: Part B and drug coverage","text":"When your employer has 20 or more workers, its plan pays first, and you can wait for Part B with no penalty until your job or job coverage ends.","bullets":["{{fact:partb_defer_while_working}}","{{fact:employer_size_20}}","Keep the yearly 'creditable coverage' letter from your plan. {{fact:creditable_notice}}","Medicare Open Enrollment does not apply to you unless you already have a Medicare drug or Advantage plan. {{fact:medicare_oep}}"],"add_actions":["ACT_GET_CREDITABLE_LETTER","ACT_HR_QUESTIONS","ACT_HR_EMPLOYEES"],"fact_refs":["partb_defer_while_working","employer_size_20","creditable_notice","medicare_oep"],"next":"C1","variants":[{"when":[{"var":"employer_20","op":"eq","value":"unsure"}],"text":"You weren't sure your employer has 20 or more workers. This screen assumes it does. Ask HR this month (on your to-do list)."},{"when":[{"var":"employer_20","op":"eq","value":"no"}],"text":"Your employer has fewer than 20 workers, so this screen probably does not apply to you. See the earlier warning and call NJ SHIP."},{"when":[{"var":"drug_creditable","op":"eq","value":"unsure"}],"text":"You weren't sure your drug coverage is creditable. Get the yearly letter before relying on this screen."},{"when":[{"var":"drug_creditable","op":"eq","value":"no"}],"text":"Your drug coverage may not be creditable. See the earlier warning."}]},{"id":"C1","module":"Retiree coverage","type":"route","route":[{"when":[{"var":"retiree_cov","op":"eq","value":"yes"}],"next":"OUT_RETIREE_COV"},{"when":[{"var":"retiree_cov","op":"eq","value":"unsure"}],"next":"OUT_ASK_RETIREE"},{"next":"D1"}]},{"id":"OUT_RETIREE_COV","module":"Retiree coverage","type":"outcome","title":"You have retiree coverage: check it before choosing anything else","text":"After you retire, Medicare pays first and your retiree plan pays second. Many retiree plans won't pay unless you have both Part A and Part B. Joining an outside Medigap, drug or Advantage plan could cost you (and your wife) the retiree coverage.","bullets":["{{fact:retiree_coverage_check}}","Ask whether retiree coverage includes your wife before she turns 65. That could solve her bridge."],"add_questions":["Q_HR_RETIREE_DETAILS"],"fact_refs":["retiree_coverage_check"],"next":"D1"},{"id":"OUT_ASK_RETIREE","module":"Retiree coverage","type":"outcome","title":"Find out about retiree coverage first","text":"Ask HR whether any retiree health coverage exists. Until you know, this guide assumes there is none. (ASSUMED)","add_questions":["Q_HR_RETIREE_DETAILS"],"next":"D1"},{"id":"D1","module":"Your wife's coverage","type":"route","comment":"Uses computed values bridge_months and wife_cobra_end (SPEC.md).","route":[{"when":[{"var":"wife_on_his_plan","op":"eq","value":"no"}],"next":"OUT_WIFE_NOT_ON_PLAN"},{"when":[{"var":"bridge_months","op":"lte","value":0}],"next":"OUT_BRIDGE_NONE"},{"when":[{"var":"cobra_gap_months","op":"lte","value":0}],"next":"OUT_BRIDGE_COBRA"},{"next":"D2"}]},{"id":"OUT_WIFE_NOT_ON_PLAN","module":"Your wife's coverage","type":"outcome","title":"Your retirement doesn't change your wife's coverage","text":"She isn't on your job plan, so nothing ends for her when you retire. Skip to her 65th-birthday steps below.","next":"OUT_WIFE_AT_65","variants":[{"when":[{"var":"wife_own_offer","op":"in","value":["no","unsure"]}],"text":"If she has no health coverage now, she can buy a plan through Get Covered NJ during open enrollment. {{fact:gcnj_oe_2027}}"}],"fact_refs":["gcnj_oe_2027"]},{"id":"OUT_BRIDGE_NONE","module":"Your wife's coverage","type":"outcome","title":"No gap for your wife","text":"Your job coverage lasts until her Medicare starts ({{wife_medicare_start}}). She needs no bridge coverage.","next":"OUT_WIFE_AT_65","variants":[{"when":[{"var":"wife_on_medicare_at_retire","op":"eq","value":true}],"text":"She will already be on Medicare when your job coverage ends. Like you, she must sign up for Part B and join a drug plan before your job coverage ends, so she has no gap or penalty. Her Part B can start {{wife_partb_start}}, and her own 6-month Medigap window then runs to {{wife_medigap_window_close}}. {{fact:partb_sep}}"}],"add_actions":["ACT_WIFE_PARTB_FILE","ACT_WIFE_DRUG"],"fact_refs":["partb_sep","medigap_oep","partd_sep_effective_date"]},{"id":"OUT_BRIDGE_COBRA","module":"Your wife's coverage","type":"outcome","title":"COBRA can carry your wife to Medicare","text":"Your coverage ends {{job_cov_end}}. Her Medicare starts {{wife_medicare_start}}: a {{bridge_months}}-month gap. COBRA can cover her up to {{wife_cobra_end}} ({{wife_cobra_rule}}).","bullets":["{{fact:cobra_basics}}","Ask HR for her single-coverage COBRA price now. The COBRA fact above says the most it can cost.","Compare that price with a Get Covered NJ plan. Losing your job plan opens a special window for her to enroll there. {{fact:gcnj_sep_loss}}","Choose between COBRA and Get Covered NJ when your job plan ends. If she starts COBRA and drops it early, she can't switch to Get Covered NJ until open enrollment. {{fact:cobra_drop_no_sep}}"],"add_actions":["ACT_WIFE_COBRA_ELECT"],"add_questions":["Q_HR_COBRA_COST","Q_HR_COBRA_36"],"fact_refs":["cobra_basics","cobra_36_month_rule","gcnj_sep_loss","cobra_drop_no_sep"],"next":"OUT_WIFE_AT_65"},{"id":"D2","module":"Your wife's coverage","type":"question","var":"bridge_income","text":"In the years after you retire but before your wife turns 65, what do you expect your total household income to be? Count pensions, IRA withdrawals, investment gains, and ALL Social Security (even the tax-free part).","help":"These lines are for 2027 coverage. Poverty lines change each year, so the lines for later years will differ. {{fact:fpl_lines_household2}} {{fact:aca_magi_includes_ss}}","fact_refs":["fpl_lines_household2","aca_magi_includes_ss"],"options":[{"label":"Under {{fact:fpl_lines_household2.value.pct400}}","value":"under_400","next":"OUT_BRIDGE_GAP"},{"label":"Between {{fact:fpl_lines_household2.value.pct400}} and {{fact:fpl_lines_household2.value.pct600}}","value":"400_600","next":"OUT_BRIDGE_GAP"},{"label":"Over {{fact:fpl_lines_household2.value.pct600}}","value":"over_600","next":"OUT_BRIDGE_GAP"},{"label":"Not sure","value":"unsure","next":"OUT_BRIDGE_GAP"}]},{"id":"OUT_BRIDGE_GAP","module":"Your wife's coverage","type":"outcome","title":"Your wife needs about {{cobra_gap_months}} months of coverage after COBRA","text":"Your coverage ends {{job_cov_end}}. COBRA can cover her until {{wife_cobra_end}}. Her Medicare starts {{wife_medicare_start}}. That leaves {{cobra_gap_months}} months to cover another way.","variants":[{"when":[{"var":"bridge_income","op":"eq","value":"under_400"}],"text":"At this income she may get both federal and New Jersey help on Get Covered NJ. {{fact:nj_health_plan_savings}}"},{"when":[{"var":"bridge_income","op":"eq","value":"400_600"}],"text":"At this income there is no federal help, but New Jersey's own subsidy may apply. {{fact:federal_ptc_400_cliff}} {{fact:nj_health_plan_savings}}"},{"when":[{"var":"bridge_income","op":"eq","value":"over_600"}],"text":"At this income she pays full price on Get Covered NJ. Compare that with her own employer's plan and with you working a few months longer. {{fact:federal_ptc_400_cliff}}"},{"when":[{"var":"bridge_income","op":"eq","value":"unsure"}],"text":"Her price depends on your income in those years. Below {{fact:fpl_lines_household2.value.pct600}} she may get New Jersey help; below {{fact:fpl_lines_household2.value.pct400}}, federal help too."}],"bullets":["Options: (1) work longer so the gap shrinks; (2) her own employer's plan, if offered; (3) Get Covered NJ; (4) a mix: COBRA first, then Get Covered NJ when COBRA runs out.","If she gets advance tax credits and your income comes in higher than you estimated, you must repay all of the extra. {{fact:ptc_full_repayment}}","If her own employer offers affordable coverage, she can't get marketplace credits. {{fact:employer_offer_blocks_ptc}}","Income from Roth conversions, gains and IRA withdrawals in these years raises her marketplace price in the same year.","If she later leaves her own small employer's plan, New Jersey's state continuation may apply to that plan. {{fact:nj_mini_cobra}}","Choose between COBRA and Get Covered NJ when your job plan ends. If she starts COBRA and drops it early, she can't switch to Get Covered NJ until open enrollment. {{fact:cobra_drop_no_sep}}"],"add_actions":["ACT_WIFE_COBRA_ELECT","ACT_PRICE_GCNJ","ACT_WIFE_GCNJ_ENROLL"],"add_questions":["Q_HR_COBRA_COST","Q_HR_COBRA_36"],"fact_refs":["federal_ptc_400_cliff","nj_health_plan_savings","ptc_full_repayment","employer_offer_blocks_ptc","gcnj_sep_loss","nj_mini_cobra","fpl_2026","fpl_lines_household2","cobra_drop_no_sep"],"next":"OUT_WIFE_AT_65"},{"id":"OUT_WIFE_AT_65","module":"Your wife's coverage","type":"outcome","title":"When your wife turns 65 ({{wife_medicare_start}})","text":"Which plan pays first for her at 65 depends on where her coverage comes from.","bullets":["If she is on your plan and you are still working at a 20+ employer: your plan pays first, and she can wait for Part B. {{fact:partb_defer_while_working}}","If her coverage is from her own employer with fewer than 20 workers: Medicare pays first. She should sign up for Parts A and B when first eligible. {{fact:employer_size_20}}","If she is on COBRA or a marketplace plan: she should sign up for Medicare in her Initial Enrollment Period. {{fact:iep_window}} COBRA does not protect her from the Part B penalty. {{fact:partb_sep}}","Her own one-time Medigap window starts when her Part B starts. She needs her own policy. {{fact:medigap_needs_ab_no_drugs}}","Once she is on Medicare, IRMAA applies to her too, and she files her own SSA-44. {{fact:lce_reporter_only}}"],"add_actions":["ACT_WIFE_MEDICARE_SIGNUP"],"fact_refs":["partb_defer_while_working","employer_size_20","partb_sep","medigap_needs_ab_no_drugs","lce_reporter_only","iep_window"],"next":"E1"},{"id":"E1","module":"Signing up when you retire","type":"route","route":[{"when":[{"var":"part_b","op":"eq","value":"yes"}],"next":"OUT_SIGNUP_HAS_B"},{"next":"OUT_SIGNUP_TIMELINE"}]},{"id":"OUT_SIGNUP_TIMELINE","module":"Signing up when you retire","type":"outcome","title":"Your Medicare sign-up timeline","text":"Job coverage ends {{job_cov_end}}. Here is what to do and when.","timeline":[{"date":"{{partb_file_by}}","text":"Ask HR to sign Form CMS-L564. Apply for Part B online at SSA or with Form CMS-40B. Ask for Part B to start {{partb_start}}. {{fact:partb_forms}} {{fact:partb_sep_start_date}}"},{"date":"{{ma_window_open}}","text":"Earliest date to apply for a Medicare Advantage plan, if you choose one. {{fact:ma_window_new_to_b}}"},{"date":"{{drug_enroll_by_no_gap}}","deadline":true,"text":"Join a Medicare drug plan (or an Advantage plan with drug coverage) by this date so it starts {{partb_start}}, right after your job coverage ends. {{fact:partd_sep_effective_date}}"},{"date":"{{partb_start}}","text":"Part B starts. Your one-time 6-month Medigap window opens. {{fact:medigap_oep}}"},{"date":"{{drug_enroll_by_no_penalty}}","deadline":true,"text":"Last day to join a drug plan without a lifetime Part D penalty. Joining after {{drug_enroll_by_no_gap}} still leaves weeks with no drug coverage. {{fact:partd_penalty}}"},{"date":"{{ma_window_close}}","text":"Your window to join a Medicare Advantage or drug plan closes. {{fact:ma_pd_sep_employer_loss}}"},{"date":"{{medigap_window_close}}","deadline":true,"text":"Last day to buy Medigap with no health questions. After this, NJ companies can turn you down. {{fact:nj_underwriting_after_window}}"},{"date":"{{partb_sep_end}}","deadline":true,"text":"Absolute last day of your 8-month Part B window. Missing it means a lifetime penalty and possibly months with no coverage. COBRA does not extend it. {{fact:partb_sep}} {{fact:partb_penalty}} If missed: {{fact:gep}}"}],"add_actions":["ACT_PARTB_FILE","ACT_PLAN_SHOP","ACT_SSA44","ACT_ENROLL_DRUG"],"fact_refs":["partb_forms","partb_sep_start_date","ma_window_new_to_b","medigap_oep","partd_penalty","ma_pd_sep_employer_loss","nj_underwriting_after_window","partb_sep","partb_penalty","gep","partd_base_2026","partd_base_2027","partd_sep_effective_date"],"next":"F1"},{"id":"OUT_SIGNUP_HAS_B","module":"Signing up when you retire","type":"outcome","title":"You already have Part B: what changes at retirement","text":"You don't need to sign up again. Your Medigap window {{medigap_window_status}}.","bullets":["Drug coverage: join a Medicare drug or Advantage plan by {{drug_enroll_by_no_gap}} so it starts right after your job coverage ends. The last day to join without a Part D penalty is {{drug_enroll_by_no_penalty}}. {{fact:partd_sep_effective_date}} {{fact:partd_penalty}}","If your Medigap window has closed, NJ companies can ask health questions. {{fact:nj_underwriting_after_window}} {{fact:gi_primary_plan_not_federal}} {{fact:gi_nj_state_extension}}","One option to keep a Medigap right: take COBRA for yourself after retiring. Because you already have Medicare, COBRA pays second, and when COBRA ends you get a guaranteed right to buy Medigap. {{fact:gi_after_cobra}} {{fact:cobra_medicare_before_election}} (Cost tradeoff: full COBRA premium. Confirm with NJ SHIP.)","{{fact:gi_63_days}}"],"add_actions":["ACT_PLAN_SHOP","ACT_SSA44","ACT_ENROLL_DRUG","ACT_NJ_GI_CONFIRM"],"add_questions":["Q_SHIP_GI_PRIMARY","Q_SHIP_NJ_GI_PLANS"],"fact_refs":["ma_pd_sep_employer_loss","partd_penalty","nj_underwriting_after_window","gi_primary_plan_not_federal","gi_nj_state_extension","gi_after_cobra","cobra_medicare_before_election","gi_63_days","partd_sep_effective_date"],"next":"F1","variants":[{"when":[{"var":"nj_gi_window_close","op":"set"}],"text":"New Jersey's rule appears to give you a guaranteed right to buy some Medigap plans for 63 days after your job plan ends (until about {{nj_gi_window_close}}). Which plans is not confirmed: ask NJ SHIP before you rely on it. {{fact:gi_nj_state_extension}}"}]},{"id":"F1","module":"Medigap or Medicare Advantage?","type":"info","title":"Two ways to get Medicare","text":"Way 1: Original Medicare + a Medigap plan (like Plan G) + a drug plan. Any doctor in the U.S. who takes Medicare; higher monthly cost; very few surprise bills. Way 2: Medicare Advantage. A private plan with a network. You still pay the Part B premium, and many plans charge little or nothing on top of it. {{fact:ma_requires_partb}} You pay copays up to a yearly limit (up to {{fig:ma_moop.in_network}} in-network). The next few questions weigh cost, keeping your doctors, and predictable bills equally.","fact_refs":["medigap_needs_ab_no_drugs","ma_moop_2027","nj_ma_2027_landscape","medigap_not_with_ma","ma_requires_partb"],"next":"F2"},{"id":"F2","module":"Medigap or Medicare Advantage?","type":"question","var":"health_needs","text":"Do you see a specialist regularly, have an ongoing condition, or expect a surgery in the next few years?","help":"Your answer stays on this device. It only helps weigh the options.","options":[{"label":"Yes","value":"yes","next":"F3"},{"label":"No","value":"no","next":"F3"},{"label":"Prefer not to say","value":"skip","next":"F3"}]},{"id":"F3","module":"Medigap or Medicare Advantage?","type":"question","var":"doctor_choice","text":"How important is it to see any doctor or hospital that takes Medicare, including big hospitals in New York City or Philadelphia, without referrals?","options":[{"label":"Very important","value":"very","next":"F4"},{"label":"Somewhat","value":"somewhat","next":"F4"},{"label":"Not important; I'm fine with a local network","value":"not","next":"F4"}]},{"id":"F4","module":"Medigap or Medicare Advantage?","type":"question","var":"travel","text":"Do you spend weeks at a time outside New Jersey?","options":[{"label":"Yes","value":"yes","next":"F5"},{"label":"No","value":"no","next":"F5"}]},{"id":"F5","module":"Medigap or Medicare Advantage?","type":"question","var":"predictability","text":"Which would bother you more?","options":[{"label":"A higher bill every month, but almost no surprise bills","value":"fixed","next":"F6"},{"label":"A low monthly bill, but maybe a few thousand dollars in a bad year","value":"variable","next":"F6"}]},{"id":"F6","module":"Medigap or Medicare Advantage?","type":"question","var":"budget_ok","text":"In June 2026, Medigap Plan G cost about {{fact:nj_medigap_rates_jun2026.value.plan_g.low}} to {{fact:nj_medigap_rates_jun2026.value.plan_g.high}} a month at age 65 in New Jersey (more at your age), plus a drug plan. Is that affordable for you?","fact_refs":["nj_medigap_rates_jun2026"],"options":[{"label":"Yes","value":"yes","next":"F7"},{"label":"No","value":"no","next":"F7"}]},{"id":"F7","module":"Medigap or Medicare Advantage?","type":"score","comment":"Scoring rules in SPEC.md 'Medigap vs Advantage scoring'.","route":[{"when":[{"var":"medigap_window_open","op":"eq","value":"unknown"}],"next":"OUT_CLOSE_CALL","add_questions":["Q_SHIP_GI_PRIMARY"]},{"when":[{"var":"medigap_window_open","op":"eq","value":false},{"var":"gi_right","op":"eq","value":false}],"next":"OUT_NO_MEDIGAP_WINDOW"},{"when":[{"var":"path_score","op":"gte","value":2}],"next":"OUT_LEAN_MEDIGAP"},{"when":[{"var":"path_score","op":"lte","value":-2}],"next":"OUT_LEAN_MA"},{"next":"OUT_CLOSE_CALL"}]},{"id":"OUT_LEAN_MEDIGAP","module":"Medigap or Medicare Advantage?","type":"outcome","title":"Your answers lean toward Original Medicare + Medigap","text":"You put weight on choosing doctors and on predictable bills. The key risk is timing: buy Medigap inside your 6-month window ({{partb_start}} to {{medigap_window_close}}). Leaving Medigap later is easy; getting back in may not be.","bullets":["{{fact:medigap_oep}}","{{fact:nj_underwriting_after_window}}","You also need a separate drug plan. {{fact:medigap_needs_ab_no_drugs}}"],"fact_refs":["medigap_oep","nj_underwriting_after_window","medigap_needs_ab_no_drugs"],"next":"G1","variants":[{"when":[{"var":"part_b","op":"eq","value":"yes"},{"var":"medigap_window_open","op":"eq","value":true}],"text":"Your one-time window is open now, while your job plan still pays first. Buying Medigap now means paying for it about {{months_until_retire}} months before you need it, but it locks in no health questions. Ask NJ SHIP before deciding."}],"add_questions":["Q_SHIP_DROP_B"],"add_actions":["ACT_MEDIGAP_APPLY","ACT_MEDIGAP_QUOTES_HAS_B"]},{"id":"OUT_LEAN_MA","module":"Medigap or Medicare Advantage?","type":"outcome","title":"Your answers lean toward Medicare Advantage","text":"You put weight on a low monthly cost and are fine with a network. Before you choose, know what is hard to undo: if you skip Medigap now and want it later, NJ companies can ask health questions and say no.","bullets":["Worst case in a bad year: up to {{fig:ma_moop.in_network}} in-network for medical care, plus drug costs up to {{fig:partd_limits.oop_cap}}.","Check that your doctors and hospitals are in the plan's network on Medicare.gov Plan Finder. Networks can change each year.","{{fact:nj_underwriting_after_window}}","At your age you would likely have no trial right to switch back to Medigap with guaranteed acceptance, so treat joining Advantage as hard to undo. Ask NJ SHIP (question below). {{fact:ma_trial_right_at_your_age}}","{{fact:ma_oep}}"],"add_actions":["ACT_PLAN_SHOP"],"fact_refs":["ma_moop_2027","partd_limits_2027","nj_underwriting_after_window","ma_oep","ma_trial_right_at_your_age"],"next":"H1","add_questions":["Q_SHIP_TRIAL"]},{"id":"OUT_CLOSE_CALL","module":"Medigap or Medicare Advantage?","type":"outcome","title":"It's a close call for you","text":"Your answers point both ways. One fact can break the tie: the Medigap choice is the one that's hard to get back into. Book a free NJ SHIP session and bring your doctor list and prescriptions.","bullets":["{{fact:nj_underwriting_after_window}}","{{fact:nj_ship_contact}}"],"add_actions":["ACT_BOOK_SHIP"],"fact_refs":["nj_underwriting_after_window","nj_ship_contact"],"next":"G1"},{"id":"OUT_NO_MEDIGAP_WINDOW","module":"Medigap or Medicare Advantage?","type":"outcome","title":"Your 6-month Medigap window has passed. A New Jersey right may still apply","text":"NJ companies can now look at your health and say no or charge more. You can still apply; if a company accepts you, the policy works the same. Otherwise Medicare Advantage is open to you during your enrollment windows.","bullets":["{{fact:nj_underwriting_after_window}}","{{fact:gi_primary_plan_not_federal}}","{{fact:gi_nj_state_extension}}","{{fact:gi_after_cobra}}"],"add_questions":["Q_SHIP_GI_PRIMARY","Q_SHIP_NJ_GI_PLANS"],"add_actions":["ACT_BOOK_SHIP","ACT_NJ_GI_CONFIRM"],"fact_refs":["nj_underwriting_after_window","gi_primary_plan_not_federal","gi_nj_state_extension","gi_after_cobra"],"next":"H1","variants":[{"when":[{"var":"nj_gi_window_close","op":"set"}],"text":"New Jersey's rule appears to give you a guaranteed right to buy some Medigap plans for 63 days after your job plan ends (until about {{nj_gi_window_close}}). Which plans is not confirmed: ask NJ SHIP before you rely on it. {{fact:gi_nj_state_extension}}"}]},{"id":"G1","module":"Which Medigap plan?","type":"question","var":"visits","text":"In a typical year, how many doctor visits do you have?","help":"Plans G, N and High-Deductible G all pay big hospital bills the same way. They differ in small, frequent costs.","fact_refs":["plan_g_benefits","plan_n_differences","hdg_deductible"],"options":[{"label":"0-4","value":"few","next":"G2"},{"label":"5-10","value":"some","next":"G2"},{"label":"More than 10","value":"many","next":"G2"}]},{"id":"G2","module":"Which Medigap plan?","type":"question","var":"hd_ok","text":"If a big medical bill came, could you comfortably pay up to {{fig:hdg_deductible}} yourself before the plan starts paying?","options":[{"label":"Yes","value":"yes","next":"G3"},{"label":"No","value":"no","next":"G3"}]},{"id":"G3","module":"Which Medigap plan?","type":"question","var":"assignment","text":"Do all your doctors accept Medicare's approved rate as full payment (called 'taking assignment')?","help":"Ask each office: 'Do you accept Medicare assignment?' If a doctor doesn't, they can bill up to 15% more. Plan G pays that; Plan N doesn't.","options":[{"label":"Yes","value":"yes","next":"G4"},{"label":"No / some don't","value":"no","next":"G4"},{"label":"Not sure","value":"unsure","next":"G4"}]},{"id":"G4","module":"Which Medigap plan?","type":"route","route":[{"when":[{"var":"hd_ok","op":"eq","value":"yes"},{"var":"visits","op":"eq","value":"few"}],"next":"OUT_PLAN_HDG"},{"when":[{"var":"assignment","op":"eq","value":"yes"},{"var":"visits","op":"in","value":["few","some"]}],"next":"OUT_PLAN_N_OR_G"},{"next":"OUT_PLAN_G"}]},{"id":"OUT_PLAN_G","module":"Which Medigap plan?","type":"outcome","title":"Plan G fits your answers best","text":"Plan G covers almost everything Original Medicare leaves to you except the Part B deductible ({{fig:partb_deductible}}).","bullets":["{{fact:plan_g_benefits}}","{{fact:plans_cf_closed}}","Every company's Plan G has the same benefits. Shop on price and on how fast the price has risen. {{fact:nj_premium_changes}}"],"calculator":"MEDIGAP_COMPARE","add_actions":["ACT_MEDIGAP_QUOTES","ACT_MEDIGAP_APPLY","ACT_MEDIGAP_QUOTES_HAS_B"],"add_questions":["Q_SHIP_PRICING"],"fact_refs":["plan_g_benefits","plans_cf_closed","nj_premium_changes","partb_deductible_2026","parta_deductible_2026"],"next":"H1"},{"id":"OUT_PLAN_N_OR_G","module":"Which Medigap plan?","type":"outcome","title":"Plan N could save money; compare it with Plan G","text":"Plan N costs less each month. You pay small copays and any excess charges. Enter real quotes below to see which costs less for your number of visits.","bullets":["{{fact:plan_n_differences}}","{{fact:plan_g_benefits}}"],"calculator":"MEDIGAP_COMPARE","add_actions":["ACT_MEDIGAP_QUOTES","ACT_MEDIGAP_APPLY","ACT_MEDIGAP_QUOTES_HAS_B"],"fact_refs":["plan_n_differences","plan_g_benefits"],"next":"H1"},{"id":"OUT_PLAN_HDG","module":"Which Medigap plan?","type":"outcome","title":"High-Deductible Plan G could save money","text":"Its premium is much lower ({{fact:nj_medigap_rates_jun2026.value.hd_plan_g.low}} to {{fact:nj_medigap_rates_jun2026.value.hd_plan_g.high}} a month at 65). You pay the first {{fig:hdg_deductible}} each year yourself, then it works like Plan G.","bullets":["{{fact:hdg_deductible}}","Compare: yearly premium savings vs. the deductible you might pay in a bad year."],"calculator":"MEDIGAP_COMPARE","add_actions":["ACT_MEDIGAP_QUOTES","ACT_MEDIGAP_APPLY","ACT_MEDIGAP_QUOTES_HAS_B"],"fact_refs":["hdg_deductible","nj_medigap_rates_jun2026"],"next":"H1"},{"id":"H1","module":"Income-based premiums (IRMAA)","type":"calculator","calculator":"IRMAA","title":"Will your income raise your Medicare premiums?","text":"Medicare charges more when income is high. It uses an earlier year's tax return, so your last full-salary years can raise your first Medicare premiums. {{fact:irmaa_lookback}} Enter your expected joint income for each tax year.","fact_refs":["irmaa_table_2026","irmaa_lookback","irmaa_magi_definition","irmaa_per_person","partb_2027_status","irmaa_tier_steps"],"next":"H2"},{"id":"H2","module":"Income-based premiums (IRMAA)","type":"outcome","title":"How to lower those surcharges","text":"Retiring is a 'work stoppage', one of the 8 events that let you ask Social Security to use your newer, lower income.","bullets":["{{fact:lce_list}}","{{fact:lce_attestation}}","{{fact:lce_effective}}","{{fact:lce_nonqualifying}} So in the years that set your premiums, large Roth conversions or sales with big gains can't be appealed.","{{fact:lce_spouse_event}} {{fact:lce_reporter_only}}","{{fact:ssa44_form}}","Social Security timing: waiting past full retirement age raises your check (see source) and keeps it out of your income for now. Once you start it, the taxable part counts toward IRMAA income and all of it counts toward your wife's marketplace income. {{fact:ss_delayed_credits}} {{fact:aca_magi_includes_ss}}"],"add_actions":["ACT_SSA44"],"fact_refs":["lce_list","lce_attestation","lce_effective","lce_nonqualifying","lce_spouse_event","lce_reporter_only","ssa44_form","ss_delayed_credits","aca_magi_includes_ss"],"next":"I1"},{"id":"I1","module":"Your plan","type":"summary","title":"Your dated to-do list and questions","text":"Print or save this page. Bring it to HR, Social Security and NJ SHIP. Dates are based on your answers; change an answer to see them update.","renders":["actions","questions","sources","open_items"]}],"actions":{"ACT_GET_CREDITABLE_LETTER":{"when_text":"Now","date_rule":"today","text":"Get this year's 'creditable prescription drug coverage' letter from your plan and keep it. Do this before relying on this guide's drug-plan timing.","fact_refs":["creditable_notice"]},"ACT_HR_QUESTIONS":{"when_text":"Next 30 days","date_rule":"today+30d","text":"Ask HR the questions on the HR list below.","fact_refs":[]},"ACT_ASK_HR_PARTA_OK":{"when_text":"Next 2 weeks, before signing up for Part A","date_rule":"today+14d","text":"Confirm with HR that having Part A doesn't change your job plan.","fact_refs":[]},"ACT_ENROLL_PARTA":{"when_text":"By {{parta_signup_by}}, after HR confirms","date_rule":"parta_signup_by","text":"Sign up for Part A only at ssa.gov/medicare/sign-up. Note the start date on your card.","fact_refs":["parta_retro"],"when":[{"var":"retire_after_36_cutoff","op":"ne","value":true}]},"ACT_SHIP_PARTB_ALREADY":{"when_text":"Next 60 days","date_rule":"today+60d","text":"Call NJ SHIP about keeping or dropping Part B while working, and about your Medigap rights at retirement.","fact_refs":["nj_ship_contact"]},"ACT_BOOK_SHIP":{"when_text":"6 months before retiring","date_rule":"job_cov_end-6m","text":"Book a free NJ SHIP session. Bring your doctor list and prescriptions.","fact_refs":["nj_ship_contact"]},"ACT_PARTB_FILE":{"when_text":"By {{partb_file_by}}","date_rule":"partb_file_by","text":"Get Form CMS-L564 signed by HR. Apply for Part B (online at SSA or Form CMS-40B) with a start date of {{partb_start}}.","fact_refs":["partb_forms","partb_sep_start_date","partb_signup_lead_time"]},"ACT_PLAN_SHOP":{"when_text":"2-3 months before coverage ends","date_rule":"job_cov_end-75d","text":"Compare drug plans (and Advantage plans, if considering) on Medicare.gov Plan Finder with your exact prescriptions.","fact_refs":["ma_window_new_to_b"]},"ACT_MEDIGAP_QUOTES":{"when_text":"2 months before Part B starts","date_rule":"partb_start-60d","text":"Get Medigap quotes at your age from several NJ companies. Ask how each prices by age and its recent increases. Apply so the policy starts with Part B.","fact_refs":["nj_medigap_rates_jun2026","nj_premium_changes","medigap_oep"],"when":[{"var":"part_b","op":"ne","value":"yes"}]},"ACT_SSA44":{"when_text":"After your last day of work: when the IRMAA letter arrives, or in January of your first Medicare year","date_rule":"ssa44_date","text":"File Form SSA-44 for 'work stoppage' with an estimate of this year's and next year's income. Repeat for the second year if needed.","fact_refs":["ssa44_form","lce_effective"]},"ACT_WIFE_COBRA_ELECT":{"when_text":"About 60 days after your coverage ends (the COBRA notice gives the exact deadline)","date_rule":"job_cov_end+60d","text":"Your wife elects COBRA (or enrolls in another plan) so she has no gap.","fact_refs":["cobra_basics"]},"ACT_PRICE_GCNJ":{"when_text":"During Get Covered NJ open enrollment before you retire","date_rule":"gcnj_oe_before_retire","text":"Use Get Covered NJ's Shop and Compare tool to price plans for your wife at her age and your expected income.","fact_refs":["gcnj_oe_2027"]},"ACT_WIFE_GCNJ_ENROLL":{"when_text":"Within 60 days before or after her COBRA ends","date_rule":"wife_cobra_end-30d","text":"Your wife enrolls in a Get Covered NJ plan.","fact_refs":["gcnj_sep_loss"]},"ACT_WIFE_MEDICARE_SIGNUP":{"when_text":"3 months before her 65th birthday month","date_rule":"wife_medicare_start-3m","text":"Your wife signs up for Medicare Parts A and B (unless she is still on your job plan while you work), then picks Medigap + drug plan or Advantage in her own windows.","fact_refs":["partb_sep","medigap_oep","iep_window"]},"ACT_ENROLL_PARTA_WINDOW":{"when":[{"var":"retire_after_36_cutoff","op":"eq","value":true}],"when_text":"Between {{parta_signup_earliest_for_36}} and {{parta_signup_latest_for_36}}","date_rule":"parta_signup_earliest_for_36","text":"Sign up for Part A only, at ssa.gov/medicare/sign-up, in this window if you want your wife's COBRA to last longer: the later in the window, the longer it lasts. If her regular COBRA already reaches her Medicare start, the month doesn't matter for her. Confirm with the plan administrator first, and note the start date on your card.","fact_refs":["parta_retro","cobra_36_month_rule"]},"ACT_MEDIGAP_APPLY":{"when":[{"var":"part_b","op":"ne","value":"yes"}],"when_text":"About a month before Part B starts","date_rule":"partb_start-30d","text":"Apply for your Medigap policy so it starts {{partb_start}}, the day your Part B starts.","fact_refs":["medigap_oep"]},"ACT_MEDIGAP_QUOTES_HAS_B":{"when":[{"var":"part_b","op":"eq","value":"yes"},{"var":"medigap_window_open","op":"eq","value":true}],"when_text":"At least 2 months before your Medigap window closes ({{medigap_window_close}})","date_rule":"medigap_window_close-60d","text":"After talking with NJ SHIP, get Medigap quotes from several NJ companies and decide before your window closes.","fact_refs":["medigap_oep","nj_premium_changes"]},"ACT_ENROLL_DRUG":{"when_text":"By {{drug_enroll_by_no_gap}}","date_rule":"drug_enroll_by_no_gap","text":"Join a Medicare drug plan (or an Advantage plan with drug coverage) so it starts right after your job coverage ends ({{job_cov_end}} is the last day). Join no later than {{drug_enroll_by_no_penalty}}, or a lifetime Part D penalty applies.","fact_refs":["partd_sep_effective_date","partd_penalty"]},"ACT_NJ_GI_CONFIRM":{"when":[{"var":"nj_gi_window_close","op":"set"}],"when_text":"3 months before your job coverage ends","date_rule":"job_cov_end-90d","text":"Ask NJ SHIP which Medigap plans New Jersey's 63-day right lets you buy when your job plan ends (until about {{nj_gi_window_close}}).","fact_refs":["gi_nj_state_extension","nj_ship_contact"]},"ACT_WIFE_PARTB_FILE":{"when":[{"var":"wife_on_medicare_at_retire","op":"eq","value":true}],"when_text":"By {{wife_partb_file_by}}","date_rule":"wife_partb_file_by","text":"Your wife applies for Part B (Form CMS-40B, with her own CMS-L564 signed by your HR) with a start date of {{wife_partb_start}}.","fact_refs":["partb_forms","partb_sep_start_date"]},"ACT_WIFE_DRUG":{"when":[{"var":"wife_on_medicare_at_retire","op":"eq","value":true}],"when_text":"By {{drug_enroll_by_no_gap}}","date_rule":"drug_enroll_by_no_gap","text":"Your wife joins her own Medicare drug plan (or an Advantage plan with drug coverage) so it starts right after your job coverage ends.","fact_refs":["partd_sep_effective_date"]},"ACT_SHIP_NOW":{"when_text":"This week","date_rule":"today+7d","text":"Call NJ SHIP: with fewer than 20 employees, Medicare may already pay first for you.","fact_refs":["nj_ship_contact","employer_size_20"]},"ACT_SHIP_DRUG_NOW":{"when_text":"Next 2 weeks","date_rule":"today+14d","text":"Ask NJ SHIP whether your drug coverage counts as creditable, and when you can join a Medicare drug plan.","fact_refs":["creditable_notice","nj_ship_contact"]},"ACT_HR_EMPLOYEES":{"when":[{"var":"employer_20","op":"eq","value":"unsure"}],"when_text":"Next 30 days","date_rule":"today+30d","text":"Ask HR how many employees the company counts for Medicare, and whether its plan pays before Medicare for you.","fact_refs":["employer_size_20"]}},"questions":{"Q_HR_EMPLOYEES":{"to":"HR","text":"How many employees does the company count for Medicare purposes? Does our plan pay before Medicare for me?"},"Q_HR_CREDITABLE":{"to":"HR","text":"Can I have the written notice that our drug coverage is creditable?"},"Q_HR_RETIREE_DETAILS":{"to":"HR","text":"Is there retiree medical coverage for me and my wife? Does it require Parts A and B? Would joining Medigap, a drug plan or Medicare Advantage end it?"},"Q_HR_COVERAGE_END":{"to":"HR","text":"If my last day is in a given month, on what exact date does my health coverage end?"},"Q_HR_COBRA_COST":{"to":"HR","text":"What will COBRA cost per month for my wife alone?"},"Q_HR_COBRA_36":{"to":"HR","text":"If my Part A start (entitlement) date is {{his_entitlement}}, how long can my wife keep COBRA? Please confirm the 36-month rule in writing.","when":[{"var":"cobra36_eligible","op":"eq","value":true}]},"Q_HR_L564":{"to":"HR","text":"Who signs Form CMS-L564 for me, and how long does it take?"},"Q_HR_PAYOUTS":{"to":"HR","text":"Can severance, bonus or unused-vacation pay be paid in a particular tax year?"},"Q_SHIP_TIMING":{"to":"NJ SHIP","text":"Given my Part A and B status, on what date should my Part B start?"},"Q_SHIP_GI_PRIMARY":{"to":"NJ SHIP","text":"My Medigap window has passed. Does New Jersey give me a guaranteed right to buy Medigap when my job plan (which pays before Medicare) ends? Would taking COBRA first give me that right when COBRA ends?"},"Q_SHIP_DROP_B":{"to":"NJ SHIP","text":"Should I keep Part B while I'm still working, or drop it and re-enroll at retirement?","when":[{"var":"part_b","op":"eq","value":"yes"}]},"Q_SHIP_PRICING":{"to":"NJ SHIP","text":"Which NJ Medigap companies raise prices with age, and what were their recent rate increases?"},"Q_SHIP_TRIAL":{"to":"NJ SHIP","text":"If I try Medicare Advantage first at my age, do I have any right to switch back to Medigap later?"},"Q_SHIP_NETWORK":{"to":"NJ SHIP","text":"Which Advantage plans include my doctors and hospitals?"},"Q_SSA_STATUS":{"to":"Social Security","text":"What is my Part A start (entitlement) date? Am I enrolled in Part B?"},"Q_SSA_SEP":{"to":"Social Security","text":"If I file for Part B before my last day of work, can it start the first day after my job coverage ends?"},"Q_SSA_44":{"to":"Social Security","text":"What proof of work stoppage do you want with Form SSA-44? Can I file before I receive an IRMAA notice?"},"Q_SSA_SPOUSE_LCE":{"to":"Social Security","text":"Can my wife's retirement count as my life-changing event?"},"Q_SSA_CLAIMING":{"to":"Social Security","text":"If I start Social Security now, how will Part B and IRMAA be taken from my check?"},"Q_HR_HSA":{"to":"HR","text":"Do I or the company put money into an HSA for me? When can those contributions stop, so none go in for the months my Part A will be backdated?"},"Q_SSA_PARTA_START":{"to":"Social Security","when":[{"var":"retire_after_36_cutoff","op":"eq","value":true}],"text":"If I apply for Part A only, what start date will my card show? If I apply in the month of {{parta_signup_latest_for_36}} instead of now, what start date would I get?"},"Q_HR_PARTA_ENTITLEMENT":{"to":"HR","when":[{"var":"retire_after_36_cutoff","op":"eq","value":true}],"text":"Does the plan count my backdated Part A start date as my Medicare entitlement date for my wife's 36-month COBRA rule?"},"Q_SHIP_NJ_GI_PLANS":{"to":"NJ SHIP","when":[{"var":"nj_gi_window_close","op":"set"}],"text":"Which Medigap plans does New Jersey's guaranteed right let me buy when I leave my job plan, and does it include Plan G?"}},"always_include_questions":["Q_HR_EMPLOYEES","Q_HR_CREDITABLE","Q_HR_COVERAGE_END","Q_HR_L564","Q_HR_PAYOUTS","Q_SHIP_TIMING","Q_SHIP_TRIAL","Q_SHIP_NETWORK","Q_SSA_STATUS","Q_SSA_SEP","Q_SSA_44","Q_SSA_SPOUSE_LCE","Q_SSA_CLAIMING"],"glossary":{"part_a":{"term":"Part A","text":"Hospital insurance: hospital stays, skilled nursing after a hospital stay, hospice.","fact":"parta_premium_free"},"part_b":{"term":"Part B","text":"Medical insurance: doctors, outpatient care, tests and equipment. It has a monthly premium.","fact":"partb_premium_2026"},"part_d":{"term":"Part D","text":"Prescription drug coverage, sold by private plans.","fact":"partd_penalty"},"medigap":{"term":"Medigap","text":"A private policy that pays most of what Original Medicare (Parts A and B) leaves for you to pay. Plans have letters, like G and N.","fact":"medigap_oep"},"medicare_advantage":{"term":"Medicare Advantage","text":"A private plan that replaces Original Medicare, usually with a network of doctors and copays up to a yearly limit.","fact":"ma_moop_2027"},"irmaa":{"term":"IRMAA","text":"An extra amount added to Part B and Part D premiums when income is above a set level.","fact":"irmaa_table_2026"},"cobra":{"term":"COBRA","text":"A way to keep a job health plan for a limited time after it would end, usually at full price.","fact":"cobra_basics"},"creditable_coverage":{"term":"creditable coverage","text":"Drug coverage that is expected to pay at least as much as standard Medicare drug coverage.","fact":"creditable_notice"},"guaranteed_issue":{"term":"guaranteed issue","text":"A situation where a company must sell you a Medigap policy without looking at your health.","fact":"gi_63_days"},"take_assignment":{"term":"take assignment","text":"A doctor who takes assignment accepts Medicare's approved amount as full payment.","fact":"plan_g_benefits"},"ship":{"term":"SHIP","text":"New Jersey's State Health Insurance Assistance Program: free, unbiased Medicare counseling.","fact":"nj_ship_contact"}},"open_items":[{"text":"Official 2027 Part B premium and IRMAA brackets (CMS, expected mid-November 2026).","fact_refs":["partb_2027_status"]},{"text":"Your Part A start date (Social Security). It decides how long your wife can keep COBRA.","fact_refs":["cobra_36_month_rule"]},{"text":"The exact date your job coverage ends (HR).","fact_refs":["his_coverage_end_assumption"]},{"text":"Which Medigap plans New Jersey's 63-day right covers today, and whether the rule is still current (NJ SHIP or NJ DOBI).","fact_refs":["gi_nj_state_extension"]},{"text":"Whether a first-time Advantage enrollee at your age has any trial right (NJ SHIP).","fact_refs":["ma_trial_right_at_your_age"]},{"text":"Your wife's COBRA price and her own employer's plan cost (HR; her employer).","fact_refs":[]},{"text":"Whether Congress changes marketplace subsidies for 2027-2029.","fact_refs":["federal_ptc_400_cliff"]}],"key_deadlines":[{"var":"job_cov_end","text":"Your job health coverage ends"},{"var":"partb_file_by","text":"Apply for Part B (with HR's signed CMS-L564)"},{"var":"partb_start","when":[{"var":"part_b","op":"ne","value":"yes"}],"text":"Your Part B starts; your 6-month Medigap window opens"},{"var":"drug_enroll_by_no_gap","deadline":true,"text":"Join a drug plan by this date for no gap in drug coverage"},{"var":"drug_enroll_by_no_penalty","deadline":true,"text":"Last day to join a drug plan without a Part D penalty"},{"var":"medigap_window_close","deadline":true,"text":"Your Medigap window closes (after this, companies can ask health questions)","when":[{"var":"medigap_window_open","op":"ne","value":false}]},{"var":"partb_sep_end","deadline":true,"when":[{"var":"part_b","op":"ne","value":"yes"}],"text":"Last day of your 8-month Part B window"},{"var":"nj_gi_window_close","deadline":true,"text":"New Jersey's 63-day Medigap right ends (confirm with NJ SHIP)"},{"var":"wife_partb_file_by","text":"Your wife applies for Part B"},{"var":"wife_cobra_end","when":[{"var":"wife_on_his_plan","op":"eq","value":"yes"},{"var":"wife_on_medicare_at_retire","op":"eq","value":false}],"text":"Your wife's COBRA can last until"},{"var":"wife_medicare_start","text":"Your wife's Medicare starts"},{"var":"wife_medigap_window_close","deadline":true,"text":"Your wife's Medigap window closes"}]}</script>
+<script>
+(function () {
+'use strict';
+// ---- src/engine.js ----
+// Pure calculation engine: dates, computed values (SPEC 3), scoring (SPEC 4), calculators (SPEC 5).
+// No DOM access. Dates are ISO strings "YYYY-MM-DD"; months are "YYYY-MM".
+
+// ---------- dates ----------
+const ISO_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
+const MONTH_RE = /^(\d{4})-(\d{2})$/;
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+  'August', 'September', 'October', 'November', 'December'];
+
+const pad = (n, w = 2) => String(n).padStart(w, '0');
+
+function isLeapYear(y) {
+  return (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+}
+
+function daysInMonth(y, m) {
+  return [31, isLeapYear(y) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1];
+}
+
+function isValidDate(s) {
+  const r = ISO_RE.exec(s || '');
+  if (!r) return false;
+  const y = +r[1], m = +r[2], d = +r[3];
+  return m >= 1 && m <= 12 && d >= 1 && d <= daysInMonth(y, m);
+}
+
+function isValidMonth(s) {
+  const r = MONTH_RE.exec(s || '');
+  return !!r && +r[2] >= 1 && +r[2] <= 12;
+}
+
+function parseDate(s) {
+  if (!isValidDate(s)) throw new Error('Bad date: ' + s);
+  const [y, m, d] = s.split('-').map(Number);
+  return { y, m, d };
+}
+
+function makeDate(y, m, d) {
+  return `${pad(y, 4)}-${pad(m)}-${pad(d)}`;
+}
+
+function firstOfMonth(s) {
+  const { y, m } = parseDate(s);
+  return makeDate(y, m, 1);
+}
+
+function lastOfMonth(s) {
+  const { y, m } = parseDate(s);
+  return makeDate(y, m, daysInMonth(y, m));
+}
+
+function monthToFirst(month) {
+  if (!isValidMonth(month)) throw new Error('Bad month: ' + month);
+  return month + '-01';
+}
+
+function monthToLast(month) {
+  return lastOfMonth(monthToFirst(month));
+}
+
+// "+Nm" rule (CLAUDE_CODE_PROMPT requirement 3): a month-end date maps to the target month's end;
+// any other date keeps its day, clamped to the target month's length.
+function addMonths(s, n) {
+  const { y, m, d } = parseDate(s);
+  const idx = y * 12 + (m - 1) + n;
+  const ty = Math.floor(idx / 12), tm = (idx % 12) + 1;
+  const dim = daysInMonth(ty, tm);
+  const day = d === daysInMonth(y, m) ? dim : Math.min(d, dim);
+  return makeDate(ty, tm, day);
+}
+
+function addDays(s, n) {
+  const { y, m, d } = parseDate(s);
+  const t = new Date(Date.UTC(y, m - 1, d) + n * 86400000);
+  return makeDate(t.getUTCFullYear(), t.getUTCMonth() + 1, t.getUTCDate());
+}
+
+function yearOf(s) { return parseDate(s).y; }
+function monthOf(s) { return parseDate(s).m; }
+const maxDate = (a, b) => (a > b ? a : b);
+const minDate = (a, b) => (a < b ? a : b);
+
+// Whole months from a to b, counting any partial month as a full month (so a short gap is never 0).
+function monthsCeil(a, b) {
+  const A = parseDate(a), B = parseDate(b);
+  let n = (B.y - A.y) * 12 + (B.m - A.m);
+  if (B.d > A.d) n += 1;
+  return n;
+}
+
+function formatDate(s) {
+  const { y, m, d } = parseDate(s);
+  return `${MONTH_NAMES[m - 1]} ${d}, ${y}`;
+}
+
+function formatMonth(month) {
+  const [y, m] = month.split('-').map(Number);
+  return `${MONTH_NAMES[m - 1]} ${y}`;
+}
+
+// ---------- money ----------
+// Work in integer cents to avoid floating-point drift.
+const toCents = (usd) => Math.round(usd * 100);
+
+function formatUSD(usd, opts = {}) {
+  const cents = toCents(usd);
+  const whole = cents % 100 === 0 && !opts.cents;
+  const abs = Math.abs(cents);
+  const dollars = Math.floor(abs / 100).toLocaleString('en-US');
+  const out = whole ? `$${dollars}` : `$${dollars}.${pad(abs % 100)}`;
+  return cents < 0 ? '-' + out : out;
+}
+
+// Round cents to the nearest 10 cents (Medicare penalty rounding).
+const roundToDime = (cents) => Math.round(cents / 10) * 10;
+
+// ---------- facts ----------
+function indexFacts(factsDoc) {
+  const map = {};
+  for (const f of factsDoc.facts) map[f.id] = f;
+  Object.defineProperty(map, '__meta', { value: factsDoc.meta || {}, enumerable: false });
+  return map;
+}
+
+function isStale(fact, today) {
+  return !!(fact && fact.review_after && today > fact.review_after);
+}
+
+// Pick a year-keyed fact (prefix_YYYY) for `year`, falling back to the latest earlier year.
+function pickYearFact(facts, prefix, year) {
+  const re = new RegExp('^' + prefix + '_(\\d{4})$');
+  let best = null;
+  for (const id of Object.keys(facts)) {
+    const r = re.exec(id);
+    if (!r) continue;
+    const y = +r[1];
+    if (y <= year && (!best || y > best.year)) best = { year: y, fact: facts[id] };
+  }
+  if (!best) return null;
+  return { ...best, placeholder: best.year !== year };
+}
+
+// Pick a value from a fact whose value is keyed by year ({"2026": 2950, "2027": 3050}).
+function pickYearKey(obj, year) {
+  const years = Object.keys(obj).map(Number).filter((y) => y <= year);
+  if (!years.length) return null;
+  const y = Math.max(...years);
+  return { year: y, value: obj[y], placeholder: y !== year };
+}
+
+// ---------- computed values (SPEC 3) ----------
+const known = (v) => v !== undefined && v !== null && v !== '' && v !== 'unknown' && v !== 'default';
+
+function wifeMedicareStart(birth) {
+  const { y, m, d } = parseDate(birth);
+  const start = makeDate(y + 65, m, 1);
+  return d === 1 ? addMonths(start, -1) : start;
+}
+
+function gcnjWindowBefore(facts, jobCovEnd, today) {
+  const base = facts.gcnj_oe_2027 && facts.gcnj_oe_2027.value;
+  if (!base) return null;
+  let pick = null;
+  for (let k = -1; k <= 10; k++) {
+    const start = addMonths(base.start, 12 * k), end = addMonths(base.end, 12 * k);
+    if (end < jobCovEnd && end >= today) pick = { start, end, assumed: k !== 0 };
+  }
+  return pick;
+}
+
+const LABEL = {
+  job_cov_end: ['INFERRED', 'high', 'Your answer.'],
+  wife_medicare_start: ['INFERRED', 'high', 'First day of her 65th-birthday month; if born on the 1st, the month before (fact medicare_start_month).'],
+  his_entitlement: ['INFERRED', 'medium', 'Your Part A start date.'],
+  part_a_projected_start: ['INFERRED', 'medium', 'Part A starts 6 months back from the month you sign up, assumed to be the sign-up month on your to-do list (fact parta_retro).'],
+  parta_signup_by: ['ASSUMED', null, 'The end of the month two weeks from today, leaving time to check with HR first. A guide timing choice, not a Medicare rule.'],
+  parta_signup_earliest_for_36: ['INFERRED', 'medium', 'The first sign-up month whose backdated Part A start (6 months earlier) is less than 18 months before your last day of work (facts parta_retro, cobra_36_month_rule).'],
+  parta_signup_latest_for_36: ['INFERRED', 'medium', 'The month you stop working: a later sign-up could start Part A after you retire, which the 36-month rule does not count (facts parta_retro, cobra_36_month_rule).'],
+  wife_cobra_end_if_parta_latest: ['INFERRED', 'medium', 'Part A start for a sign-up in the latest month (6 months back) + 36 months - 1 day (facts parta_retro, cobra_36_month_rule).'],
+  drug_enroll_by_no_gap: ['INFERRED', 'high', 'Last day of the month before the month that contains the day after your job coverage ends, so the plan starts on the 1st with no gap (fact partd_sep_effective_date).'],
+  drug_enroll_by_no_penalty: ['INFERRED', 'high', 'The last day you can join so the plan starts (on the 1st of the next month) before a 63-day gap, and within your enrollment window (facts partd_penalty, partd_sep_effective_date, ma_pd_sep_employer_loss).'],
+  nj_gi_window_close: ['INFERRED', 'medium', 'Job coverage end + 63 days (fact gi_nj_state_extension, which is UNVERIFIED).'],
+  ssa44_date: ['INFERRED', 'medium', 'The later of January 1 of your first Part B year and the first day of the month after you stop working: a work-stoppage request can only be made after work stops (fact lce_effective).'],
+  wife_partb_start: ['INFERRED', 'high', "The first day of the month that contains the day after your job coverage ends (her Part B starts the same way as yours; fact partb_sep_start_date)."],
+  wife_partb_file_by: ['INFERRED', 'medium', 'Her Part B start - 2 months (the same lead time as yours).'],
+  wife_medigap_window_close: ['INFERRED', 'high', 'Her Part B start + 6 months - 1 day (fact medigap_oep).'],
+  months_until_retire: ['INFERRED', 'medium', 'Months from today until your job coverage ends.'],
+  cobra36_eligible: ['INFERRED', 'medium', 'Part A start is before your last day of work and less than 18 months before it (fact cobra_36_month_rule).'],
+  wife_cobra_end: ['INFERRED', 'medium', 'Job coverage end + 18 months, or Part A start + 36 months - 1 day if the 36-month rule applies, whichever is later. Confirm with the plan administrator.'],
+  bridge_months: ['INFERRED', 'medium', 'Months from the day after your job coverage ends to her Medicare start (any part month counts as a month).'],
+  cobra_gap_months: ['INFERRED', 'medium', 'Months from the day after her COBRA ends to her Medicare start (any part month counts as a month).'],
+  retire_by_for_36: ['INFERRED', 'medium', 'Projected Part A start + 18 months - 1 day.'],
+  wife_cobra_end_if_parta_now: ['INFERRED', 'medium', 'Projected Part A start + 36 months - 1 day.'],
+  partb_start: ['INFERRED', 'high', 'The first day of the month that contains the day after your job coverage ends (Part B always starts on the 1st). Fact partb_sep_start_date.'],
+  partb_file_by: ['INFERRED', 'medium', 'Part B start - 2 months (Medicare says about 1 month; 2 adds time for the CMS-L564 signature).'],
+  ma_window_open: ['INFERRED', 'high', 'Part B start - 3 months (fact ma_window_new_to_b).'],
+  ma_window_close: ['INFERRED', 'high', 'End of the 2nd full month after the month your job coverage ends (fact ma_pd_sep_employer_loss).'],
+  drug_deadline: ['INFERRED', 'high', 'Job coverage end + 63 days (facts partd_penalty, creditable_notice).'],
+  medigap_window_close: ['INFERRED', 'high', 'Part B start + 6 months - 1 day (fact medigap_oep).'],
+  medigap_window_open: ['INFERRED', 'high', 'Compares today with the end of your 6-month Medigap window.'],
+  partb_sep_end: ['INFERRED', 'high', 'End of the 8th month after the month your job or job coverage ends, whichever is earlier (fact partb_sep).'],
+  irmaa_first_year_jan: ['INFERRED', 'medium', 'January 1 of the year your Part B starts.'],
+  gcnj_oe_before_retire: ['INFERRED', 'medium', 'The Get Covered NJ open enrollment (Nov 1 - Jan 31) that ends before your job coverage ends (fact gcnj_oe_2027).']
+};
+
+// answers: effective answers on the current path. today: ISO date.
+// Returns { values, meta, notes, questions } where meta[name] = {label, confidence, how}.
+function compute(answers, facts, today) {
+  const a = answers || {};
+  const v = { as_of: (facts.__meta && facts.__meta.as_of) || null, today, gi_right: false };
+  const meta = {};
+  const notes = []; // {needs, for}
+  const questions = [];
+  const set = (name, value, overrides) => {
+    v[name] = value;
+    const [label, confidence, how] = LABEL[name] || ['INFERRED', 'medium', ''];
+    meta[name] = { label, confidence, how, ...(overrides || {}) };
+  };
+
+  // Job coverage end
+  let lastDayWorked = null;
+  if (isValidMonth(a.last_work_month)) {
+    lastDayWorked = monthToLast(a.last_work_month);
+    v.last_day_worked = lastDayWorked;
+  }
+  if (isValidDate(a.job_cov_end)) {
+    v.job_cov_end = a.job_cov_end; // the user's own answer: no estimate badge
+  } else if (lastDayWorked) {
+    set('job_cov_end', lastDayWorked, { label: 'ASSUMED', confidence: null,
+      how: 'Assumed to be the last day of the month you stop working (fact his_coverage_end_assumption). Confirm with HR.' });
+  }
+  const jce = v.job_cov_end || null;
+
+  // Wife's Medicare start
+  if (isValidDate(a.wife_birth)) set('wife_medicare_start', wifeMedicareStart(a.wife_birth));
+
+  // Part A
+  if (a.part_a === 'no') {
+    // "Now" = by the end of the month two weeks out (after the HR check), so the action date and the
+    // projected start use the same sign-up month.
+    const signupBy = lastOfMonth(addDays(today, 14));
+    const pps = addMonths(firstOfMonth(signupBy), -6);
+    set('parta_signup_by', signupBy);
+    set('part_a_projected_start', pps);
+    set('retire_by_for_36', addDays(addMonths(pps, 18), -1));
+    set('wife_cobra_end_if_parta_now', addDays(addMonths(pps, 36), -1));
+    set('his_entitlement', pps, { how: 'Projected Part A start if you sign up by ' + formatDate(signupBy) + '.' });
+    if (lastDayWorked) {
+      // C1: retiring after the cutoff, a sign-up now is too early for the 36-month rule. A sign-up month M
+      // (start M - 6 months) qualifies when that start is < 18 months before the last day worked.
+      v.retire_after_36_cutoff = lastDayWorked > v.retire_by_for_36;
+      if (v.retire_after_36_cutoff) {
+        const latest = firstOfMonth(lastDayWorked);
+        const earliest = addMonths(latest, -11);
+        set('parta_signup_earliest_for_36', earliest);
+        set('parta_signup_latest_for_36', latest);
+        set('wife_cobra_end_if_parta_latest', addDays(addMonths(addMonths(latest, -6), 36), -1));
+      }
+    }
+  } else if (isValidMonth(a.part_a_date)) {
+    set('his_entitlement', monthToFirst(a.part_a_date));
+  } else if (a.part_a === 'yes') {
+    // Date unknown: treat as more than 18 months before retirement (no 36-month rule).
+    v.his_entitlement = null;
+    v.entitlement_assumed = true;
+    meta.his_entitlement = { label: 'ASSUMED', confidence: null, unknown: true,
+      how: 'Part A date not known: assumed to be more than 18 months before you retire, so the 36-month COBRA rule is not used. Ask Social Security.' };
+    questions.push('Q_SSA_STATUS');
+  }
+  if (v.his_entitlement) v.part_a_date_display = v.his_entitlement;
+
+  // COBRA for wife
+  if (jce && lastDayWorked) {
+    const ent = v.his_entitlement;
+    const c36 = !!ent && ent < lastDayWorked && lastDayWorked < addMonths(ent, 18);
+    set('cobra36_eligible', c36);
+    const base = addMonths(jce, 18);
+    const end = c36 ? maxDate(base, addDays(addMonths(ent, 36), -1)) : base;
+    set('wife_cobra_end', end, v.entitlement_assumed ? { label: 'ASSUMED', confidence: null,
+      how: 'Job coverage end + 18 months (your Part A date is unknown, so the 36-month rule was not used).' } : undefined);
+    v.wife_cobra_rule = c36
+      ? '36-month rule (you became entitled to Medicare less than 18 months before retiring)'
+      : '18-month rule';
+  }
+  if (jce && v.wife_medicare_start) {
+    set('bridge_months', monthsCeil(addDays(jce, 1), v.wife_medicare_start));
+    if (v.wife_cobra_end) set('cobra_gap_months', monthsCeil(addDays(v.wife_cobra_end, 1), v.wife_medicare_start));
+  }
+  // H2: she reaches Medicare while still on his job plan, so she signs up for Part B when it ends, as he does.
+  v.wife_on_medicare_at_retire = !!(jce && v.wife_medicare_start && a.wife_on_his_plan === 'yes' && v.wife_medicare_start <= jce);
+  if (v.wife_on_medicare_at_retire) {
+    const ws = firstOfMonth(addDays(jce, 1));
+    set('wife_partb_start', ws);
+    set('wife_partb_file_by', addMonths(ws, -2));
+    set('wife_medigap_window_close', addDays(addMonths(ws, 6), -1));
+  }
+  if (jce) set('months_until_retire', Math.max(0, monthsCeil(today, jce)));
+
+  // Part B
+  if (a.part_b === 'yes') {
+    if (isValidMonth(a.part_b_date)) {
+      set('partb_start', monthToFirst(a.part_b_date), { how: 'Your Part B start date from your card.' });
+    }
+  } else if (jce) {
+    const ps = firstOfMonth(addDays(jce, 1));
+    set('partb_start', ps);
+    set('partb_file_by', addMonths(ps, -2));
+    set('ma_window_open', addMonths(ps, -3));
+  }
+  if (jce) {
+    set('ma_window_close', lastOfMonth(addMonths(firstOfMonth(jce), 2)));
+    set('drug_deadline', addDays(jce, 63));
+    // C2: a drug plan starts on the 1st of the month after you join (fact partd_sep_effective_date).
+    const gapStart = addDays(jce, 1);
+    const gapDays = facts.partd_penalty.value.gap_days;
+    set('drug_enroll_by_no_gap', addDays(firstOfMonth(gapStart), -1));
+    set('drug_enroll_by_no_penalty', minDate(addDays(firstOfMonth(addDays(gapStart, gapDays - 1)), -1), v.ma_window_close));
+    const endedFirst = lastDayWorked ? minDate(lastDayWorked, jce) : jce;
+    set('partb_sep_end', lastOfMonth(addMonths(firstOfMonth(endedFirst), 8)));
+  }
+
+  // Medigap window
+  if (v.partb_start) set('medigap_window_close', addDays(addMonths(v.partb_start, 6), -1));
+  if (a.part_b === 'no' || (a.part_b === undefined && a.part_a === 'no')) {
+    set('medigap_window_open', true);
+    v.medigap_window_status = v.medigap_window_close
+      ? `is still open until ${formatDate(v.medigap_window_close)}` : 'opens when your Part B starts';
+  } else if (a.part_b === 'yes') {
+    if (v.medigap_window_close) {
+      const open = today <= v.medigap_window_close;
+      set('medigap_window_open', open);
+      v.medigap_window_status = open
+        ? `is still open until ${formatDate(v.medigap_window_close)}`
+        : `closed on ${formatDate(v.medigap_window_close)}`;
+    } else {
+      set('medigap_window_open', 'unknown', { how: 'Your Part B start date is not known.' });
+      v.medigap_window_status = "can't be determined — ask NJ SHIP";
+      questions.push('Q_SHIP_GI_PRIMARY');
+    }
+  }
+  // C3: New Jersey's 63-day right after leaving a job plan that pays first (UNVERIFIED-high).
+  if (a.part_b === 'yes' && v.medigap_window_open !== true && jce && facts.gi_nj_state_extension) {
+    set('nj_gi_window_close', addDays(jce, facts.gi_nj_state_extension.value.window_days_after));
+  }
+
+  // IRMAA first January
+  if (v.partb_start) {
+    const y = yearOf(v.partb_start);
+    set('irmaa_first_year_jan', makeDate(y, 1, 1));
+    if (monthOf(v.partb_start) >= 10) v.irmaa_second_year_jan = makeDate(y + 1, 1, 1);
+    // H1: a work-stoppage request can be made only after work stops (POMS HI 01120.005 B).
+    set('ssa44_date', lastDayWorked ? maxDate(v.irmaa_first_year_jan, firstOfMonth(addMonths(lastDayWorked, 1))) : v.irmaa_first_year_jan);
+  }
+  // Year for yearly dollar figures ({{fig:...}}): the year Part B starts, never earlier than this year.
+  v.decision_year = Math.max(v.partb_start ? yearOf(v.partb_start) : yearOf(today), yearOf(today));
+
+  // Get Covered NJ window before retirement
+  if (jce) {
+    const w = gcnjWindowBefore(facts, jce, today);
+    if (w) {
+      set('gcnj_oe_before_retire', maxDate(w.start, today), w.assumed
+        ? { label: 'ASSUMED', confidence: null, how: `Assumes Get Covered NJ keeps the same Nov 1 - Jan 31 dates in later years (only the 2026-27 dates are published).` }
+        : undefined);
+      v.gcnj_window = w;
+    }
+  }
+
+  // Scoring (SPEC 4)
+  const score = pathScore(a, v.medigap_window_open, facts);
+  v.path_score = score.total;
+  v.path_score_reasons = score.reasons;
+  meta.path_score = { label: 'ASSUMED', confidence: null, how: 'Design weights (fact path_score_weights), not a Medicare rule.' };
+
+  // Needs
+  if (!jce) notes.push('the month you plan to stop working');
+  if (!v.wife_medicare_start) notes.push("your wife's date of birth");
+
+  return { values: v, meta, notes, questions };
+}
+
+// ---------- scoring (SPEC 4) ----------
+function pathScore(a, windowOpen, facts) {
+  const w = facts.path_score_weights.value;
+  const reasons = [];
+  const add = (name, answer, pts) => reasons.push({ name, answer, points: pts });
+  for (const name of ['health_needs', 'doctor_choice', 'travel', 'predictability', 'budget_ok']) {
+    const ans = a[name];
+    if (ans === undefined) continue;
+    add(name, ans, (w[name] && w[name][ans]) || 0);
+  }
+  if (windowOpen === true && a.health_needs === 'yes') add('reversibility', 'window open and health needs', w.reversibility);
+  const total = reasons.reduce((s, r) => s + r.points, 0);
+  return { total, reasons };
+}
+
+// ---------- IRMAA (SPEC 5a) ----------
+// Whole-dollar MAGI; tiers use the table's inclusive min/max, which encode CMS's exact
+// "greater than" / "less than or equal" wording (boundary_note).
+function irmaaTier(table, magi) {
+  const m = Math.round(magi);
+  for (const row of table) {
+    if (m >= row.joint_magi_min && (row.joint_magi_max === null || m <= row.joint_magi_max)) return row;
+  }
+  return null;
+}
+
+function irmaaTableFor(facts, premiumYear) {
+  const pick = pickYearFact(facts, 'irmaa_table', premiumYear);
+  if (!pick) return null;
+  return { table: pick.fact.value, tableYear: pick.year, placeholder: pick.placeholder, factId: pick.fact.id };
+}
+
+function monthsInYear(startIso, year) {
+  if (!startIso) return 0;
+  const y = yearOf(startIso);
+  if (y < year) return 12;
+  if (y > year) return 0;
+  return 13 - monthOf(startIso);
+}
+
+const monthlySurchargeCents = (row) => toCents(row.partb_irmaa) + toCents(row.partd_irmaa);
+
+// inputs: { partbStart, wifeMedicareStart, wifeHasB, lastWorkMonth, magi: {year: n}, oneTime: {year: n}, lastYear }
+function irmaaSchedule(facts, inputs) {
+  const rows = [];
+  if (!inputs.partbStart) return rows;
+  const firstYear = yearOf(inputs.partbStart);
+  const lastYear = inputs.lastYear || 2031;
+  const margin = facts.irmaa_cliff_margin ? facts.irmaa_cliff_margin.value : 0;
+  const lastWorkYear = inputs.lastWorkMonth ? +inputs.lastWorkMonth.slice(0, 4) : null;
+  const lastFullSalaryYear = inputs.lastWorkMonth
+    ? (+inputs.lastWorkMonth.slice(5, 7) === 12 ? lastWorkYear : lastWorkYear - 1) : null;
+  for (let Y = firstYear; Y <= lastYear; Y++) {
+    const t = irmaaTableFor(facts, Y);
+    const taxYear = Y - 2;
+    const himMonths = monthsInYear(inputs.partbStart, Y);
+    const wifeMonths = inputs.wifeHasB ? monthsInYear(inputs.wifeMedicareStart, Y) : 0;
+    const row = { year: Y, taxYear, himMonths, wifeMonths, tableYear: t && t.tableYear,
+      placeholder: t ? t.placeholder : true, factId: t && t.factId };
+    const magi = inputs.magi ? inputs.magi[taxYear] : undefined;
+    if (!t || magi === undefined || magi === null || magi === '') {
+      row.missing = `income estimate for ${taxYear}`;
+      rows.push(row);
+      continue;
+    }
+    const tier = irmaaTier(t.table, +magi);
+    row.magi = +magi;
+    row.tier = tier.tier;
+    row.surchargeCents = (himMonths + wifeMonths) * monthlySurchargeCents(tier);
+    row.surcharge = row.surchargeCents / 100;
+    // Cliff warning: within `margin` of the income where the next tier starts.
+    const next = t.table.find((r) => r.tier === tier.tier + 1);
+    if (next && next.joint_magi_min - row.magi <= margin) {
+      row.cliff = { nextMin: next.joint_magi_min,
+        stepPerPersonYear: (12 * (monthlySurchargeCents(next) - monthlySurchargeCents(tier))) / 100 };
+    }
+    // Appeal (life-changing event: work stoppage)
+    const appealable = lastWorkYear !== null && taxYear <= lastWorkYear && Y >= lastFullSalaryYear + 1;
+    row.appealable = appealable;
+    if (appealable) {
+      const newer = inputs.magi ? inputs.magi[Y] : undefined;
+      if (newer === undefined || newer === null || newer === '') {
+        row.appealMissing = `income estimate for ${Y}`;
+      } else {
+        const at = irmaaTier(t.table, +newer);
+        row.appealTier = at.tier;
+        row.appealSurchargeCents = (himMonths + wifeMonths) * monthlySurchargeCents(at);
+        row.appealSurcharge = row.appealSurchargeCents / 100;
+        const oneTime = inputs.oneTime ? +(inputs.oneTime[Y] || 0) : 0;
+        row.appealOneTime = oneTime; // still counted in year Y; cannot be appealed
+      }
+    }
+    rows.push(row);
+  }
+  return rows;
+}
+
+// ---------- late penalties (SPEC 5b) ----------
+function partBPenalty(facts, monthsLate, year) {
+  const prem = pickYearFact(facts, 'partb_premium', year);
+  const pct = facts.partb_penalty.value.pct_per_full_12_months * Math.floor(monthsLate / 12);
+  const baseCents = toCents(prem.fact.value);
+  const cents = roundToDime((baseCents * (100 + pct)) / 100);
+  return { pct, monthly: cents / 100, premiumYear: prem.year, placeholder: prem.placeholder, factId: prem.fact.id };
+}
+
+function partDPenalty(facts, monthsWithout, year) {
+  const base = pickYearFact(facts, 'partd_base', year);
+  const pct = facts.partd_penalty.value.pct_per_month;
+  const cents = roundToDime((toCents(base.fact.value) * monthsWithout * pct) / 100);
+  return { monthly: cents / 100, baseYear: base.year, placeholder: base.placeholder, factId: base.fact.id };
+}
+
+// ---------- Medigap compare (SPEC 5c) ----------
+// inputs: { g, n, hdg (monthly premiums), office, er, excess, yearType: healthy|moderate|bad, year }
+function medigapCompare(facts, inputs) {
+  const types = facts.medigap_compare_year_types.value;
+  const year = inputs.year;
+  const partA = pickYearFact(facts, 'parta_deductible', year);
+  const partB = pickYearFact(facts, 'partb_deductible', year);
+  const hd = pickYearKey(facts.hdg_deductible.value, year);
+  const copay = facts.plan_n_differences.value;
+  const costSharing = inputs.yearType === 'healthy' ? types.healthy
+    : inputs.yearType === 'bad' ? partA.fact.value + types.bad_extra : types.moderate;
+  const excess = +inputs.excess || 0;
+  const bDed = Math.min(costSharing, partB.fact.value);
+  const out = { costSharing, partBDeductible: partB.fact.value, hdDeductible: hd.value,
+    placeholders: { partB: partB.placeholder ? partB.year : null, partA: partA.placeholder ? partA.year : null,
+      hd: hd.placeholder ? hd.year : null } };
+  const yearly = (monthly, oop) => (monthly === '' || monthly === undefined || monthly === null || isNaN(+monthly))
+    ? null : (toCents(12 * +monthly) + toCents(oop)) / 100;
+  out.g = yearly(inputs.g, bDed);
+  out.n = yearly(inputs.n, bDed + copay.office_copay * (+inputs.office || 0) + copay.er_copay * (+inputs.er || 0) + excess);
+  out.hdg = yearly(inputs.hdg, Math.min(costSharing + excess, hd.value));
+  return out;
+}
+
+// ---- src/interpreter.js ----
+// Pure tree interpreter: conditions, routes, path walking, actions, questions and the {{ }} token renderer.
+// No DOM access and no eval.
+
+
+// ---------- conditions ----------
+function evalClause(c, vars) {
+  const x = vars[c.var];
+  const isSet = x !== undefined && x !== null;
+  switch (c.op) {
+    case 'eq': return isSet && x === c.value;
+    case 'ne': return x !== c.value;
+    case 'in': return isSet && Array.isArray(c.value) && c.value.includes(x);
+    case 'lt': return typeof x === 'number' && x < c.value;
+    case 'lte': return typeof x === 'number' && x <= c.value;
+    case 'gt': return typeof x === 'number' && x > c.value;
+    case 'gte': return typeof x === 'number' && x >= c.value;
+    case 'set': return isSet;
+    case 'unset': return !isSet;
+    default: throw new Error('Unknown op: ' + c.op);
+  }
+}
+
+const evalWhen = (when, vars) => !when || when.every((c) => evalClause(c, vars));
+
+function pickRoute(route, vars) {
+  for (const entry of route) if (evalWhen(entry.when, vars)) return entry;
+  return null;
+}
+
+// ---------- tokens ----------
+const TOKEN_RE = /\{\{\s*([^}]+?)\s*\}\}/g;
+
+function resolveFactPath(facts, ref) {
+  const [id, ...path] = ref.split('.');
+  const fact = facts[id];
+  if (!fact) return { ok: false, id };
+  if (!path.length) return { ok: true, id, fact, whole: true };
+  let v = fact;
+  for (const key of path) {
+    if (v === null || typeof v !== 'object' || !(key in v)) return { ok: false, id, fact };
+    v = v[key];
+  }
+  return { ok: true, id, fact, value: v, path: path.join('.') };
+}
+
+// {{fig:prefix.path}}: a yearly dollar figure for `year`. Uses the year-keyed fact prefix_YYYY, or a fact
+// `prefix` whose value is keyed by year, falling back to the latest earlier year (a placeholder).
+function resolveFigure(facts, ref, year) {
+  const [prefix, ...path] = ref.split('.');
+  let fact, figYear, value;
+  // Only later years published (e.g. a 2027 limit viewed in 2026): use the earliest of them.
+  const firstYear = (years) => years.length ? Math.min(...years) : null;
+  const re = new RegExp('^' + prefix + '_(\\d{4})$');
+  const idYears = Object.keys(facts).map((id) => (re.exec(id) || [])[1]).filter(Boolean).map(Number);
+  const byId = pickYearFact(facts, prefix, year) || (idYears.length
+    ? { fact: facts[`${prefix}_${firstYear(idYears)}`], year: firstYear(idYears) } : null);
+  if (byId) { fact = byId.fact; figYear = byId.year; value = fact.value; }
+  else if (facts[prefix] && facts[prefix].value && typeof facts[prefix].value === 'object') {
+    const obj = facts[prefix].value;
+    const k = pickYearKey(obj, year) || { year: firstYear(Object.keys(obj).map(Number)), value: obj[firstYear(Object.keys(obj).map(Number))] };
+    if (k.year === null) return { ok: false };
+    fact = facts[prefix]; figYear = k.year; value = k.value;
+  } else return { ok: false };
+  for (const key of path) {
+    if (value === null || typeof value !== 'object' || !(key in value)) return { ok: false };
+    value = value[key];
+  }
+  if (typeof value !== 'number') return { ok: false };
+  return { ok: true, id: fact.id, value, year: figYear, placeholder: figYear !== year };
+}
+
+function figureText(r, year) {
+  if (!r.placeholder) return `${formatUSD(r.value)} (${r.year})`;
+  return r.year < year ? `${formatUSD(r.value)} (${r.year} figure; the ${year} amount isn't published yet)`
+    : `${formatUSD(r.value)} (${r.year} figure)`;
+}
+
+// Value inside a fact: numbers are dollars; ISO dates and months are spelled out.
+function formatFactValue(v) {
+  if (typeof v === 'number') return formatUSD(v);
+  if (typeof v === 'string') return formatVarValue(v);
+  return null;
+}
+
+function formatVarValue(v) {
+  if (v === null || v === undefined) return null;
+  if (typeof v === 'boolean') return v ? 'yes' : 'no';
+  if (typeof v === 'number') return String(v);
+  if (typeof v === 'string') {
+    if (isValidDate(v)) return formatDate(v);
+    if (isValidMonth(v)) return formatMonth(v);
+    return v;
+  }
+  return null;
+}
+
+const NOT_ENTERED = '[not entered yet]';
+
+// ctx: { facts, vars, meta, log(msg) }. Returns segments for the UI.
+function renderSegments(text, ctx) {
+  const segs = [];
+  if (typeof text !== 'string') return segs;
+  let last = 0;
+  for (const m of text.matchAll(TOKEN_RE)) {
+    if (m.index > last) segs.push({ type: 'text', text: text.slice(last, m.index) });
+    last = m.index + m[0].length;
+    const tok = m[1];
+    if (tok.startsWith('fact:')) {
+      const r = resolveFactPath(ctx.facts, tok.slice(5));
+      if (!r.ok) {
+        ctx.log && ctx.log(`Unresolved fact token {{${tok}}}`);
+        segs.push({ type: 'text', text: NOT_ENTERED, unresolved: tok });
+        continue;
+      }
+      const shown = r.whole ? r.fact.plain.replace(/([^.!?)])$/, '$1.') : formatFactValue(r.value);
+      if (shown === null) {
+        ctx.log && ctx.log(`Fact value not displayable {{${tok}}}`);
+        segs.push({ type: 'text', text: NOT_ENTERED, unresolved: tok });
+        continue;
+      }
+      segs.push({ type: 'fact', id: r.id, whole: !!r.whole, text: shown });
+    } else if (tok.startsWith('fig:')) {
+      const year = (ctx.vars && ctx.vars.decision_year) || +String((ctx.vars && ctx.vars.today) || '').slice(0, 4);
+      const r = resolveFigure(ctx.facts, tok.slice(4), year);
+      if (!r.ok) {
+        ctx.log && ctx.log(`Unresolved figure token {{${tok}}}`);
+        segs.push({ type: 'text', text: NOT_ENTERED, unresolved: tok });
+        continue;
+      }
+      segs.push({ type: 'fact', id: r.id, whole: false, text: figureText(r, year), placeholder: r.placeholder });
+    } else {
+      const name = tok;
+      const raw = ctx.vars[name];
+      let shown = formatVarValue(raw);
+      if (raw === 'unknown' || (shown === null && ctx.meta && ctx.meta[name] && ctx.meta[name].unknown)) shown = 'unknown';
+      if (shown === null) {
+        ctx.log && ctx.log(`Unresolved variable {{${name}}}`);
+        segs.push({ type: 'text', text: NOT_ENTERED, unresolved: name });
+        continue;
+      }
+      segs.push({ type: 'var', name, text: shown, meta: ctx.meta ? ctx.meta[name] : undefined });
+    }
+  }
+  if (last < text.length) segs.push({ type: 'text', text: text.slice(last) });
+  return segs;
+}
+
+const renderPlain = (text, ctx) => renderSegments(text, ctx).map((s) => s.text).join('');
+
+function factIdsIn(text) {
+  const ids = [];
+  if (typeof text !== 'string') return ids;
+  for (const m of text.matchAll(TOKEN_RE)) if (m[1].startsWith('fact:')) ids.push(m[1].slice(5).split('.')[0]);
+  return ids;
+}
+
+// Fact ids behind {{fig:...}} tokens for this path's year.
+function figIdsIn(text, facts, vars) {
+  const ids = [];
+  if (typeof text !== 'string') return ids;
+  for (const m of text.matchAll(TOKEN_RE)) {
+    if (!m[1].startsWith('fig:')) continue;
+    const r = resolveFigure(facts, m[1].slice(4), vars.decision_year);
+    if (r.ok) ids.push(r.id);
+  }
+  return ids;
+}
+
+// ---------- inputs ----------
+function validateInput(node, value) {
+  if (value === 'unknown') return node.allow_unknown ? null : 'Please enter a value.';
+  if (value === 'default') return node.default_from ? null : 'Please enter a value.';
+  if (node.input === 'month') {
+    if (!isValidMonth(value)) return 'Please choose a month and year.';
+    if (node.validate && node.validate.min && value < node.validate.min) return `Please choose ${formatMonth(node.validate.min)} or later.`;
+    if (node.validate && node.validate.max && value > node.validate.max) return `Please choose ${formatMonth(node.validate.max)} or earlier.`;
+    return null;
+  }
+  if (node.input === 'date') return isValidDate(value) ? null : 'Please enter a full date.';
+  return null;
+}
+
+// ---------- walking ----------
+const SCREEN_TYPES = new Set(['info', 'question', 'input', 'outcome', 'calculator', 'summary']);
+
+// Walk from the start node using `answers`. Info/outcome/calculator screens pass through; the walk
+// stops at the first unanswered question/input, or at the summary. Only answers on the current
+// path (plus option `sets`) become effective, so changing an early answer drops stale later ones.
+function walk(tree, answers, facts, today) {
+  const byId = Object.fromEntries(tree.nodes.map((n) => [n.id, n]));
+  const eff = {};
+  const screens = [];
+  const routeQuestions = [];
+  let id = tree.meta.start;
+  let result = null;
+  const vars = () => {
+    const c = compute(eff, facts, today);
+    result = c;
+    return { ...eff, ...c.values };
+  };
+  for (let guard = 0; id && guard < 500; guard++) {
+    const node = byId[id];
+    if (!node) throw new Error('Missing node ' + id);
+    if (SCREEN_TYPES.has(node.type)) screens.push(id);
+    if (node.type === 'question' || node.type === 'input') {
+      const ans = answers[node.var];
+      if (ans === undefined || ans === null || ans === '') return finish(null);
+      if (node.type === 'question') {
+        const opt = node.options.find((o) => o.value === ans);
+        if (!opt) return finish(null);
+        eff[node.var] = ans;
+        Object.assign(eff, opt.sets || {});
+        id = opt.next;
+      } else {
+        if (validateInput(node, ans)) return finish(null);
+        eff[node.var] = ans;
+        id = node.next;
+      }
+    } else if (node.type === 'route' || node.type === 'score') {
+      const entry = pickRoute(node.route, vars());
+      if (!entry) throw new Error('No route matched at ' + id);
+      routeQuestions.push(...(entry.add_questions || []));
+      id = entry.next;
+    } else if (node.type === 'summary') {
+      return finish(id);
+    } else {
+      id = node.next;
+    }
+  }
+  return finish(null);
+
+  function finish(summaryId) {
+    const v = vars();
+    return { screens, complete: !!summaryId, effective: { ...eff }, vars: v, meta: result.meta,
+      notes: result.notes, engineQuestions: result.questions, routeQuestions };
+  }
+}
+
+// ---------- actions and questions ----------
+const DATE_RULE_RE = /^([a-z_][a-z0-9_]*)(?:([+-])(\d+)([dm]))?$/;
+
+function resolveActionDate(rule, vars, today) {
+  const m = DATE_RULE_RE.exec(rule || '');
+  if (!m) throw new Error('Bad date_rule: ' + rule);
+  const [, name, sign, num, unit] = m;
+  const base = name === 'today' ? today : vars[name];
+  if (!isValidDate(base)) return { missing: name };
+  if (!sign) return { date: base };
+  const n = (sign === '-' ? -1 : 1) * +num;
+  return { date: unit === 'd' ? addDays(base, n) : addMonths(base, n) };
+}
+
+const NEEDS = {
+  job_cov_end: 'the month you plan to stop working', partb_start: 'your Part B start date',
+  partb_file_by: 'the month you plan to stop working', wife_medicare_start: "your wife's date of birth",
+  wife_cobra_end: "your wife's date of birth and when you stop working", irmaa_first_year_jan: 'your Part B start date',
+  ssa44_date: 'your Part B start date', drug_enroll_by_no_gap: 'the month you plan to stop working',
+  parta_signup_by: 'whether you have Part A', parta_signup_earliest_for_36: 'the month you plan to stop working',
+  medigap_window_close: 'your Part B start date', nj_gi_window_close: 'the month you plan to stop working',
+  wife_partb_file_by: "your wife's date of birth and when you stop working"
+};
+
+function collectPath(tree, w, facts, today) {
+  const byId = Object.fromEntries(tree.nodes.map((n) => [n.id, n]));
+  const actionIds = [], questionIds = [], factIds = [];
+  const push = (arr, xs) => { for (const x of xs || []) if (!arr.includes(x)) arr.push(x); };
+  for (const sid of w.screens) {
+    const n = byId[sid];
+    push(actionIds, n.add_actions);
+    push(questionIds, n.add_questions);
+    push(factIds, n.fact_refs);
+    for (const t of nodeTexts(n, w.vars)) { push(factIds, factIdsIn(t)); push(factIds, figIdsIn(t, facts, w.vars)); }
+  }
+  push(questionIds, w.routeQuestions);
+  push(questionIds, w.engineQuestions);
+  push(questionIds, tree.always_include_questions);
+
+  const actions = [];
+  const notes = [];
+  for (const aid of actionIds) {
+    const a = tree.actions[aid];
+    if (!evalWhen(a.when, w.vars)) continue; // action applies only on some paths
+    const r = resolveActionDate(a.date_rule, w.vars, today);
+    push(factIds, a.fact_refs);
+    push(factIds, factIdsIn(a.text));
+    if (r.missing) {
+      if (r.missing === 'gcnj_oe_before_retire') continue; // requirement 8: no qualifying window -> omit
+      notes.push({ action: aid, needs: NEEDS[r.missing] || r.missing });
+      continue;
+    }
+    const past = r.date < today;
+    actions.push({ id: aid, date: past ? today : r.date, ruleDate: r.date, past, ...a });
+  }
+  actions.sort((x, y) => (x.date < y.date ? -1 : x.date > y.date ? 1 : 0));
+
+  const groups = {};
+  for (const qid of questionIds) {
+    const q = tree.questions[qid];
+    if (!q || !evalWhen(q.when, w.vars)) continue;
+    (groups[q.to] = groups[q.to] || []).push({ id: qid, ...q });
+    push(factIds, factIdsIn(q.text));
+  }
+  for (const oi of tree.open_items || []) push(factIds, oi.fact_refs);
+  const stale = factIds.filter((id) => facts[id] && isStale(facts[id], today));
+  return { actions, notes, questions: groups, factIds, stale };
+}
+
+// All renderable strings of a node, including matching variants.
+function nodeTexts(n, vars) {
+  const out = [n.title, n.text, n.help, ...(n.bullets || [])];
+  for (const v of n.variants || []) if (evalWhen(v.when, vars)) out.push(v.text);
+  for (const t of n.timeline || []) out.push(t.date, t.text);
+  for (const o of n.options || []) out.push(o.label);
+  return out.filter((t) => typeof t === 'string');
+}
+
+function modulesOf(tree) {
+  const mods = [];
+  for (const n of tree.nodes) if (n.module && !mods.includes(n.module)) mods.push(n.module);
+  return mods;
+}
+
+// ---- src/app.js ----
+// UI layer: renders the current screen from the interpreter's walk. All math lives in engine.js.
+
+
+
+const FACTS_DOC = JSON.parse(document.getElementById('facts-data').textContent);
+const TREE = JSON.parse(document.getElementById('tree-data').textContent);
+const FACTS = indexFacts(FACTS_DOC);
+const BY_ID = Object.fromEntries(TREE.nodes.map((n) => [n.id, n]));
+const MODULES = modulesOf(TREE);
+const STORE_KEY = 'nj-medicare-guide-answers-v1';
+const LOG = [];
+
+// ---------- today (?today=YYYY-MM-DD test hook; never changes facts) ----------
+function localToday() {
+  const d = new Date();
+  return makeDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
+}
+const TODAY = (() => {
+  try {
+    const q = new URLSearchParams(window.location.search).get('today');
+    if (q && isValidDate(q)) return q;
+  } catch (e) { /* ignore */ }
+  return localToday();
+})();
+
+// ---------- state + opt-in storage ----------
+// Calculator years start empty and default to the path's decision year (the year Part B starts).
+const freshState = () => ({ answers: {}, calc: { irmaa: { magi: {}, oneTime: {}, wifeHasB: true },
+  medigap: { yearType: 'moderate', year: null, excess: 0 }, penalty: { bMonths: 12, bYear: null, dMonths: 12, dYear: null } }, pos: 0 });
+let state = freshState();
+let remember = false;
+
+function storageGet() {
+  try { const s = window.localStorage.getItem(STORE_KEY); return s ? JSON.parse(s) : null; } catch (e) { return null; }
+}
+function storageSet() {
+  if (!remember) return true;
+  try { window.localStorage.setItem(STORE_KEY, JSON.stringify(state)); return true; } catch (e) {
+    note('Could not save on this device (storage is blocked). The guide still works.');
+    return false;
+  }
+}
+function storageClear() {
+  try { window.localStorage.removeItem(STORE_KEY); } catch (e) { /* storage blocked: nothing saved */ }
+}
+function note(msg) { document.getElementById('storage-note').textContent = msg; }
+
+// ---------- DOM helper ----------
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v === null || v === undefined || v === false) continue;
+    if (k === 'class') el.className = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? '' : v);
+  }
+  for (const kid of kids.flat()) if (kid !== null && kid !== undefined && kid !== false) el.append(kid instanceof Node ? kid : String(kid));
+  return el;
+}
+
+// ---------- popovers ----------
+const pop = document.getElementById('pop');
+function openPop(title, ...content) {
+  const body = document.getElementById('pop-body');
+  body.replaceChildren(h('h2', { id: 'pop-title' }, title), ...content);
+  if (typeof pop.showModal === 'function') pop.showModal(); else pop.setAttribute('open', '');
+}
+const srcLink = (s, text) => h('a', { href: s.url, target: '_blank', rel: 'noopener noreferrer', class: 'src' }, text || 'Source');
+
+function factDetail(f) {
+  const items = [h('p', {}, f.plain)];
+  items.push(h('p', {}, h('strong', {}, 'Label: '), f.label, f.confidence ? ` (confidence: ${f.confidence})` : '',
+    ' — ', (FACTS_DOC.meta.label_definitions || {})[f.label] || ''));
+  if (f.effective) items.push(h('p', {}, h('strong', {}, 'Applies to: '), String(f.effective)));
+  if (f.derivation) items.push(h('p', {}, h('strong', {}, 'How we got this: '), f.derivation));
+  if (f.note) items.push(h('p', {}, h('strong', {}, 'Note: '), f.note));
+  if (f.label === 'PENDING' && f.projection) {
+    items.push(h('p', {}, h('strong', {}, 'Projected (not official): '),
+      `premium ${formatUSD(f.projection.premium)}, deductible ${formatUSD(f.projection.deductible)}. ${f.projection.basis}`));
+  }
+  if (isStale(f, TODAY)) items.push(h('p', { class: 'stale' }, 'This number may be out of date — check the source.'));
+  if (f.review_after) items.push(h('p', { class: 'small' }, `Check again after ${formatDate(f.review_after)}.`));
+  if (f.source) items.push(h('p', {}, srcLink(f.source, f.source.title)));
+  for (const a of f.also || []) items.push(h('p', {}, 'Also: ', srcLink(a, a.title)));
+  return items;
+}
+
+function badgeForFact(f) {
+  return h('button', { type: 'button', class: 'badge ' + f.label,
+    'aria-label': `${f.label}${f.confidence ? ', ' + f.confidence + ' confidence' : ''}: details for "${f.plain.slice(0, 60)}"`,
+    onclick: () => openPop('About this fact', ...factDetail(f)) },
+  f.label + (f.label === 'UNVERIFIED' && f.confidence ? ` (${f.confidence})` : ''));
+}
+
+function factMarks(f) {
+  const out = [' ', badgeForFact(f)];
+  if (f.source) out.push(srcLink(f.source));
+  if (isStale(f, TODAY)) out.push(h('span', { class: 'stale' }, 'This number may be out of date — check the source'));
+  return out;
+}
+
+function badgeForVar(name, meta) {
+  const m = meta || { label: 'INFERRED', how: '' };
+  return h('button', { type: 'button', class: 'badge ' + m.label, 'aria-label': `${m.label}: how we got this`,
+    onclick: () => openPop('How we got this', h('p', {}, h('strong', {}, m.label), m.confidence ? ` (confidence: ${m.confidence})` : ''),
+      h('p', {}, m.how || 'Computed from your answers.'), h('p', { class: 'small' }, 'This is an estimate from your answers, not an official figure.')) },
+  m.label);
+}
+
+// ---------- glossary ----------
+const GLOSS = Object.entries(TREE.glossary || {}).map(([key, g]) => {
+  const pattern = key === 'take_assignment' ? 'tak(?:e|es|ing) assignment'
+    : g.term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return { key, ...g, re: new RegExp(`\\b${pattern}\\b`, key === 'ship' || key === 'irmaa' || key === 'cobra' ? '' : 'i') };
+});
+
+function glossaryDialog(g) {
+  const f = FACTS[g.fact];
+  openPop(g.term, h('p', {}, g.text), f ? h('p', { class: 'small' }, 'Related fact: ', f.plain, ...factMarks(f)) : null);
+}
+
+function withGlossary(text, used) {
+  let parts = [text];
+  for (const g of GLOSS) {
+    if (used.has(g.key)) continue;
+    const next = [];
+    let done = false;
+    for (const p of parts) {
+      if (done || typeof p !== 'string') { next.push(p); continue; }
+      const m = g.re.exec(p);
+      if (!m) { next.push(p); continue; }
+      next.push(p.slice(0, m.index),
+        h('button', { type: 'button', class: 'gloss', 'aria-label': `${m[0]}: what this means`, onclick: () => glossaryDialog(g) }, m[0]),
+        p.slice(m.index + m[0].length));
+      used.add(g.key);
+      done = true;
+    }
+    parts = next;
+  }
+  return parts;
+}
+
+// ---------- rich text ----------
+function ctxFor(w) {
+  return { facts: FACTS, vars: w.vars, meta: w.meta, log: (m) => { LOG.push(m); console.warn(m); } };
+}
+
+function rich(text, ctx, used, opts = {}) {
+  const out = [];
+  const segs = renderSegments(text, ctx);
+  for (let i = 0; i < segs.length; i++) {
+    const s = segs[i];
+    if (s.type === 'text') out.push(...(opts.noGloss ? [s.text] : withGlossary(s.text, used)));
+    else if (s.type === 'fact') {
+      const f = FACTS[s.id];
+      out.push(h('span', { class: 'fact' }, ...(opts.noGloss ? [s.text] : withGlossary(s.text, used)), ...(opts.noMarks ? [] : factMarks(f))));
+    } else {
+      // Keep a hyphenated suffix ("17-month") with its number, before the badge.
+      const next = segs[i + 1];
+      const suffix = next && next.type === 'text' ? (/^-\w+/.exec(next.text) || [''])[0] : '';
+      if (suffix) next.text = next.text.slice(suffix.length);
+      out.push(h('strong', {}, s.text + suffix));
+      if (s.meta && !opts.noMarks) out.push(' ', badgeForVar(s.name, s.meta));
+    }
+  }
+  return out;
+}
+
+// Headings hold plain text only (M20): their fact/estimate marks and glossary buttons go on a line below.
+function heading(text, ctx, used) {
+  const segs = renderSegments(text, ctx);
+  const marks = [];
+  for (const s of segs) {
+    if (s.type === 'fact') marks.push(...factMarks(FACTS[s.id]));
+    else if (s.type === 'var' && s.meta) marks.push(h('span', { class: 'mark-label' }, s.text), ' ', badgeForVar(s.name, s.meta), ' ');
+  }
+  const terms = withGlossary(segs.map((s) => s.text).join(''), used).filter((x) => x instanceof Node);
+  return [h('h1', { tabindex: '-1' }, ...rich(text, ctx, used, { noMarks: true, noGloss: true })),
+    marks.length || terms.length ? h('p', { class: 'heading-marks' }, ...marks,
+      terms.length ? [h('span', { class: 'mark-label' }, 'What these words mean:'), ' ', ...terms.flatMap((b) => [b, ' '])] : null) : null];
+}
+
+// Years that have a figure for any of these year-keyed prefixes, plus the decision year.
+function yearsFor(prefixes, extra) {
+  const ys = new Set(extra);
+  for (const id of Object.keys(FACTS)) for (const p of prefixes) { const m = new RegExp('^' + p + '_(\\d{4})$').exec(id); if (m) ys.add(+m[1]); }
+  return [...ys].sort();
+}
+
+// ---------- progress / footer ----------
+function renderProgress(node) {
+  const i = Math.max(0, MODULES.indexOf(node.module));
+  const nav = document.getElementById('progress');
+  nav.replaceChildren(
+    h('p', { class: 'progress-line' }, `Part ${i + 1} of ${MODULES.length}: `, h('strong', {}, node.module)),
+    h('div', { class: 'bar', role: 'progressbar', 'aria-label': 'Progress through the guide', 'aria-valuemin': 0,
+      'aria-valuemax': MODULES.length, 'aria-valuenow': i + 1 }, h('span', { style: `width:${Math.round(((i + 1) / MODULES.length) * 100)}%` })));
+}
+
+function renderFooter() {
+  const ship = FACTS.nj_ship_contact;
+  document.getElementById('footer').replaceChildren(
+    h('p', {}, `Unofficial guide. Not Medicare, CMS or Social Security. Not legal, tax or financial advice. Confirm with NJ SHIP, ${ship.value}.`, ...factMarks(ship)),
+    h('p', { class: 'small' }, `Facts as of ${formatDate(FACTS_DOC.meta.as_of)}. Today's date used: ${formatDate(TODAY)}. Nothing you enter leaves this device.`));
+}
+
+// ---------- screens ----------
+let W = null;
+
+function go(pos) {
+  state.pos = pos;
+  storageSet();
+  render(true);
+}
+
+function answer(node, value) {
+  state.answers[node.var] = value;
+  W = walk(TREE, state.answers, FACTS, TODAY);
+  const i = W.screens.indexOf(node.id);
+  go(i + 1);
+}
+
+function navButtons(node, opts = {}) {
+  const kids = [];
+  if (state.pos > 0) kids.push(h('button', { type: 'button', class: 'secondary', onclick: () => go(state.pos - 1) }, 'Back'));
+  if (opts.continue) kids.push(h('button', { type: 'button', onclick: () => go(state.pos + 1) }, opts.continueLabel || 'Continue'));
+  return h('div', { class: 'nav' }, kids);
+}
+
+function helpToggle(node, ctx, used) {
+  if (!node.help) return null;
+  return h('details', {}, h('summary', {}, 'Why we ask'), h('p', {}, ...rich(node.help, ctx, used)));
+}
+
+function factList(ids, title = 'Facts on this screen') {
+  const list = (ids || []).map((id) => FACTS[id]).filter(Boolean);
+  if (!list.length) return null;
+  return h('details', {}, h('summary', {}, title),
+    h('ul', {}, list.map((f) => h('li', {}, f.plain, ...factMarks(f)))));
+}
+
+const WHY_NAMES = { health_needs: 'Specialist, ongoing condition or surgery expected', doctor_choice: 'Seeing any doctor or hospital',
+  travel: 'Weeks outside New Jersey', predictability: 'Predictable bills', budget_ok: 'Medigap is affordable',
+  reversibility: 'Your Medigap window is open and you expect health needs (Medigap is hard to get back into later)' };
+
+function whyList(w) {
+  const reasons = w.vars.path_score_reasons || [];
+  const optLabel = (name, ans) => {
+    const n = TREE.nodes.find((x) => x.var === name);
+    const o = n && n.options.find((x) => x.value === ans);
+    return o ? renderPlain(o.label, ctxFor(w)) : ans;
+  };
+  return h('div', { class: 'panel' }, h('h2', {}, 'Why'),
+    h('p', { class: 'small' }, 'Plus points lean to Medigap; minus points lean to Medicare Advantage. These weights are a design choice, not a Medicare rule.',
+      ...factMarks(FACTS.path_score_weights)),
+    h('ul', {}, reasons.map((r) => h('li', {}, `${WHY_NAMES[r.name] || r.name}: ${r.name === 'reversibility' ? 'yes' : optLabel(r.name, r.answer)} → `,
+      h('strong', {}, (r.points > 0 ? '+' : '') + r.points)))),
+    h('p', {}, h('strong', {}, `Total: ${w.vars.path_score > 0 ? '+' : ''}${w.vars.path_score}`)),
+    w.vars.medigap_window_open === 'unknown' ? h('p', {}, 'Your Medigap window could not be checked, so this is treated as a close call.') : null,
+    w.vars.medigap_window_open === false ? h('p', {}, 'Your Medigap window has closed and no guaranteed right was found, so the score is not used.') : null);
+}
+
+function screenQuestion(node, ctx, used) {
+  const current = state.answers[node.var];
+  return [
+    ...heading(node.text, ctx, used),
+    helpToggle(node, ctx, used),
+    h('div', { role: 'group', 'aria-label': 'Choose one' },
+      node.options.map((o) => h('button', { type: 'button', class: 'option', 'aria-pressed': String(current === o.value),
+        onclick: () => answer(node, o.value) }, renderPlain(o.label, ctx)))),
+    factList(node.fact_refs),
+    navButtons(node)
+  ];
+}
+
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+function yearRange(node) {
+  const y = +TODAY.slice(0, 4);
+  if (node.validate) return [+node.validate.min.slice(0, 4), +node.validate.max.slice(0, 4)];
+  if (node.var === 'wife_birth') return [y - 75, y - 50];
+  if (node.var === 'job_cov_end') return [y, y + 6];
+  return [y - 15, y + 1];
+}
+
+function screenInput(node, ctx, used) {
+  const cur = state.answers[node.var];
+  const [y0, y1] = yearRange(node);
+  const idp = 'in-' + node.id;
+  const sel = (id, label, opts, value) => h('div', {}, h('label', { class: 'field', for: id }, label),
+    h('select', { id }, h('option', { value: '' }, 'Choose'), opts.map(([v, t]) => h('option', { value: v, selected: v === value }, t))));
+  const curParts = typeof cur === 'string' && /^\d{4}-\d{2}/.test(cur) ? cur.split('-') : [];
+  const fields = [sel(idp + '-m', 'Month', MONTHS.map((m, i) => [String(i + 1).padStart(2, '0'), m]), curParts[1])];
+  if (node.input === 'date') fields.push(sel(idp + '-d', 'Day', Array.from({ length: 31 }, (_, i) => [String(i + 1).padStart(2, '0'), String(i + 1)]), curParts[2]));
+  const years = [];
+  for (let y = y1; y >= y0; y--) years.push([String(y), String(y)]);
+  fields.push(sel(idp + '-y', 'Year', years, curParts[0]));
+  const err = h('p', { class: 'error', role: 'alert', hidden: true });
+  const submit = () => {
+    const m = document.getElementById(idp + '-m').value, yv = document.getElementById(idp + '-y').value;
+    const d = node.input === 'date' ? document.getElementById(idp + '-d').value : null;
+    const value = node.input === 'date' ? `${yv}-${m}-${d}` : `${yv}-${m}`;
+    const problem = validateInput(node, value);
+    if (problem) { err.textContent = problem; err.hidden = false; err.focus && err.setAttribute('tabindex', '-1'); err.focus(); return; }
+    answer(node, value);
+  };
+  const extra = [];
+  if (node.allow_unknown) extra.push(h('button', { type: 'button', class: 'secondary', onclick: () => answer(node, 'unknown') }, "I don't know"));
+  if (node.default_from) extra.push(h('button', { type: 'button', class: 'secondary', onclick: () => answer(node, 'default') }, "I don't know — assume the last day of that month"));
+  return [
+    ...heading(node.text, ctx, used),
+    helpToggle(node, ctx, used),
+    h('div', { class: 'row' }, fields),
+    err,
+    h('div', { class: 'nav' }, h('button', { type: 'button', onclick: submit }, 'Save and continue'), extra),
+    cur === 'unknown' || cur === 'default' ? h('p', { class: 'small' }, 'Your answer so far: ', cur === 'unknown' ? "I don't know" : 'assume the last day of the month') : null,
+    factList(node.fact_refs),
+    navButtons(node)
+  ];
+}
+
+function screenOutcome(node, ctx, used, w) {
+  const kids = [...heading(node.title || '', ctx, used)];
+  if (node.text) kids.push(h('p', {}, ...rich(node.text, ctx, used)));
+  for (const v of node.variants || []) if (evalWhen(v.when, w.vars)) kids.push(h('p', { class: 'panel' }, ...rich(v.text, ctx, used)));
+  if (node.bullets) kids.push(h('ul', {}, node.bullets.map((b) => h('li', {}, ...rich(b, ctx, used)))));
+  if (node.timeline) {
+    const rowDate = (t) => { const s = renderSegments(t.date, ctx).find((x) => x.type === 'var'); return (s && w.vars[s.name]) || '9999'; };
+    const rows = [...node.timeline].sort((a, b) => (rowDate(a) < rowDate(b) ? -1 : rowDate(a) > rowDate(b) ? 1 : 0));
+    kids.push(h('ol', { class: 'timeline' }, rows.map((t) => {
+      const when = renderSegments(t.date, ctx);
+      const isPast = when.some((s) => s.type === 'var' && w.vars[s.name] && w.vars[s.name] < TODAY);
+      return h('li', { class: t.deadline ? 'deadline' : null }, h('span', { class: 'when' }, ...rich(t.date, ctx, used, { noGloss: true }), isPast ? h('span', { class: 'past' }, ' (this date has passed: act as soon as possible)') : null),
+        ...rich(t.text, ctx, used));
+    })));
+    if (node.id === 'OUT_SIGNUP_TIMELINE') kids.push(penaltyCalc(w));
+  }
+  if (['OUT_LEAN_MEDIGAP', 'OUT_LEAN_MA', 'OUT_CLOSE_CALL', 'OUT_NO_MEDIGAP_WINDOW'].includes(node.id)) kids.push(whyList(w));
+  if (node.calculator === 'MEDIGAP_COMPARE') kids.push(medigapCalc(w));
+  if (node.type === 'calculator' && node.calculator === 'IRMAA') kids.push(irmaaCalc(w));
+  kids.push(factList(node.fact_refs), navButtons(node, { continue: true }));
+  return kids;
+}
+
+// ---------- calculators ----------
+function numInput(id, label, value, onchange, attrs = {}) {
+  return h('div', {}, h('label', { class: 'field', for: id }, label),
+    h('input', { id, type: 'number', inputmode: 'decimal', min: 0, value: value === undefined || value === null ? '' : value,
+      oninput: (e) => onchange(e.target.value), ...attrs }));
+}
+
+function penaltyCalc(w) {
+  const p = state.calc.penalty;
+  const dy = w.vars.decision_year;
+  if (!p.bYear) p.bYear = dy;
+  if (!p.dYear) p.dYear = dy;
+  const out = h('div', { 'aria-live': 'polite' });
+  const yearsB = yearsFor(['partb_premium'], [dy, dy + 1]);
+  const yearsD = yearsFor(['partd_base'], [dy, dy + 1]);
+  const update = () => {
+    const b = partBPenalty(FACTS, Math.max(0, Math.floor(+p.bMonths || 0)), +p.bYear);
+    const d = partDPenalty(FACTS, Math.max(0, Math.floor(+p.dMonths || 0)), +p.dYear);
+    out.replaceChildren(
+      h('p', {}, `Part B: ${b.pct}% penalty → about `, h('strong', {}, formatUSD(b.monthly, { cents: true })), ' a month', ' ', badgeForVar('pb', { label: 'INFERRED', confidence: 'high',
+        how: `Standard premium for ${b.premiumYear} × (1 + ${FACTS.partb_penalty.value.pct_per_full_12_months}% for each full 12 months late), rounded to ${formatUSD(FACTS.partb_penalty.value.round_to, { cents: true })} (fact partb_penalty).` }),
+      b.placeholder ? ` Uses the ${b.premiumYear} premium as a placeholder (newer figure not published).` : '', ...factMarks(FACTS[b.factId])),
+      h('p', {}, 'Part D: about ', h('strong', {}, formatUSD(d.monthly, { cents: true })), ' a month added', ' ', badgeForVar('pd', { label: 'INFERRED', confidence: 'high',
+        how: `Months without creditable coverage × ${FACTS.partd_penalty.value.pct_per_month}% × the ${d.baseYear} national base premium, rounded to ${formatUSD(FACTS.partd_penalty.value.round_to, { cents: true })} (fact partd_penalty).` }),
+      d.placeholder ? ` Uses the ${d.baseYear} base premium as a placeholder.` : '', ...factMarks(FACTS[d.factId])));
+    storageSet();
+  };
+  const yearSel = (id, label, years, key) => h('div', {}, h('label', { class: 'field', for: id }, label),
+    h('select', { id, onchange: (e) => { p[key] = +e.target.value; update(); } }, years.map((y) => h('option', { value: y, selected: +p[key] === y }, String(y)))));
+  update();
+  return h('details', { class: 'panel' }, h('summary', {}, 'What if I sign up late? (penalty helper)'),
+    h('p', { class: 'small' }, 'You will not owe these if you sign up on time. This shows what a delay would cost.', ...factMarks(FACTS.partb_penalty), ...factMarks(FACTS.partd_penalty)),
+    h('div', { class: 'row' }, numInput('pen-b', 'Months late for Part B', p.bMonths, (v) => { p.bMonths = v; update(); }), yearSel('pen-by', 'Year', yearsB, 'bYear')),
+    h('div', { class: 'row' }, numInput('pen-d', 'Months without drug coverage', p.dMonths, (v) => { p.dMonths = v; update(); }), yearSel('pen-dy', 'Year', yearsD, 'dYear')),
+    out);
+}
+
+function medigapCalc(w) {
+  const c = state.calc.medigap;
+  const dy = w.vars.decision_year;
+  if (!c.year) c.year = dy;
+  const rates = FACTS.nj_medigap_rates_jun2026.value;
+  const range = (r) => `e.g. ${formatUSD(r.low)} to ${formatUSD(r.high)} at 65`;
+  const out = h('div', { 'aria-live': 'polite' });
+  const types = FACTS.medigap_compare_year_types.value;
+  const update = () => {
+    const r = medigapCompare(FACTS, c);
+    const cell = (v) => h('td', { class: 'num' }, v === null ? 'enter a quote' : formatUSD(v));
+    const ph = [];
+    if (r.placeholders.partB) ph.push(`Part B deductible uses ${r.placeholders.partB} (newer figure not published). `);
+    if (r.placeholders.partA) ph.push(`Part A deductible uses ${r.placeholders.partA}. `);
+    if (r.placeholders.hd) ph.push(`High-deductible amount uses ${r.placeholders.hd}. `);
+    out.replaceChildren(
+      h('div', { class: 'table-wrap', tabindex: '0', role: 'region', 'aria-label': 'Results table (scrolls sideways if needed)' }, h('table', {}, h('caption', { class: 'small' }, 'Estimated yearly cost: 12 × premium + your share of Medicare-covered costs'),
+        h('thead', {}, h('tr', {}, h('th', {}, 'Plan G'), h('th', {}, 'Plan N'), h('th', {}, 'High-Deductible G'))),
+        h('tbody', {}, h('tr', {}, cell(r.g), cell(r.n), cell(r.hdg)))),
+      h('p', { class: 'small' }, `Medicare-covered costs this year type: ${formatUSD(r.costSharing)}. Part B deductible ${formatUSD(r.partBDeductible)}; high-deductible amount ${formatUSD(r.hdDeductible)}. `,
+        ...ph, ' Drug plan premiums are the same for all three and are left out. ', badgeForVar('mg', { label: 'INFERRED', confidence: 'medium',
+          how: 'Simplified model (SPEC 5c): G = deductible part only; N adds office and ER copays and excess charges; High-Deductible G pays after its deductible.' }),
+        ...factMarks(FACTS.medigap_compare_year_types), ...factMarks(FACTS.plan_n_differences), ...factMarks(FACTS.hdg_deductible))));
+    storageSet();
+  };
+  const set = (k) => (v) => { c[k] = v; update(); };
+  const radio = (val, text) => h('label', { class: 'remember' }, h('input', { type: 'radio', name: 'yt', value: val, checked: c.yearType === val,
+    onchange: () => { c.yearType = val; update(); } }), text);
+  update();
+  return h('div', { class: 'panel' }, h('h2', {}, 'Compare Plans G, N and High-Deductible G'),
+    h('p', { class: 'small' }, 'Enter real monthly quotes for your age. The examples are the June 2026 age-65 range in New Jersey.', ...factMarks(FACTS.nj_medigap_rates_jun2026)),
+    h('div', { class: 'row' },
+      numInput('mg-g', 'Plan G monthly quote', c.g, set('g'), { placeholder: range(rates.plan_g) }),
+      numInput('mg-n', 'Plan N monthly quote', c.n, set('n'), { placeholder: range(rates.plan_n) }),
+      numInput('mg-h', 'High-Deductible G monthly quote', c.hdg, set('hdg'), { placeholder: range(rates.hd_plan_g) })),
+    h('div', { class: 'row' },
+      numInput('mg-o', 'Office visits a year', c.office, set('office')),
+      numInput('mg-e', 'ER visits a year', c.er, set('er')),
+      numInput('mg-x', 'Excess charges a year', c.excess, set('excess'))),
+    h('fieldset', {}, h('legend', {}, 'What kind of year?'),
+      radio('healthy', `Healthy (${formatUSD(types.healthy)} of Medicare-covered costs)`),
+      radio('moderate', `Moderate (${formatUSD(types.moderate)})`),
+      radio('bad', `Bad year (one hospital stay: Part A deductible + ${formatUSD(types.bad_extra)})`)),
+    h('div', {}, h('label', { class: 'field', for: 'mg-year' }, 'Plan year'),
+      h('select', { id: 'mg-year', onchange: (e) => { c.year = +e.target.value; update(); } },
+        yearsFor(['partb_deductible', 'parta_deductible'], [dy, ...Object.keys(FACTS.hdg_deductible.value).map(Number)])
+          .map((y) => h('option', { value: y, selected: +c.year === y }, String(y) + (y === dy ? ' (your first Medicare year)' : '')))),
+      h('p', { class: 'small' }, 'Years without published figures use the latest earlier figure (noted under the table).')),
+    out);
+}
+
+function irmaaCalc(w) {
+  const c = state.calc.irmaa;
+  const v = w.vars;
+  let partbStart = v.partb_start;
+  let assumedStart = false;
+  if (!partbStart) { partbStart = `${TODAY.slice(0, 4)}-01-01`; assumedStart = true; }
+  const firstYear = yearOf(partbStart);
+  const lastYear = firstYear + 3; // four premium years from the first Part B year
+  const taxYears = [];
+  for (let y = firstYear - 2; y <= lastYear; y++) taxYears.push(y);
+  const t = irmaaTableFor(FACTS, firstYear);
+  const presets = h('datalist', { id: 'magi-presets' }, (t ? t.table : []).filter((r) => r.joint_magi_max).map((r) => h('option', { value: r.joint_magi_max })));
+  const out = h('div', { 'aria-live': 'polite' });
+  const update = () => {
+    const rows = irmaaSchedule(FACTS, { partbStart, wifeMedicareStart: v.wife_medicare_start, wifeHasB: c.wifeHasB,
+      lastWorkMonth: w.effective.last_work_month, magi: c.magi, oneTime: c.oneTime, lastYear });
+    const anyPlaceholder = rows.some((r) => r.placeholder);
+    const tierText = (r) => (r.missing ? `enter ${r.missing}` : `Tier ${r.tier}`);
+    const costText = (r) => (r.missing ? '—' : formatUSD(r.surcharge));
+    const appealText = (r) => (r.missing ? '—' : !r.appealable ? 'Not likely to help' : r.appealMissing ? `enter ${r.appealMissing}` : formatUSD(r.appealSurcharge));
+    // H9: on narrow screens each premium year is a card (CSS shows cards or the table).
+    const cards = h('ul', { class: 'irmaa-cards' }, rows.map((r) => h('li', { class: 'result' },
+      h('p', { class: 'card-title' }, `${r.year} premiums`, r.placeholder ? h('span', { class: 'small' }, ` (uses ${r.tableYear} brackets: placeholder)`) : ''),
+      h('dl', {},
+        h('dt', {}, 'Uses income from'), h('dd', {}, String(r.taxYear)),
+        h('dt', {}, 'Income tier'), h('dd', {}, tierText(r)),
+        h('dt', {}, 'Months charged (you + wife)'), h('dd', {}, `${r.himMonths} + ${r.wifeMonths}`),
+        h('dt', {}, 'Extra cost that year'), h('dd', {}, costText(r)),
+        h('dt', {}, 'If you appeal after retiring'), h('dd', {}, appealText(r))),
+      r.cliff ? h('p', { class: 'stale' }, `Within ${formatUSD(FACTS.irmaa_cliff_margin.value)} of the next line (${formatUSD(r.cliff.nextMin)}).`) : null)));
+    out.replaceChildren(cards,
+      h('div', { class: 'table-wrap irmaa-table', tabindex: '0', role: 'region', 'aria-label': 'Results table (scrolls sideways if needed)' }, h('table', {},
+        h('caption', { class: 'small' }, 'Extra Medicare premiums (IRMAA) by year, for the people on Medicare in your household'),
+        h('thead', {}, h('tr', {}, ['Premium year', 'Uses income from', 'Income tier', 'Months charged (you + wife)', 'Extra cost that year', 'If you appeal after retiring'].map((x) => h('th', { scope: 'col' }, x)))),
+        h('tbody', {}, rows.map((r) => h('tr', {},
+          h('td', {}, String(r.year), r.placeholder ? h('span', { class: 'small' }, ` (uses ${r.tableYear} brackets: placeholder)`) : ''),
+          h('td', {}, String(r.taxYear)),
+          h('td', {}, r.missing ? `enter ${r.missing}` : `Tier ${r.tier}`, r.cliff ? h('div', { class: 'stale' },
+            `Within ${formatUSD(FACTS.irmaa_cliff_margin.value)} of the next line (${formatUSD(r.cliff.nextMin)}): crossing it costs about ${formatUSD(r.cliff.stepPerPersonYear)} more per person per year`) : ''),
+          h('td', {}, `${r.himMonths} + ${r.wifeMonths}`),
+          h('td', { class: 'num' }, r.missing ? '—' : formatUSD(r.surcharge)),
+          h('td', {}, r.missing ? '—' : !r.appealable ? 'Not likely to help' : r.appealMissing ? `enter ${r.appealMissing}` :
+            [formatUSD(r.appealSurcharge), r.appealOneTime ? h('div', { class: 'small' }, `Includes ${formatUSD(r.appealOneTime)} of one-time income, which still counts and can't be appealed.`) : '']))))))
+      ,
+      h('p', { class: 'small' }, 'Estimates only. ', badgeForVar('irmaa', { label: 'INFERRED', confidence: 'medium',
+        how: 'For each premium year, the income from 2 years before sets the tier (fact irmaa_lookback); each person on Medicare that month pays the Part B + Part D surcharge (fact irmaa_per_person). The appeal column uses that year\'s own income estimate (facts lce_attestation, lce_effective).' }),
+        anyPlaceholder ? ' Years without official brackets use the latest published table and are placeholders.' : '',
+        assumedStart ? ` Your Part B start date is unknown, so this assumes Part B all of ${firstYear} (ASSUMED).` : '',
+        ...factMarks(FACTS.irmaa_table_2026), ...factMarks(FACTS.partb_2027_status)));
+    storageSet();
+  };
+  // One collapsible group per tax year; open for the years that set his first two premium years, and any with entries.
+  const rowsIn = taxYears.map((y) => h('details', { class: 'taxyear', open: y === firstYear - 2 || y === firstYear - 1 || c.magi[y] !== undefined },
+    h('summary', {}, `Income for ${y}`, y + 2 > lastYear ? ' (used only for an appeal)'
+      : ` (sets ${y + 2} premiums${y >= firstYear ? '; also used for an appeal' : ''})`),
+    h('div', { class: 'row' },
+      numInput(`magi-${y}`, `Joint income (MAGI) for ${y}`, c.magi[y], (val) => { if (val === '') delete c.magi[y]; else c.magi[y] = +val; update(); },
+        { list: 'magi-presets', step: 1000 }),
+      numInput(`one-${y}`, `One-time part of ${y} (Roth conversions, gains)`, c.oneTime[y], (val) => { if (val === '') delete c.oneTime[y]; else c.oneTime[y] = +val; update(); }, { step: 1000 }))));
+  update();
+  return h('div', { class: 'panel' },
+    h('p', {}, 'What counts as income: ', ...rich('{{fact:irmaa_magi_definition}}', ctxFor(w), new Set())),
+    h('label', { class: 'remember' }, h('input', { type: 'checkbox', checked: c.wifeHasB, onchange: (e) => { c.wifeHasB = e.target.checked; update(); } }),
+      'My wife will have Part B and a drug plan when her Medicare starts'),
+    presets, ...rowsIn, out);
+}
+
+// ---------- summary ----------
+function screenSummary(node, ctx, used, w) {
+  const p = collectPath(TREE, w, FACTS, TODAY);
+  const kids = [h('h1', { tabindex: '-1' }, node.title), h('p', {}, node.text)];
+  if (p.stale.length) kids.push(h('div', { class: 'warn', role: 'note' }, h('strong', {}, 'Some numbers may be out of date. '),
+    `${p.stale.length} facts on your path are past their review date. Check the source links before relying on them.`));
+  kids.push(h('div', { class: 'nav no-print' }, h('button', { type: 'button', onclick: () => window.print() }, 'Print this page'),
+    state.pos > 0 ? h('button', { type: 'button', class: 'secondary', onclick: () => go(state.pos - 1) }, 'Back') : null));
+
+  const outcomes = w.screens.map((id) => BY_ID[id]).filter((n) => n.type === 'outcome');
+  kids.push(h('h2', {}, 'Your results'), h('ul', {}, outcomes.map((n) => h('li', {}, renderPlain(n.title, ctx)))));
+
+  // H7: the dates that carry penalties, printed first.
+  const deadlines = (TREE.key_deadlines || []).filter((d) => isValidDate(w.vars[d.var]) && evalWhen(d.when, w.vars))
+    .map((d) => ({ ...d, date: w.vars[d.var] })).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+  if (deadlines.length) {
+    kids.push(h('h2', {}, 'Key deadlines'), h('table', { class: 'deadlines' },
+      h('thead', {}, h('tr', {}, h('th', { scope: 'col' }, 'Date'), h('th', { scope: 'col' }, 'What happens'))),
+      h('tbody', {}, deadlines.map((d) => h('tr', { class: d.deadline ? 'deadline' : null },
+        h('td', { class: 'num' }, formatDate(d.date)),
+        h('td', {}, d.deadline ? h('strong', {}, 'Deadline: ') : '', renderPlain(d.text, ctx), d.date < TODAY ? ' (this date has passed)' : ''))))),
+    h('p', { class: 'small' }, 'Dates are estimates from your answers. Each one is explained, with its source, on the screens before this one.'));
+  }
+
+  kids.push(h('h2', {}, 'Your dated to-do list'), h('ul', { class: 'acts' }, p.actions.map((a) => h('li', {},
+    h('strong', {}, a.past ? 'As soon as possible' : formatDate(a.date)), ` (${renderPlain(a.when_text, ctx)}${a.past ? `; the suggested date, ${formatDate(a.ruleDate)}, has passed` : ''}): `,
+    ...rich(a.text, ctx, used, { noGloss: true }), ...(a.fact_refs || []).map((id) => FACTS[id]).filter(Boolean).flatMap(factMarks)))));
+  for (const n of p.notes) kids.push(h('p', { class: 'warn' }, `We need ${n.needs} to compute this: `, renderPlain(TREE.actions[n.action].text, ctx)));
+
+  kids.push(h('h2', {}, 'Questions to ask'));
+  for (const who of ['HR', 'NJ SHIP', 'Social Security']) {
+    const qs = p.questions[who] || [];
+    if (!qs.length) continue;
+    kids.push(h('h3', {}, who === 'NJ SHIP' ? `NJ SHIP (${FACTS.nj_ship_contact.value})` : who),
+      h('ul', { class: 'qs' }, qs.map((q) => h('li', {}, ...rich(q.text, ctx, used, { noGloss: true })))));
+  }
+
+  kids.push(h('h2', {}, 'Open items'), h('ul', {}, (TREE.open_items || []).map((o) => h('li', {}, o.text,
+    ...o.fact_refs.map((id) => FACTS[id]).filter(Boolean).flatMap(factMarks)))));
+
+  kids.push(h('h2', {}, 'Sources'), h('ol', {}, p.factIds.map((id) => FACTS[id]).filter(Boolean).map((f) => h('li', {},
+    h('span', {}, f.plain), ' ', h('span', { class: 'badge ' + f.label }, f.label), ' ',
+    f.source ? h('a', { href: f.source.url, target: '_blank', rel: 'noopener noreferrer' }, f.source.title) : h('span', { class: 'small' }, '(no outside source: ' + f.label.toLowerCase() + ')'),
+    isStale(f, TODAY) ? h('span', { class: 'stale' }, ' may be out of date') : ''))));
+
+  kids.push(h('details', { class: 'no-print' }, h('summary', {}, 'Change my answers'),
+    h('ul', {}, w.screens.map((id, i) => [BY_ID[id], i]).filter(([n]) => n.type === 'question' || n.type === 'input').map(([n, i]) => {
+      const a = state.answers[n.var];
+      const shown = n.type === 'question' ? renderPlain((n.options.find((o) => o.value === a) || {}).label || '', ctx)
+        : a === 'unknown' ? "I don't know" : a === 'default' ? 'assumed' : renderPlain(`{{${n.var}}}`, { ...ctx, vars: { [n.var]: a } });
+      return h('li', {}, renderPlain(n.text, ctx), ' — ', h('strong', {}, shown), ' ',
+        h('button', { type: 'button', class: 'secondary', onclick: () => go(i) }, 'Change'));
+    }))));
+  return kids;
+}
+
+// ---------- render ----------
+function render(moveFocus) {
+  W = walk(TREE, state.answers, FACTS, TODAY);
+  state.pos = Math.min(Math.max(0, state.pos | 0), W.screens.length - 1);
+  const node = BY_ID[W.screens[state.pos]];
+  const ctx = ctxFor(W);
+  const used = new Set();
+  let kids;
+  if (node.type === 'question') kids = screenQuestion(node, ctx, used);
+  else if (node.type === 'input') kids = screenInput(node, ctx, used);
+  else if (node.type === 'summary') kids = screenSummary(node, ctx, used, W);
+  else kids = screenOutcome(node, ctx, used, W);
+  const main = document.getElementById('main');
+  main.replaceChildren(...kids.filter(Boolean));
+  main.dataset.node = node.id;
+  renderProgress(node);
+  if (moveFocus) {
+    const h1 = main.querySelector('h1');
+    if (h1) h1.focus();
+    window.scrollTo(0, 0);
+  }
+}
+
+function init() {
+  const saved = storageGet();
+  if (saved && saved.answers) {
+    state = { ...freshState(), ...saved, calc: { ...freshState().calc, ...(saved.calc || {}) } };
+    remember = true;
+    note('Your saved answers were loaded from this device.');
+  }
+  const box = document.getElementById('remember');
+  box.checked = remember;
+  box.addEventListener('change', () => {
+    remember = box.checked;
+    if (remember) { if (storageSet()) note('Your answers will be saved on this device only.'); }
+    else { storageClear(); note('Answers are no longer saved on this device.'); }
+  });
+  // M8: clearing takes a second, deliberate click; the confirm buttons go away after 10 seconds.
+  const clearBtn = document.getElementById('clear');
+  const confirmBox = document.getElementById('clear-confirm');
+  let confirmTimer = null;
+  const hideConfirm = () => { confirmBox.hidden = true; clearBtn.hidden = false; clearTimeout(confirmTimer); };
+  clearBtn.addEventListener('click', () => {
+    clearBtn.hidden = true;
+    confirmBox.hidden = false;
+    document.getElementById('clear-no').focus(); // the safe choice gets focus
+    confirmTimer = setTimeout(() => { hideConfirm(); clearBtn.focus(); }, 10000);
+  });
+  document.getElementById('clear-no').addEventListener('click', () => { hideConfirm(); clearBtn.focus(); });
+  document.getElementById('clear-yes').addEventListener('click', () => {
+    hideConfirm();
+    storageClear();
+    remember = false;
+    box.checked = false;
+    state = freshState();
+    note('Your answers were cleared, and saving on this device is off.');
+    render(true);
+  });
+  renderFooter();
+  render(false);
+}
+
+init();
+window.__guide = { log: LOG, today: TODAY };
+
+})();
+</script>
+</body>
+</html>

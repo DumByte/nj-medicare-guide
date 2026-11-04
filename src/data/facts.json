@@ -1,0 +1,1104 @@
+{
+  "meta": {
+    "as_of": "2026-11-03",
+    "jurisdiction": "New Jersey + federal",
+    "label_definitions": {
+      "VERIFIED": "Read directly on a primary source (CMS, Medicare.gov, SSA/POMS, IRS, DOL, HHS, NJ DOBI, NJ SHIP, Get Covered NJ), or 2+ independent originating sources.",
+      "UNVERIFIED": "Some evidence, but the primary page was not opened or does not state it directly. Always carries a confidence.",
+      "INFERRED": "Derived from VERIFIED facts by stated arithmetic or reasoning. Always carries a confidence and the derivation.",
+      "ASSUMED": "Taken without evidence; must be confirmed by the user or a named office.",
+      "PENDING": "Official figure not yet published as of meta.as_of. Show the projection only if labeled as a projection."
+    },
+    "display_rule": "Every number or rule shown in the app must reference a fact id below. The UI shows the label badge, confidence (if any), and a link to source.url. Facts past review_after show a 'may be out of date' banner."
+  },
+  "facts": [
+    {
+      "id": "partb_premium_2026",
+      "plain": "Standard Part B premium in 2026",
+      "value": 202.9,
+      "unit": "USD/month",
+      "effective": "2026",
+      "label": "VERIFIED",
+      "source": {
+        "title": "2026 Medicare Parts A & B Premiums and Deductibles (CMS fact sheet, Nov 14, 2025)",
+        "url": "https://www.cms.gov/newsroom/fact-sheets/2026-medicare-parts-b-premiums-deductibles"
+      },
+      "review_after": "2026-11-20"
+    },
+    {
+      "id": "partb_deductible_2026",
+      "plain": "Part B yearly deductible in 2026",
+      "value": 283,
+      "unit": "USD/year",
+      "effective": "2026",
+      "label": "VERIFIED",
+      "source": {
+        "title": "2026 Medicare Parts A & B Premiums and Deductibles (CMS)",
+        "url": "https://www.cms.gov/newsroom/fact-sheets/2026-medicare-parts-b-premiums-deductibles"
+      },
+      "review_after": "2026-11-20"
+    },
+    {
+      "id": "parta_deductible_2026",
+      "plain": "Part A hospital deductible per benefit period in 2026",
+      "value": 1736,
+      "unit": "USD",
+      "effective": "2026",
+      "label": "VERIFIED",
+      "source": {
+        "title": "2026 Medicare Parts A & B Premiums and Deductibles (CMS)",
+        "url": "https://www.cms.gov/newsroom/fact-sheets/2026-medicare-parts-b-premiums-deductibles"
+      },
+      "review_after": "2026-11-20"
+    },
+    {
+      "id": "parta_premium_free",
+      "plain": "About 99% of people pay no Part A premium because they (or a spouse) have 40+ quarters of Medicare-covered work",
+      "value": "premium-free with 40 quarters",
+      "effective": "ongoing",
+      "label": "VERIFIED",
+      "source": {
+        "title": "2026 Medicare Parts A & B Premiums and Deductibles (CMS)",
+        "url": "https://www.cms.gov/newsroom/fact-sheets/2026-medicare-parts-b-premiums-deductibles"
+      }
+    },
+    {
+      "id": "partb_2027_status",
+      "plain": "The official 2027 Part B premium, deductible and income brackets were not yet published",
+      "value": null,
+      "projection": {
+        "premium": 209.5,
+        "deductible": 292,
+        "basis": "2026 Medicare Trustees Report intermediate projection, as reported by several dated secondary sources; not an official CMS figure"
+      },
+      "effective": "2027",
+      "label": "PENDING",
+      "source": {
+        "title": "CMS Newsroom (check for '2027 Medicare Parts A & B Premiums and Deductibles')",
+        "url": "https://www.cms.gov/about-cms/contact/newsroom"
+      },
+      "note": "Projection label: UNVERIFIED, medium. Replace this fact and irmaa_table_2026 with the 2027 CMS fact sheet when published (expected mid-November 2026).",
+      "review_after": "2026-11-20"
+    },
+    {
+      "id": "irmaa_table_2026",
+      "plain": "2026 income-related surcharges (IRMAA) for married couples filing jointly",
+      "effective": "2026 premiums, based on the tax return from 2 years earlier (normally 2024)",
+      "label": "VERIFIED",
+      "value": [
+        {
+          "tier": 0,
+          "joint_magi_min": 0,
+          "joint_magi_max": 218000,
+          "partb_total": 202.9,
+          "partb_irmaa": 0,
+          "partd_irmaa": 0
+        },
+        {
+          "tier": 1,
+          "joint_magi_min": 218001,
+          "joint_magi_max": 274000,
+          "partb_total": 284.1,
+          "partb_irmaa": 81.2,
+          "partd_irmaa": 14.5
+        },
+        {
+          "tier": 2,
+          "joint_magi_min": 274001,
+          "joint_magi_max": 342000,
+          "partb_total": 405.8,
+          "partb_irmaa": 202.9,
+          "partd_irmaa": 37.5
+        },
+        {
+          "tier": 3,
+          "joint_magi_min": 342001,
+          "joint_magi_max": 410000,
+          "partb_total": 527.5,
+          "partb_irmaa": 324.6,
+          "partd_irmaa": 60.4
+        },
+        {
+          "tier": 4,
+          "joint_magi_min": 410001,
+          "joint_magi_max": 749999,
+          "partb_total": 649.2,
+          "partb_irmaa": 446.3,
+          "partd_irmaa": 83.3
+        },
+        {
+          "tier": 5,
+          "joint_magi_min": 750000,
+          "joint_magi_max": null,
+          "partb_total": 689.9,
+          "partb_irmaa": 487,
+          "partd_irmaa": 91
+        }
+      ],
+      "boundary_note": "CMS wording: tier 1 is 'greater than $218,000 and less than or equal to $274,000'; tier 4 is 'greater than $410,000 and less than $750,000'; tier 5 is 'greater than or equal to $750,000'. Implement with these exact comparisons.",
+      "source": {
+        "title": "2026 Medicare Parts A & B Premiums and Deductibles; 2026 Part D IRMAA (CMS)",
+        "url": "https://www.cms.gov/newsroom/fact-sheets/2026-medicare-parts-b-premiums-deductibles"
+      },
+      "review_after": "2026-11-20"
+    },
+    {
+      "id": "irmaa_per_person",
+      "plain": "IRMAA is charged per person on Medicare. A married couple's joint income sets the tier, and each spouse who has Part B or Part D pays the surcharge.",
+      "label": "INFERRED",
+      "confidence": "high",
+      "derivation": "CMS table is per beneficiary premium; thresholds are applied to joint MAGI for joint filers (irmaa_table_2026). Only beneficiaries enrolled in Part B/Part D pay a premium.",
+      "source": {
+        "title": "2026 Medicare Parts A & B Premiums and Deductibles (CMS)",
+        "url": "https://www.cms.gov/newsroom/fact-sheets/2026-medicare-parts-b-premiums-deductibles"
+      }
+    },
+    {
+      "id": "irmaa_tier_steps",
+      "plain": "Extra yearly cost per person for crossing each IRMAA line (2026 amounts, Part B + Part D surcharges)",
+      "label": "INFERRED",
+      "confidence": "high",
+      "value": [
+        {
+          "from_tier": 0,
+          "to_tier": 1,
+          "usd_per_year": 1148.4
+        },
+        {
+          "from_tier": 1,
+          "to_tier": 2,
+          "usd_per_year": 1736.4
+        },
+        {
+          "from_tier": 2,
+          "to_tier": 3,
+          "usd_per_year": 1735.2
+        },
+        {
+          "from_tier": 3,
+          "to_tier": 4,
+          "usd_per_year": 1735.2
+        },
+        {
+          "from_tier": 4,
+          "to_tier": 5,
+          "usd_per_year": 580.8
+        }
+      ],
+      "derivation": "(difference in partb_irmaa + difference in partd_irmaa) x 12, from irmaa_table_2026. Corrects the earlier report, which said each line is worth $1,148-$1,736; the top line is worth $580.80.",
+      "source": {
+        "title": "2026 Medicare Parts A & B Premiums and Deductibles (CMS)",
+        "url": "https://www.cms.gov/newsroom/fact-sheets/2026-medicare-parts-b-premiums-deductibles"
+      }
+    },
+    {
+      "id": "irmaa_lookback",
+      "plain": "Social Security uses the most recent tax return the IRS can give it, normally the one from 2 years before the premium year, and never one more than 3 years old",
+      "label": "VERIFIED",
+      "source": {
+        "title": "SSA POMS HI 01101.001 (PY-2 / PY-3) and HI 01194.020 (IRMAA notice text)",
+        "url": "https://secure.ssa.gov/poms.nsf/lnx/0601194020"
+      },
+      "also": [
+        {
+          "title": "SSA POMS HI 01101.001",
+          "url": "https://secure.ssa.gov/POMS.nsf/lnx/0601101001"
+        }
+      ]
+    },
+    {
+      "id": "irmaa_magi_definition",
+      "plain": "Income for IRMAA = adjusted gross income (Form 1040 line 11) + tax-exempt interest (line 2a). Only the taxable part of Social Security counts.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "SSA POMS HI 01101.010 Modified Adjusted Gross Income (TN 36, 12-25)",
+        "url": "https://secure.ssa.gov/POMS.NSF/lnx/0601101010"
+      }
+    },
+    {
+      "id": "lce_list",
+      "plain": "Only 8 life-changing events qualify for an IRMAA reduction: death of spouse, marriage, divorce/annulment, work reduction, work stoppage, loss of income-producing property, loss of employer pension, employer settlement payment",
+      "label": "VERIFIED",
+      "source": {
+        "title": "SSA POMS HI 01120.005 Life Changing Events",
+        "url": "https://secure.ssa.gov/poms.nsf/lnx/0601120005"
+      }
+    },
+    {
+      "id": "lce_spouse_event",
+      "plain": "The event can happen to the beneficiary or to the beneficiary's spouse (so a spouse's retirement can count)",
+      "label": "VERIFIED",
+      "source": {
+        "title": "SSA POMS HI 01120.005 section A",
+        "url": "https://secure.ssa.gov/poms.nsf/lnx/0601120005"
+      }
+    },
+    {
+      "id": "lce_reporter_only",
+      "plain": "A reduction applies only to the person who files. Each spouse on Medicare must file separately.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "SSA POMS HI 01120.005 section A, NOTE",
+        "url": "https://secure.ssa.gov/poms.nsf/lnx/0601120005"
+      }
+    },
+    {
+      "id": "lce_attestation",
+      "plain": "SSA accepts the person's sworn statement that the event caused the income drop. If the current year's return is not filed, the person gives an income estimate for this year and may give one for next year (otherwise this year's estimate is reused).",
+      "label": "VERIFIED",
+      "source": {
+        "title": "SSA POMS HI 01120.005 section A",
+        "url": "https://secure.ssa.gov/poms.nsf/lnx/0601120005"
+      }
+    },
+    {
+      "id": "lce_effective",
+      "plain": "A new decision normally takes effect in January of the year you ask (or your first Part B month). It reaches back to last year only if the event happened October-December and you file by March 31.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "SSA POMS HI 01120.005 section B",
+        "url": "https://secure.ssa.gov/poms.nsf/lnx/0601120005"
+      }
+    },
+    {
+      "id": "lce_nonqualifying",
+      "plain": "One-time income does not qualify for a reduction: capital gains from selling property, IRA conversions, cashing bonds, lottery or casino winnings",
+      "label": "VERIFIED",
+      "source": {
+        "title": "SSA POMS HI 01120.005 section D",
+        "url": "https://secure.ssa.gov/poms.nsf/lnx/0601120005"
+      }
+    },
+    {
+      "id": "ssa44_form",
+      "plain": "Form SSA-44 is the optional form to report a life-changing event; you can also call SSA at 1-800-772-1213",
+      "label": "VERIFIED",
+      "source": {
+        "title": "SSA: Request to lower an IRMAA",
+        "url": "https://www.ssa.gov/medicare/lower-irmaa"
+      },
+      "also": [
+        {
+          "title": "Form SSA-44 (PDF)",
+          "url": "https://www.ssa.gov/forms/ssa-44.pdf"
+        },
+        {
+          "title": "SSA POMS HI 01120.005: Life-changing events (\"the optional Form SSA-44\")",
+          "url": "https://secure.ssa.gov/poms.nsf/lnx/0601120005"
+        }
+      ],
+      "note": "Opened 2026-11-03 in a browser. The SSA page lists +1 800-772-1213 and says the request can be made online, by fax or mail, or by phone. POMS HI 01120.005 calls Form SSA-44 optional."
+    },
+    {
+      "id": "partb_defer_while_working",
+      "plain": "While you (or your spouse) are working and covered by that job's group health plan, you can wait to sign up for Part B with no penalty",
+      "label": "VERIFIED",
+      "source": {
+        "title": "Medicare.gov: Working past 65",
+        "url": "https://www.medicare.gov/basics/get-started-with-medicare/medicare-basics/working-past-65"
+      }
+    },
+    {
+      "id": "employer_size_20",
+      "plain": "If the employer has 20 or more employees, its plan pays first and Medicare pays second for a worker 65+ (or a working spouse's dependent 65+). Under 20 employees, Medicare pays first.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "CMS Medigap Bulletin 04-01 (Mar 2004), section II.B",
+        "url": "https://www.cms.gov/medicare/health-plans/medigap/downloads/mdgp0401.pdf"
+      }
+    },
+    {
+      "id": "partb_sep",
+      "plain": "Part B Special Enrollment Period: ends 8 months after the job or the job-based coverage ends, whichever comes first. COBRA is not job-based coverage and does not extend it.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "Medicare.gov: When does Medicare coverage start?",
+        "url": "https://www.medicare.gov/basics/get-started-with-medicare/sign-up/when-does-medicare-coverage-start"
+      },
+      "also": [
+        {
+          "title": "Medicare.gov: Working past 65",
+          "url": "https://www.medicare.gov/basics/get-started-with-medicare/medicare-basics/working-past-65"
+        }
+      ]
+    },
+    {
+      "id": "partb_sep_start_date",
+      "plain": "If you sign up for Part B while you still have job coverage, or in the first full month after it ends, Part B can start on the 1st of the month you sign up, or on the 1st of any of the next 3 months that you choose. If you sign up in a later month of the 8-month window, it starts the month after you sign up.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "42 U.S.C. 1395q(e): Commencement of coverage for special enrollment periods (Cornell LII)",
+        "url": "https://www.law.cornell.edu/uscode/text/42/1395q"
+      },
+      "also": [
+        {
+          "title": "Medicare.gov: When does Medicare coverage start?",
+          "url": "https://www.medicare.gov/basics/get-started-with-medicare/sign-up/when-does-medicare-coverage-start"
+        }
+      ],
+      "note": "Opened 2026-11-03 in a browser. Subsection (e)(1) gives the same-month start, or any of the following three months at your option; (e)(2) covers later months."
+    },
+    {
+      "id": "partb_signup_lead_time",
+      "plain": "Medicare advises checking when job coverage ends and signing up about a month earlier to avoid a gap",
+      "label": "VERIFIED",
+      "source": {
+        "title": "Medicare.gov: Working past 65",
+        "url": "https://www.medicare.gov/basics/get-started-with-medicare/medicare-basics/working-past-65"
+      }
+    },
+    {
+      "id": "partb_forms",
+      "plain": "If you already have Part A: apply online at SSA or file Form CMS-40B with Form CMS-L564 (employer confirms your job coverage). If you need both A and B: Form CMS-18-F-5 or online.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "SSA: Sign up for Part B only",
+        "url": "https://www.ssa.gov/medicare/sign-up/part-b-only"
+      },
+      "also": [
+        {
+          "title": "Form CMS-40B (PDF)",
+          "url": "https://www.cms.gov/Medicare/CMS-Forms/CMS-Forms/Downloads/CMS40B-E.pdf"
+        },
+        {
+          "title": "Form CMS-18-F-5 (PDF)",
+          "url": "https://www.cms.gov/files/document/cms-18f5.pdf"
+        }
+      ],
+      "note": "CMS-L564 is named on the SSA page; its direct PDF link was not opened. Link to the SSA page for it."
+    },
+    {
+      "id": "gep",
+      "plain": "If the 8-month window is missed: sign up January 1-March 31 (General Enrollment Period); coverage starts the next month, and a late penalty may apply",
+      "label": "VERIFIED",
+      "source": {
+        "title": "Medicare.gov: When does Medicare coverage start?",
+        "url": "https://www.medicare.gov/basics/get-started-with-medicare/sign-up/when-does-medicare-coverage-start"
+      }
+    },
+    {
+      "id": "parta_retro",
+      "plain": "You can sign up for premium-free Part A any time after 65. Coverage starts 6 months back from when you sign up (or apply for Social Security), but not before the month you turned 65.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "Medicare.gov: When does Medicare coverage start?",
+        "url": "https://www.medicare.gov/basics/get-started-with-medicare/sign-up/when-does-medicare-coverage-start"
+      }
+    },
+    {
+      "id": "partb_penalty",
+      "plain": "Part B late penalty: an extra 10% of the standard premium for each full 12 months you could have had Part B but didn't, usually for life. Not charged if you qualify for a Special Enrollment Period.",
+      "label": "VERIFIED",
+      "example": "24 months late in 2026: $202.90 + 20% = $243.48, billed as $243.50/month",
+      "source": {
+        "title": "Medicare.gov: Avoid late enrollment penalties",
+        "url": "https://www.medicare.gov/basics/costs/medicare-costs/avoid-penalties"
+      },
+      "value": {
+        "pct_per_full_12_months": 10,
+        "round_to": 0.1
+      },
+      "value_note": "Structured copy of numbers already stated in this fact's \"plain\" text (added for the app engine; no new claim)."
+    },
+    {
+      "id": "partd_penalty",
+      "plain": "Part D late penalty: 1% of the national base premium for each month without creditable drug coverage once a gap reaches 63 days, rounded to $0.10, added for as long as you have Medicare drug coverage",
+      "label": "VERIFIED",
+      "source": {
+        "title": "Medicare.gov: Avoid late enrollment penalties",
+        "url": "https://www.medicare.gov/basics/costs/medicare-costs/avoid-penalties"
+      },
+      "value": {
+        "pct_per_month": 1,
+        "gap_days": 63,
+        "round_to": 0.1
+      },
+      "value_note": "Structured copy of numbers already stated in this fact's \"plain\" text (added for the app engine; no new claim)."
+    },
+    {
+      "id": "partd_sep_effective_date",
+      "plain": "A Medicare drug plan joined in a special enrollment period starts on the 1st of the month after you join. When you leave job coverage, you can join while still covered and choose a start date up to 3 months later.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "42 CFR 423.40(c): Effective dates (Cornell LII)",
+        "url": "https://www.law.cornell.edu/cfr/text/42/423.40"
+      },
+      "also": [
+        {
+          "title": "42 CFR 423.38(c)(11): leaving employer coverage to join a Part D plan (Cornell LII)",
+          "url": "https://www.law.cornell.edu/cfr/text/42/423.38"
+        }
+      ],
+      "note": "Opened 2026-11-03 in a browser. 423.40(c): coverage \"is effective the first day of the calendar month following the month in which the election is made\". 423.38(c)(11)(ii): the person \"may choose an effective date ... no later than up to 3 months after the month in which the election is made\"."
+    },
+    {
+      "id": "partd_base_2026",
+      "plain": "National base beneficiary premium (used for the Part D penalty), 2026",
+      "value": 38.99,
+      "unit": "USD/month",
+      "effective": "2026",
+      "label": "VERIFIED",
+      "source": {
+        "title": "Medicare.gov: Avoid late enrollment penalties",
+        "url": "https://www.medicare.gov/basics/costs/medicare-costs/avoid-penalties"
+      }
+    },
+    {
+      "id": "partd_base_2027",
+      "plain": "National base beneficiary premium (used for the Part D penalty), 2027",
+      "value": 41.33,
+      "unit": "USD/month",
+      "effective": "2027",
+      "label": "VERIFIED",
+      "source": {
+        "title": "CMS: Medicare Part D 2027 National Average Monthly Bid Amount Information (Jul 28, 2026)",
+        "url": "https://www.cms.gov/newsroom/fact-sheets/medicare-part-d-2027-national-average-monthly-bid-amount-information"
+      }
+    },
+    {
+      "id": "partd_limits_2027",
+      "plain": "2027 Part D: maximum deductible $700; yearly out-of-pocket cap on covered drugs $2,400 (2026: $615 and $2,100)",
+      "value": {
+        "deductible": 700,
+        "oop_cap": 2400
+      },
+      "effective": "2027",
+      "label": "UNVERIFIED",
+      "confidence": "high",
+      "note": "CMS 2027 Rate Announcement (Apr 6, 2026) states these are updated by statutory formula, but the Attachment V table with the numbers was not read. Values reported consistently by multiple dated outlets citing that announcement (Kiplinger, Newsweek, Becker's).",
+      "source": {
+        "title": "CMS CY 2027 Rate Announcement (PDF), Attachment V",
+        "url": "https://www.cms.gov/files/document/2027-announcement.pdf"
+      }
+    },
+    {
+      "id": "creditable_notice",
+      "plain": "Your employer plan must tell you in writing each year whether its drug coverage is 'creditable'. Keep it; a Medicare drug plan may ask for it. No Part D penalty as long as you never go 63+ days without creditable drug coverage.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "Medicare.gov: Working past 65",
+        "url": "https://www.medicare.gov/basics/get-started-with-medicare/medicare-basics/working-past-65"
+      }
+    },
+    {
+      "id": "ma_window_new_to_b",
+      "plain": "If you have Part A and add Part B later, your window to join a Medicare Advantage plan starts 3 months before you first have both A and B and ends 2 months after",
+      "label": "VERIFIED",
+      "source": {
+        "title": "Medicare.gov: Joining a plan (Initial Enrollment Period - New to Part B)",
+        "url": "https://www.medicare.gov/basics/get-started-with-medicare/get-more-coverage/joining-a-plan"
+      },
+      "note": "Corrects the earlier report, which mentioned only the 2-months-after window."
+    },
+    {
+      "id": "ma_pd_sep_employer_loss",
+      "plain": "After leaving employer coverage (including COBRA), you can join a Medicare Advantage or drug plan for 2 full months after the month that coverage ends",
+      "label": "VERIFIED",
+      "source": {
+        "title": "Medicare.gov: Special Enrollment Periods",
+        "url": "https://www.medicare.gov/basics/get-started-with-medicare/get-more-coverage/joining-a-plan/special-enrollment-periods"
+      }
+    },
+    {
+      "id": "medicare_oep",
+      "plain": "Medicare Open Enrollment, October 15-December 7: people already on Medicare can switch, join or drop Medicare Advantage and drug plans; changes start January 1. It does not affect Part B sign-up or Medigap.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "Medicare.gov: Joining a plan",
+        "url": "https://www.medicare.gov/basics/get-started-with-medicare/get-more-coverage/joining-a-plan"
+      },
+      "also": [
+        {
+          "title": "NJ SHIP: Important Information (Medigap not tied to fall enrollment)",
+          "url": "https://www.nj.gov/humanservices/doas/documents/SHIP_Important_Info.pdf"
+        }
+      ]
+    },
+    {
+      "id": "ma_oep",
+      "plain": "Medicare Advantage Open Enrollment, January 1-March 31 (and the first 3 months you have Medicare): people in an Advantage plan can switch plans once or go back to Original Medicare",
+      "label": "VERIFIED",
+      "source": {
+        "title": "Medicare.gov: Joining a plan",
+        "url": "https://www.medicare.gov/basics/get-started-with-medicare/get-more-coverage/joining-a-plan"
+      }
+    },
+    {
+      "id": "ma_moop_2027",
+      "plain": "2027 Medicare Advantage legal maximum out-of-pocket for covered Part A/B services: $9,850 in-network; $14,800 in- and out-of-network combined (plans can set lower). Drug costs are separate.",
+      "value": {
+        "in_network": 9850,
+        "combined": 14800
+      },
+      "effective": "2027",
+      "label": "UNVERIFIED",
+      "confidence": "high",
+      "note": "From CMS 'Final Contract Year 2027 Standards for Part C Benefits' memo (Apr 22, 2026) as reported by a dated secondary source; the CMS memo itself was not opened. 2026 values ($9,250 / $13,900) are VERIFIED via KFF and Medicare Interactive.",
+      "source": {
+        "title": "KFF: Medicare Advantage Out-of-Pocket Limits (2026 values)",
+        "url": "https://www.kff.org/medicare/medicare-advantage-out-of-pocket-limits-variation-and-trends/"
+      }
+    },
+    {
+      "id": "ma_requires_partb",
+      "plain": "To join a Medicare Advantage plan you must have Part A and be enrolled in Part B, so you keep paying the Part B premium",
+      "label": "INFERRED",
+      "confidence": "high",
+      "derivation": "42 CFR 422.50(a)(1) requires Part A entitlement and Part B enrollment to join; anyone enrolled in Part B owes its premium (fact partb_premium_2026).",
+      "source": {
+        "title": "42 CFR 422.50: Eligibility to elect an MA plan (Cornell LII)",
+        "url": "https://www.law.cornell.edu/cfr/text/42/422.50"
+      },
+      "note": "Opened 2026-11-03 in a browser."
+    },
+    {
+      "id": "medigap_oep",
+      "plain": "Medigap Open Enrollment: a one-time 6 months starting the first month you are 65+ and have Part B. It starts even if you sign up for Part B while still on job coverage. No health questions during this window.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "Medicare.gov: When can I buy a Medigap policy?",
+        "url": "https://www.medicare.gov/health-drug-plans/medigap/ready-to-buy/when"
+      }
+    },
+    {
+      "id": "medigap_needs_ab_no_drugs",
+      "plain": "You must have Parts A and B to buy Medigap. Medigap does not cover prescriptions; you need a separate Part D plan. Each spouse needs a separate policy.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "NJ SHIP: Important Information",
+        "url": "https://www.nj.gov/humanservices/doas/documents/SHIP_Important_Info.pdf"
+      }
+    },
+    {
+      "id": "medigap_not_with_ma",
+      "plain": "It is illegal for someone to sell you a Medigap policy while you have a Medicare Advantage plan",
+      "label": "VERIFIED",
+      "source": {
+        "title": "Medicare.gov: When can I buy a Medigap policy?",
+        "url": "https://www.medicare.gov/health-drug-plans/medigap/ready-to-buy/when"
+      }
+    },
+    {
+      "id": "nj_underwriting_after_window",
+      "plain": "In New Jersey, after your first 6 months of Part B, companies do not have to sell you a Medigap policy; they can look at your health, turn you down, or charge more (except in a guaranteed-issue situation)",
+      "label": "VERIFIED",
+      "source": {
+        "title": "NJ SHIP: Important Information",
+        "url": "https://www.nj.gov/humanservices/doas/documents/SHIP_Important_Info.pdf"
+      }
+    },
+    {
+      "id": "nj_premium_changes",
+      "plain": "NJ Medigap premiums can rise each year as you age; ask each company how it uses age. NJ DOBI can approve increases any time of year.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "NJ SHIP: Important Information",
+        "url": "https://www.nj.gov/humanservices/doas/documents/SHIP_Important_Info.pdf"
+      }
+    },
+    {
+      "id": "gi_primary_plan_not_federal",
+      "plain": "Federal rule: losing a job plan that paid FIRST (20+ employer, still working) does NOT give a federal guaranteed right to buy Medigap. The federal right applies when a plan that paid SECOND to Medicare ends.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "CMS Medigap Bulletin 04-01 (Mar 2004), section II.B",
+        "url": "https://www.cms.gov/medicare/health-plans/medigap/downloads/mdgp0401.pdf"
+      },
+      "note": "Matters only if he already has Part B and his 6-month Medigap window has passed. Corrects the earlier report, which called this unclear."
+    },
+    {
+      "id": "gi_after_cobra",
+      "plain": "Federal rule: if you are on Medicare and then take COBRA (which pays second), you get a guaranteed right to buy Medigap when COBRA ends",
+      "label": "VERIFIED",
+      "source": {
+        "title": "CMS Medigap Bulletin 04-01, footnote viii",
+        "url": "https://www.cms.gov/medicare/health-plans/medigap/downloads/mdgp0401.pdf"
+      },
+      "also": [
+        {
+          "title": "Medicare.gov: When can I buy a Medigap policy? (63-day rule)",
+          "url": "https://www.medicare.gov/health-drug-plans/medigap/ready-to-buy/when"
+        }
+      ]
+    },
+    {
+      "id": "gi_nj_state_extension",
+      "plain": "New Jersey's Medigap rule lists, as eligible for guaranteed issue, a person enrolled in a job plan that pays before Medicare who leaves that plan. The right ends 63 days after leaving the plan.",
+      "label": "UNVERIFIED",
+      "confidence": "high",
+      "note": "Opened 2026-11-03 in a browser. Read (c)2 (\"enrolled under an employee welfare benefit plan that is primary to Medicare ... or the individual leaves the plan\") and (d)6 (ends 63 days after the effective date of disenrollment). Not VERIFIED because: the copy shows its last amendment in 2005; its list of plans that must be offered (A, B, C, F, high-deductible F, K, L) predates the 2020 closure of Plans C and F, so which plans apply today (for example Plan G) is not confirmed. Confirm with NJ SHIP or NJ DOBI.",
+      "source": {
+        "title": "N.J.A.C. 11:4-23.12, Guaranteed issue for eligible persons (Cornell LII copy)",
+        "url": "https://www.law.cornell.edu/regulations/new-jersey/N-J-A-C-11-4-23-12"
+      },
+      "value": {
+        "window_days_after": 63
+      },
+      "value_note": "Structured copy of the number in this fact's \"plain\" text.",
+      "also": [
+        {
+          "title": "CMS Medigap Bulletin 04-01, footnotes vi-vii (New Jersey listed)",
+          "url": "https://www.cms.gov/medicare/health-plans/medigap/downloads/mdgp0401.pdf"
+        }
+      ]
+    },
+    {
+      "id": "gi_63_days",
+      "plain": "In most guaranteed-issue situations you must apply no later than 63 days after the old coverage ends (you can apply up to 60 days before)",
+      "label": "VERIFIED",
+      "source": {
+        "title": "Medicare.gov: When can I buy a Medigap policy?",
+        "url": "https://www.medicare.gov/health-drug-plans/medigap/ready-to-buy/when"
+      }
+    },
+    {
+      "id": "ma_trial_right",
+      "plain": "Trial right: if you joined a Medicare Advantage plan when first eligible at 65 (or dropped Medigap to join one for the first time) and leave within 12 months, you can return to Original Medicare with a guaranteed right to buy Medigap",
+      "label": "VERIFIED",
+      "source": {
+        "title": "Medicare.gov: Special Enrollment Periods (other special situations)",
+        "url": "https://www.medicare.gov/basics/get-started-with-medicare/get-more-coverage/joining-a-plan/special-enrollment-periods"
+      },
+      "note": "VERIFIED for the age-65 case on the cited page. Joining Advantage for the first time at 68-70 without having had Medigap: see fact ma_trial_right_at_your_age."
+    },
+    {
+      "id": "ma_trial_right_at_your_age",
+      "plain": "If you first join Medicare Advantage after you were first eligible at 65, and you never had Medigap, the trial right to switch back to Medigap with guaranteed acceptance does not appear to apply to you",
+      "label": "INFERRED",
+      "confidence": "high",
+      "derivation": "42 U.S.C. 1395ss(s)(3)(B)(vi) covers only people who join Advantage \"upon first becoming eligible for benefits under part A at age 65\"; clause (v) covers only people who dropped a Medigap policy to join Advantage for the first time. N.J.A.C. 11:4-23.12(c)7 uses the same \"upon first becoming eligible\" test.",
+      "source": {
+        "title": "42 U.S.C. 1395ss(s)(3)(B) (Cornell LII)",
+        "url": "https://www.law.cornell.edu/uscode/text/42/1395ss"
+      },
+      "also": [
+        {
+          "title": "N.J.A.C. 11:4-23.12(c)7 (Cornell LII copy)",
+          "url": "https://www.law.cornell.edu/regulations/new-jersey/N-J-A-C-11-4-23-12"
+        }
+      ],
+      "note": "Opened 2026-11-03 in a browser. Ask NJ SHIP to confirm before relying on it."
+    },
+    {
+      "id": "plans_cf_closed",
+      "plain": "Plans C and F (including high-deductible F) can only be bought by people whose Part A started before January 1, 2020",
+      "label": "VERIFIED",
+      "source": {
+        "title": "NJ SHIP Medigap Benefits Chart 2026 (rev. Nov 19, 2025)",
+        "url": "https://nj.gov/humanservices/doas/documents/SHIP_Medigap_Benefits%20Star%20Chart%202026%20Nov19%2025.pdf"
+      },
+      "also": [
+        {
+          "title": "CMS CY 2027 Medigap High Deductible Options F, G & J",
+          "url": "https://www.cms.gov/files/document/cy-2027-medigap-high-deductible-options-fjg.pdf"
+        }
+      ]
+    },
+    {
+      "id": "plan_g_benefits",
+      "plain": "Plan G pays the Part A deductible, hospital and skilled-nursing coinsurance, the 20% Part B coinsurance, Part B excess charges (up to 15% over Medicare's rate when a doctor doesn't take assignment), the first 3 pints of blood, and 80% of foreign emergency care after a small deductible. It does not pay the Part B deductible.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "NJ SHIP Medigap Benefits Chart 2026",
+        "url": "https://nj.gov/humanservices/doas/documents/SHIP_Medigap_Benefits%20Star%20Chart%202026%20Nov19%2025.pdf"
+      },
+      "note": "The chart's check-mark grid did not extract as text; the per-plan assignment of each row is cross-checked against Medicare.gov's standardized chart (not opened this session). Treat the row-by-plan mapping as UNVERIFIED-high until a human eyeballs the PDF.",
+      "also": [
+        {
+          "title": "Medicare.gov: Compare Medigap plan benefits",
+          "url": "https://www.medicare.gov/health-drug-plans/medigap/basics/compare-plan-benefits"
+        }
+      ]
+    },
+    {
+      "id": "plan_n_differences",
+      "plain": "Plan N is like Plan G except: you pay up to $20 per office visit and up to $50 per ER visit (waived if admitted), and it does not pay Part B excess charges",
+      "label": "UNVERIFIED",
+      "confidence": "high",
+      "note": "The $20/$50 copays are VERIFIED on the NJ SHIP 2026 chart. The excess-charge exclusion for Plan N is standard federal design but was not read on a primary page this session.",
+      "source": {
+        "title": "NJ SHIP Medigap Benefits Chart 2026",
+        "url": "https://nj.gov/humanservices/doas/documents/SHIP_Medigap_Benefits%20Star%20Chart%202026%20Nov19%2025.pdf"
+      },
+      "also": [
+        {
+          "title": "Medicare.gov: Compare Medigap plan benefits",
+          "url": "https://www.medicare.gov/health-drug-plans/medigap/basics/compare-plan-benefits"
+        }
+      ],
+      "value": {
+        "office_copay": 20,
+        "er_copay": 50
+      },
+      "value_note": "Structured copy of numbers already stated in this fact's \"plain\" text (added for the app engine; no new claim)."
+    },
+    {
+      "id": "hdg_deductible",
+      "plain": "High-Deductible Plan G: same benefits as Plan G after you pay a yearly deductible of $2,950 (2026) or $3,050 (2027). Available to people new to Medicare on or after Jan 1, 2020.",
+      "value": {
+        "2026": 2950,
+        "2027": 3050
+      },
+      "label": "VERIFIED",
+      "source": {
+        "title": "CMS: CY 2027 Medigap High Deductible Options F, G & J (Oct 2026)",
+        "url": "https://www.cms.gov/files/document/cy-2027-medigap-high-deductible-options-fjg.pdf"
+      },
+      "also": [
+        {
+          "title": "NJ SHIP Medigap Benefits Chart 2026",
+          "url": "https://nj.gov/humanservices/doas/documents/SHIP_Medigap_Benefits%20Star%20Chart%202026%20Nov19%2025.pdf"
+        }
+      ]
+    },
+    {
+      "id": "nj_medigap_rates_jun2026",
+      "plain": "NJ Medigap monthly premiums, man, preferred rate, AGE 65 (June 2026). At 68-70 his quotes will differ; get quotes from companies.",
+      "value": {
+        "plan_g": {
+          "low": 164.31,
+          "low_company": "Bankers Life (Washington National)",
+          "high": 299.88,
+          "high_company": "Aetna Health Ins. Co."
+        },
+        "plan_n": {
+          "low": 117.79,
+          "low_company": "First Health Life & Health",
+          "high": 200.84,
+          "high_company": "Aetna Health Ins. Co."
+        },
+        "hd_plan_g": {
+          "low": 50.83,
+          "low_company": "Philadelphia American Life (non-Newark ZIPs)",
+          "high": 80.53,
+          "high_company": "WoodmanLife"
+        }
+      },
+      "effective": "chart revised 2026-06-02",
+      "label": "VERIFIED",
+      "source": {
+        "title": "NJ SHIP: Male Preferred Rates, Medigap Monthly Premium at Age 65 (June 2026)",
+        "url": "https://www.nj.gov/humanservices/doas/documents/6%202%2026%20Male-at-age-65-chart.pdf"
+      },
+      "note": "Do not show company names as recommendations; show only the range. Chart says companies may turn applicants down after the first six months of Part B.",
+      "review_after": "2027-01-15"
+    },
+    {
+      "id": "nj_ma_2027_landscape",
+      "plain": "2027 NJ Medicare Advantage: about 72 plans; average premium about $20/month; $0-premium plans available",
+      "label": "UNVERIFIED",
+      "confidence": "medium",
+      "note": "From secondary summaries of CMS's 2027 state fact sheet; the CMS PDF was too large to read. Use Medicare.gov Plan Finder for real choices.",
+      "source": {
+        "title": "Medicare.gov Plan Finder",
+        "url": "https://www.medicare.gov/plan-compare/"
+      },
+      "review_after": "2026-12-07"
+    },
+    {
+      "id": "cobra_basics",
+      "plain": "COBRA (employers with 20+ employees): up to 18 months after a job ends; cost up to 102% of the full plan cost; at least 60 days to elect; the plan may end it early if the person on COBRA becomes entitled to Medicare after electing it",
+      "label": "VERIFIED",
+      "source": {
+        "title": "U.S. DOL: An Employee's Guide to Health Benefits Under COBRA (Sep 2022)",
+        "url": "https://www.dol.gov/sites/dolgov/files/ebsa/about-ebsa/our-activities/resource-center/publications/an-employees-guide-health-benefits-under-cobra-2022.pdf"
+      },
+      "value": {
+        "months": 18,
+        "max_premium_pct": 102,
+        "elect_days": 60
+      },
+      "value_note": "Structured copy of numbers already stated in this fact's \"plain\" text (added for the app engine; no new claim)."
+    },
+    {
+      "id": "cobra_36_month_rule",
+      "plain": "If the worker became entitled to Medicare less than 18 months before leaving the job, the spouse can keep COBRA up to 36 months after the worker's Medicare entitlement date",
+      "label": "VERIFIED",
+      "source": {
+        "title": "U.S. DOL COBRA guide, Duration of Continuation Coverage",
+        "url": "https://www.dol.gov/sites/dolgov/files/ebsa/about-ebsa/our-activities/resource-center/publications/an-employees-guide-health-benefits-under-cobra-2022.pdf"
+      },
+      "note": "'Entitled to Medicare' generally means the Part A start date. Confirm with the plan administrator how it reads his Part A date (ASSUMED)."
+    },
+    {
+      "id": "cobra_medicare_before_election",
+      "plain": "If Medicare A or B is already in effect on or before the day you elect COBRA, the plan cannot end your COBRA because of Medicare",
+      "label": "VERIFIED",
+      "source": {
+        "title": "U.S. DOL COBRA guide, Medicare section",
+        "url": "https://www.dol.gov/sites/dolgov/files/ebsa/about-ebsa/our-activities/resource-center/publications/an-employees-guide-health-benefits-under-cobra-2022.pdf"
+      }
+    },
+    {
+      "id": "nj_mini_cobra",
+      "plain": "NJ state continuation (mini-COBRA): insured plans of employers with 50 or fewer employees; same 18/36-month lengths; up to 102%; ends at Medicare entitlement",
+      "label": "VERIFIED",
+      "source": {
+        "title": "NJ DOBI: COBRA and New Jersey Small Group Continuation",
+        "url": "https://www.nj.gov/dobi/division_consumers/insurance/cobra.html"
+      },
+      "note": "Applies to her own small employer's plan if she leaves that job; his 20+ employer uses federal COBRA."
+    },
+    {
+      "id": "gcnj_oe_2027",
+      "plain": "Get Covered NJ open enrollment for 2027 coverage: November 1, 2026 - January 31, 2027",
+      "label": "VERIFIED",
+      "source": {
+        "title": "NJ DOBI press release (Aug 10, 2026)",
+        "url": "https://www.nj.gov/dobi/pressreleases/pr260810.html"
+      },
+      "value": {
+        "start": "2026-11-01",
+        "end": "2027-01-31"
+      },
+      "value_note": "Structured copy of numbers already stated in this fact's \"plain\" text (added for the app engine; no new claim)."
+    },
+    {
+      "id": "gcnj_sep_loss",
+      "plain": "Losing job-based coverage involuntarily opens a Get Covered NJ special enrollment window: from 60 days before the loss to 60 days after it",
+      "label": "VERIFIED",
+      "source": {
+        "title": "NJ Treasury: Income or Life Changes (Loss of Health Insurance)",
+        "url": "https://www.nj.gov/treasury/njhealthinsurancemandate/incomelifechanges.shtml"
+      },
+      "also": [
+        {
+          "title": "Get Covered NJ: When can I buy health insurance?",
+          "url": "https://www.nj.gov/getcoverednj/getstarted/buy"
+        },
+        {
+          "title": "N.J.A.C. 11:20-24.2A (Justia copy)",
+          "url": "https://regulations.justia.com/states/new-jersey/title-11/chapter-20/subchapter-24/section-11-20-24-2a"
+        }
+      ],
+      "value": {
+        "days_after": 60,
+        "days_before": 60
+      },
+      "value_note": "Structured copy of numbers already stated in this fact's \"plain\" text (added for the app engine; no new claim).",
+      "note": "Opened 2026-11-03 in a browser. The NJ Treasury page: \"lost health coverage in the last 60 days or expects to lose coverage in the next 60 days\"."
+    },
+    {
+      "id": "cobra_drop_no_sep",
+      "plain": "Choosing to drop COBRA early, or to stop paying for it, does not open a special window to buy a marketplace plan. Only open enrollment, or COBRA running out, does.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "HealthCare.gov: COBRA coverage when you're unemployed",
+        "url": "https://www.healthcare.gov/unemployed/cobra-coverage/"
+      },
+      "also": [
+        {
+          "title": "NJ Treasury: Income or Life Changes (special enrollment events)",
+          "url": "https://www.nj.gov/treasury/njhealthinsurancemandate/incomelifechanges.shtml"
+        }
+      ],
+      "note": "Opened 2026-11-03 in a browser. HealthCare.gov: \"Voluntarily dropping COBRA doesn't count.\" The New Jersey page lists only involuntary loss of job-based coverage."
+    },
+    {
+      "id": "nj_health_plan_savings",
+      "plain": "New Jersey's own subsidy (NJ Health Plan Savings) continues for 2027 for household income up to 600% of the federal poverty level",
+      "label": "VERIFIED",
+      "source": {
+        "title": "NJ DOBI press release (Aug 10, 2026)",
+        "url": "https://www.nj.gov/dobi/pressreleases/pr260810.html"
+      }
+    },
+    {
+      "id": "federal_ptc_400_cliff",
+      "plain": "Enhanced federal premium tax credits expired after 2025. For 2027, people above 400% of the poverty level get no federal credit and pay full price.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "KFF: 9 Things to Watch for the 2027 ACA Open Enrollment Period (Oct 30, 2026)",
+        "url": "https://www.kff.org/affordable-care-act/9-things-to-watch-for-the-2027-aca-open-enrollment-period/"
+      },
+      "also": [
+        {
+          "title": "NJ DOBI press release (Aug 10, 2026)",
+          "url": "https://www.nj.gov/dobi/pressreleases/pr260810.html"
+        }
+      ],
+      "review_after": "2027-01-31",
+      "note": "Congress could change this; recheck before relying on it."
+    },
+    {
+      "id": "ptc_full_repayment",
+      "plain": "Starting with tax year 2026, anyone who got more advance premium tax credit than they qualified for must repay all of it; the old repayment caps are gone",
+      "label": "VERIFIED",
+      "source": {
+        "title": "IRS: Repayment caps eliminated for excess advance payments of the PTC",
+        "url": "https://www.irs.gov/tax-professionals/eitc-central/repayment-caps-eliminated-for-excess-advance-payments-of-the-premium-tax-credit"
+      }
+    },
+    {
+      "id": "fpl_2026",
+      "plain": "2026 federal poverty guideline, household of 2 (48 states)",
+      "value": 21640,
+      "unit": "USD/year",
+      "label": "VERIFIED",
+      "source": {
+        "title": "HHS ASPE: 2026 Poverty Guidelines",
+        "url": "https://aspe.hhs.gov/poverty-guidelines"
+      }
+    },
+    {
+      "id": "fpl_lines_household2",
+      "plain": "For 2027 coverage, household of 2: 400% = $86,560 (federal credit cutoff); 600% = $129,840 (NJ subsidy cutoff)",
+      "value": {
+        "pct400": 86560,
+        "pct600": 129840
+      },
+      "label": "INFERRED",
+      "confidence": "high",
+      "derivation": "fpl_2026 x 4 and x 6. Assumes 2027 coverage uses the 2026 guidelines (marketplace credits use the prior year's guidelines).",
+      "source": {
+        "title": "HHS ASPE: 2026 Poverty Guidelines",
+        "url": "https://aspe.hhs.gov/poverty-guidelines"
+      }
+    },
+    {
+      "id": "aca_magi_includes_ss",
+      "plain": "Marketplace income counts ALL Social Security (taxable and non-taxable) plus tax-exempt interest. This differs from Medicare's IRMAA income, which counts only taxable Social Security.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "HealthCare.gov: What to include as income",
+        "url": "https://healthcare.gov/income-and-household-information/income/"
+      },
+      "also": [
+        {
+          "title": "SSA POMS HI 01101.010",
+          "url": "https://secure.ssa.gov/POMS.NSF/lnx/0601101010"
+        }
+      ]
+    },
+    {
+      "id": "employer_offer_blocks_ptc",
+      "plain": "If her own employer offers her coverage that is 'affordable' (2026: employee-only cost at or under 9.96% of household income) and meets minimum value, she cannot get marketplace credits. For family members, affordability is judged on the family premium.",
+      "label": "UNVERIFIED",
+      "confidence": "high",
+      "note": "Family-premium rule VERIFIED in CMS guidance; the 9.96% 2026 figure is from a state exchange FAQ (Pennie) and a benefits bulletin, not the IRS Rev. Proc. itself. Moot above 400% FPL (no federal credit anyway).",
+      "source": {
+        "title": "CMS: Affordability of employer coverage for family members",
+        "url": "https://www.cms.gov/files/document/affordability-employer-coverage-family-members-employees.pdf"
+      }
+    },
+    {
+      "id": "ss_delayed_credits",
+      "plain": "Social Security grows 8% per year (2/3 of 1% per month) for each year you wait past full retirement age, up to age 70",
+      "label": "VERIFIED",
+      "source": {
+        "title": "SSA: Delayed Retirement Credits",
+        "url": "https://www.ssa.gov/benefits/retirement/planner/delayret.html"
+      },
+      "note": "Opened 2026-11-03 in a browser. The page states 8.0% a year (2/3 of 1% a month) for people born 1943 or later, and that the increase stops at age 70."
+    },
+    {
+      "id": "retiree_coverage_check",
+      "plain": "Retiree coverage may not pay unless you have both Part A and Part B. Ask whether joining a non-employer plan would make you or your family lose retiree coverage.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "Medicare.gov: Working past 65",
+        "url": "https://www.medicare.gov/basics/get-started-with-medicare/medicare-basics/working-past-65"
+      }
+    },
+    {
+      "id": "medicare_start_month",
+      "plain": "Premium-free Part A starts the month you turn 65 (if your birthday is on the 1st, the month before)",
+      "label": "VERIFIED",
+      "source": {
+        "title": "Medicare.gov: When does Medicare coverage start?",
+        "url": "https://www.medicare.gov/basics/get-started-with-medicare/sign-up/when-does-medicare-coverage-start"
+      }
+    },
+    {
+      "id": "his_coverage_end_assumption",
+      "plain": "Job coverage ends on the last day of the month he stops working",
+      "label": "ASSUMED",
+      "note": "Many plans work this way, but some end on the last day worked. Confirm with HR; the app must let the user enter the actual end date."
+    },
+    {
+      "id": "nj_ship_contact",
+      "plain": "NJ SHIP (free, unbiased Medicare counseling): 1-800-792-8820",
+      "label": "VERIFIED",
+      "source": {
+        "title": "NJ SHIP: Important Information",
+        "url": "https://www.nj.gov/humanservices/doas/documents/SHIP_Important_Info.pdf"
+      },
+      "value": "1-800-792-8820",
+      "value_note": "Structured copy of numbers already stated in this fact's \"plain\" text (added for the app engine; no new claim)."
+    },
+    {
+      "id": "medigap_compare_year_types",
+      "plain": "Simplified yearly Medicare-covered cost-sharing used by the Medigap comparison: healthy year, moderate year, bad year (one hospital stay = Part A deductible plus extra)",
+      "value": {
+        "healthy": 500,
+        "moderate": 2000,
+        "bad_extra": 5000
+      },
+      "label": "ASSUMED",
+      "note": "Design assumption from SPEC 5c, not a Medicare figure. Change here to change the calculator."
+    },
+    {
+      "id": "path_score_weights",
+      "plain": "Points used to weigh Medigap (+) against Medicare Advantage (-) from your answers",
+      "value": {
+        "health_needs": {
+          "yes": 1,
+          "no": -1,
+          "skip": 0
+        },
+        "budget_ok": {
+          "no": -2
+        },
+        "doctor_choice": {
+          "very": 1,
+          "somewhat": 0,
+          "not": -1
+        },
+        "travel": {
+          "yes": 1
+        },
+        "predictability": {
+          "fixed": 1,
+          "variable": -1
+        },
+        "reversibility": 1,
+        "lean_threshold": 2
+      },
+      "label": "ASSUMED",
+      "note": "Transparent design weights from SPEC 4 (three goals weighted equally). Not a Medicare rule."
+    },
+    {
+      "id": "irmaa_cliff_margin",
+      "plain": "The calculator warns when an income estimate is within this many dollars below an IRMAA line",
+      "value": 10000,
+      "label": "ASSUMED",
+      "note": "Design choice from SPEC 5a."
+    },
+    {
+      "id": "hsa_medicare",
+      "plain": "Starting with the first month you are enrolled in Medicare, you can no longer contribute to an HSA. This includes backdated (retroactive) Medicare months: money put in for those months is an excess contribution. Medicare.gov advises that you and your employer stop HSA contributions 6 months before you retire.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "IRS Publication 969, Health Savings Accounts: \"Enrolled in Medicare\"",
+        "url": "https://www.irs.gov/publications/p969"
+      },
+      "also": [
+        {
+          "title": "Medicare.gov: Working past 65 (HSA section)",
+          "url": "https://www.medicare.gov/basics/get-started-with-medicare/medicare-basics/working-past-65"
+        }
+      ],
+      "note": "Read on both pages on 2026-11-03. The 6-month backdating itself is fact parta_retro."
+    },
+    {
+      "id": "iep_window",
+      "plain": "Initial Enrollment Period: 7 months, starting 3 months before the month you turn 65 and ending 3 months after the month you turn 65.",
+      "label": "VERIFIED",
+      "source": {
+        "title": "Medicare.gov: When does Medicare coverage start?",
+        "url": "https://www.medicare.gov/basics/get-started-with-medicare/sign-up/when-does-medicare-coverage-start"
+      },
+      "note": "Read on Medicare.gov on 2026-11-03."
+    }
+  ]
+}

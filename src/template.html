@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<title>Medicare Decision Guide</title>
+<style>
+/*__CSS__*/
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the question</a>
+<header class="top">
+  <p class="brand">Medicare decision guide <span class="unofficial">(unofficial, New Jersey)</span></p>
+  <nav id="progress" aria-label="Progress"></nav>
+</header>
+<main id="main" tabindex="-1"></main>
+<section class="tools no-print" aria-label="Your answers on this device">
+  <label class="remember"><input type="checkbox" id="remember"> Remember my answers on this device</label>
+  <button type="button" id="clear" class="tertiary">Clear my answers</button>
+  <span id="clear-confirm" class="confirm" hidden><span>Clear every answer?</span>
+    <button type="button" id="clear-yes" class="danger">Yes, clear</button>
+    <button type="button" id="clear-no" class="secondary">Cancel</button></span>
+  <p id="storage-note" class="small" role="status"></p>
+</section>
+<footer id="footer" class="footer"></footer>
+<dialog id="pop" aria-labelledby="pop-title">
+  <div id="pop-body"></div>
+  <form method="dialog"><button type="submit" class="secondary">Close</button></form>
+</dialog>
+<script type="application/json" id="facts-data">/*__FACTS__*/</script>
+<script type="application/json" id="tree-data">/*__TREE__*/</script>
+<script>
+/*__JS__*/
+</script>
+</body>
+</html>
