@@ -75,7 +75,6 @@ summary { cursor: pointer; min-height: 48px; display: flex; align-items: center;
 .timeline li { border-left: 4px solid var(--accent); padding: 0.2rem 0 0.8rem 0.8rem; }
 .timeline li.deadline { border-left-color: var(--danger); }
 .timeline .when { font-weight: 700; display: block; }
-.timeline li.deadline .when::before { content: "Deadline: "; color: var(--danger); }
 label.field { display: block; margin: 0.8rem 0 0.2rem; font-weight: 600; }
 select, input[type="number"], input[type="text"] { font: inherit; min-height: 48px; padding: 0.3rem 0.5rem; border: 2px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); max-width: 100%; }
 .row { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: end; }
@@ -125,3 +124,48 @@ ul.qs li, ul.acts li { margin-bottom: 0.6rem; }
 .fork { border-top: 1px solid var(--line); margin-top: 1rem; padding-top: .6rem; }
 .fork-q { font-weight: 700; margin: 0 0 .4rem; }
 .default-note { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+
+/* UX review H2: the next step stays at the top */
+.top-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
+.start-over { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.next-step { margin: .4rem 0 .6rem; padding: .5rem .8rem; border-left: 6px solid var(--accent); background: var(--accent-soft); font-size: 1rem; min-height: 3.2em; }
+.next-step .when { display: block; font-weight: 700; }
+/* L1 icons */
+.ico { width: 1.2em; height: 1.2em; flex: none; vertical-align: -0.2em; }
+/* X3 confidence words; H3 trust list; H4 more */
+.conf { font-style: italic; }
+button.conf { font-style: italic; }
+.more, .trust { border-top: 1px solid var(--line); padding-top: .4rem; margin-top: .8rem; }
+.trust ul { padding-left: 1.1rem; }
+.trust li { margin-bottom: .6rem; }
+.stale-line { color: var(--danger); font-weight: 700; }
+/* L2 deadline word */
+.dl { color: var(--danger); font-weight: 700; display: inline-flex; gap: .25rem; align-items: center; margin-right: .4rem; }
+/* H6 summary: three steps first */
+.next-steps { border: 3px solid var(--accent); border-radius: 12px; padding: .6rem .8rem; margin: .8rem 0; }
+.next-steps h2 { margin-top: 0; }
+.ns-list { list-style: none; padding: 0; margin: 0; counter-reset: ns; }
+.ns-item { counter-increment: ns; position: relative; padding: .5rem 0 .5rem 2.6rem; border-top: 1px solid var(--line); }
+.ns-item:first-child { border-top: 0; }
+.ns-item::before { content: counter(ns); position: absolute; left: 0; top: .5rem; width: 2rem; height: 2rem; border-radius: 50%;
+  background: var(--accent); color: var(--accent-fg); font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.ns-date { font-size: 1.15rem; font-weight: 700; margin: 0 0 .1rem; }
+.ns-date .ico { margin-right: .3rem; }
+.ns-rel { font-weight: 400; font-size: 1rem; color: var(--muted); margin-left: .3rem; }
+.ns-text { font-size: 1.05rem; margin: 0; }
+.ns-item.past .ns-date { color: var(--danger); }
+details.sum { border-top: 1px solid var(--line); padding: .3rem 0; }
+details.sum > summary { font-size: 1.15rem; font-weight: 700; }
+main p { margin: 0 0 .9rem; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+@media print {
+  details > *:not(summary) { display: block !important; }
+  details > summary { list-style: none; }
+  .next-step { display: none; }
+}
+.top .brand { font-size: .9rem; margin: 0 0 .2rem; }
+.top-row #progress { flex: 1 1 0; min-width: 9rem; }
+.top-row { flex-wrap: nowrap; }
+.start-over #clear { padding: .4rem .8rem; }
+.start-over .confirm { flex-wrap: wrap; }
+.top-row .progress-line { margin: 0 0 .3rem; }

@@ -48,10 +48,11 @@ export function validate(tree, factsDoc) {
   if (!byId[tree.meta.start]) err('meta', 'start node missing');
   for (const n of tree.nodes) {
     const w = n.id;
-    for (const k of ['title', 'text', 'help']) checkText(`${w}.${k}`, n[k]);
+    for (const k of ['title', 'text', 'help', 'subtext', 'intro']) checkText(`${w}.${k}`, n[k]);
     (n.bullets || []).forEach((b, i) => checkText(`${w}.bullets[${i}]`, b));
+    (n.more || []).forEach((b, i) => checkText(`${w}.more[${i}]`, b));
     (n.variants || []).forEach((v, i) => { checkText(`${w}.variants[${i}]`, v.text); checkVars(w, v.when); });
-    (n.timeline || []).forEach((t, i) => { checkText(`${w}.timeline[${i}].date`, t.date); checkText(`${w}.timeline[${i}].text`, t.text); });
+    (n.timeline || []).forEach((t, i) => { checkText(`${w}.timeline[${i}].date`, t.date); checkText(`${w}.timeline[${i}].text`, t.text); checkText(`${w}.timeline[${i}].detail`, t.detail); });
     checkFacts(w, n.fact_refs);
     (n.add_actions || []).forEach((a) => tree.actions[a] || err(w, `add_actions: unknown ${a}`));
     (n.add_questions || []).forEach((q) => tree.questions[q] || err(w, `add_questions: unknown ${q}`));
@@ -66,7 +67,8 @@ export function validate(tree, factsDoc) {
     if (['info', 'outcome', 'calculator'].includes(n.type) && !n.next) err(w, 'screen has no next');
   }
   for (const [k, a] of Object.entries(tree.actions)) {
-    checkText(k, a.text); checkText(k, a.when_text); checkFacts(k, a.fact_refs); checkVars(k, a.when);
+    checkText(k, a.text); checkText(k, a.when_text); checkText(k + '.short', a.short); checkFacts(k, a.fact_refs); checkVars(k, a.when);
+    if (a.date_end_rule && !COMPUTED.includes(a.date_end_rule)) err(k, 'date_end_rule: unknown ' + a.date_end_rule);
     const m = /^([a-z_][a-z0-9_]*)(?:[+-]\d+[dm])?$/.exec(a.date_rule || '');
     if (!m) err(k, `bad date_rule ${a.date_rule}`);
     else if (m[1] !== 'today' && !varNames.has(m[1])) err(k, `date_rule uses unknown name ${m[1]}`);

@@ -34,7 +34,7 @@ test('T2 path: OUT_BRIDGE_GAP with the 400-600% variant', () => {
   const node = T.nodes.find((n) => n.id === 'OUT_BRIDGE_GAP');
   const shown = node.variants.filter((v) => v.when.every((c) => evalClause(c, w.vars)));
   assert.equal(shown.length, 1);
-  assert.match(shown[0].text, /no federal help/);
+  assert.match(shown[0].text, /no U\.S\. help/);
 });
 
 test('T3 path: Part B held, window closed -> OUT_HAS_PARTB then OUT_NO_MEDIGAP_WINDOW', () => {
@@ -172,7 +172,7 @@ test('Input validation', () => {
   const a6 = T.nodes.find((n) => n.id === 'A6');
   assert.equal(validateInput(a6, '2027-12'), null);
   assert.match(validateInput(a6, '2026-10'), /November 2026 or later/);
-  assert.match(validateInput(a6, 'unknown'), /enter/);
+  assert.match(validateInput(a6, 'unknown'), /Pick an answer/);
   const a3b = T.nodes.find((n) => n.id === 'A3b');
   assert.equal(validateInput(a3b, 'unknown'), null);
 });
@@ -194,7 +194,7 @@ test('T14: validation script passes', () => {
 test('T14: validation catches a broken reference', () => {
   const bad = tree();
   bad.nodes[0].next = 'NOPE';
-  bad.nodes.find((n) => n.id === 'H2').bullets.push('{{fact:not_a_fact}}');
+  bad.nodes.find((n) => n.id === 'H2').more.push('{{fact:not_a_fact}}');
   const r = validate(bad, shippedFactsDoc());
   assert.ok(r.errors.some((e) => /NOPE/.test(e)));
   assert.ok(r.errors.some((e) => /not_a_fact/.test(e)));

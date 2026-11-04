@@ -24,6 +24,11 @@ const PHRASES = ['most complete plan you can buy', 'You have no HSA', 'causes no
 // Accepted hits: [nodeOrKey, exact match, reason]. Keep in sync with NEEDS_REVIEW.md.
 export const ALLOW = [
   ['OUT_WORKING_OK', '20 or more workers', 'restates fact employer_size_20, which is linked in the same screen'],
+  ['OUT_WORKING_OK', '20 or more employees', 'restates fact employer_size_20, linked under More details on the same screen'],
+  ['OUT_WORKING_OK', 'about 20 employees', 'restates fact employer_size_20, linked under More details on the same screen'],
+  ['H1', '2 years', 'restates fact irmaa_lookback ("usually"), linked under More details on the same screen'],
+  ['H2', 'SSA-44', 'form name (fact ssa44_form, linked under More details)'],
+  ['ACT_HR_EMPLOYEES', '20 or more employees', 'restates fact employer_size_20, linked in the action'],
   ['OUT_WIFE_AT_65', '20+ employer', 'restates fact employer_size_20, linked in the same bullet'],
   ['OUT_WIFE_AT_65', 'fewer than 20 workers', 'restates fact employer_size_20, linked in the same bullet'],
   ['OUT_SIGNUP_TIMELINE', '6-month', 'restates fact medigap_oep, linked in the same row'],
@@ -99,11 +104,14 @@ function collect() {
   for (const n of tree.nodes) {
     add(n.id, 'text', n.text);
     add(n.id, 'help', n.help);
+    add(n.id, 'subtext', n.subtext);
+    add(n.id, 'intro', n.intro);
     (n.bullets || []).forEach((b, i) => add(n.id, `bullets[${i}]`, b));
+    (n.more || []).forEach((b, i) => add(n.id, `more[${i}]`, b));
     (n.variants || []).forEach((v, i) => add(n.id, `variants[${i}]`, v.text));
-    (n.timeline || []).forEach((t, i) => { add(n.id, `timeline[${i}].text`, t.text); add(n.id, `timeline[${i}].date`, t.date); });
+    (n.timeline || []).forEach((t, i) => { add(n.id, `timeline[${i}].text`, t.text); add(n.id, `timeline[${i}].detail`, t.detail); add(n.id, `timeline[${i}].date`, t.date); });
   }
-  for (const [k, a] of Object.entries(tree.actions)) { add(k, 'text', a.text); add(k, 'when_text', a.when_text); }
+  for (const [k, a] of Object.entries(tree.actions)) { add(k, 'text', a.text); add(k, 'when_text', a.when_text); add(k, 'short', a.short); }
   for (const [k, q] of Object.entries(tree.questions)) add(k, 'text', q.text);
   for (const [k, g] of Object.entries(tree.glossary || {})) add('glossary.' + k, 'text', g.text);
   (tree.key_deadlines || []).forEach((d) => add('key_deadlines', d.var, d.text));

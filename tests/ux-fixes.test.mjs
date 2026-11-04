@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compute, gcnjWindowBefore } from '../src/engine.js';
-import { walk, collectPath, renderPlain } from '../src/interpreter.js';
+import { walk, collectPath, renderPlain, confidenceWord, topSteps, nextStep } from '../src/interpreter.js';
 import { facts, tree, TODAY } from './helpers.mjs';
 
 const F = facts();
@@ -144,4 +144,57 @@ test('M2: only the birth month matters, unless she was born on the 1st', () => {
   assert.equal(at('1964-10-15').wife_medicare_start, '2029-10-01');
   const a7 = T.nodes.find((n) => n.id === 'A7');
   assert.equal(a7.birth_month, true);
+});
+
+// ---------- UX review presentation: X3, H2, H6 ----------
+test('X3: facts that are not settled keep a plain word in the text', () => {
+  assert.equal(confidenceWord(F.gi_nj_state_extension), 'not confirmed');
+  assert.equal(confidenceWord(F.ma_trial_right_at_your_age), 'our reading of the rule');
+  assert.equal(confidenceWord(F.partb_2027_status), 'not published yet');
+  assert.equal(confidenceWord(F.medigap_oep), null); // VERIFIED
+  const assumed = Object.values(F).find((f) => f.label === 'ASSUMED');
+  assert.equal(confidenceWord(assumed), 'our guess');
+  // Every fact label maps to a word or to nothing, never to undefined.
+  for (const f of Object.values(F)) assert.notEqual(confidenceWord(f), undefined, f.id);
+});
+
+test('H2: the next step shows after the stop-work month, and it is a safe one', () => {
+  // Card "no", 20+ employees, stop-work month answered: the first step is "ask HR", not "sign up".
+  const w = walk(T, { part_a: 'no', employer_20: 'yes', last_work_month: '2027-12', job_cov_end: 'default' }, F, TODAY);
+  assert.equal(w.screens.at(-1), 'A8');
+  const a = nextStep(T, w, F, TODAY);
+  assert.equal(a.id, 'ACT_ASK_HR_PARTA_OK');
+  assert.equal(a.date, '2026-11-17');
+  // Before the stop-work month, nothing is shown.
+  assert.equal(nextStep(T, walk(T, { part_a: 'no', employer_20: 'yes' }, F, TODAY), F, TODAY), null);
+  // With Part A already, the HR step does not apply.
+  const y = walk(T, { part_a: 'yes', employer_20: 'yes', last_work_month: '2028-12', job_cov_end: 'default' }, F, TODAY);
+  assert.equal(nextStep(T, y, F, TODAY), null);
+});
+
+test('H6: "Do these first" holds the Part A window for retire 2027-12 (overdue, earliest key step, then earliest)', () => {
+  const all = collectPath(T, run(likely), F, TODAY).actions;
+  const steps = topSteps(all);
+  assert.equal(steps.length, 3);
+  // Overdue first, then the earliest key step; never more than 3, no duplicates.
+  assert.ok(steps.some((a) => a.key));
+  assert.equal(new Set(steps.map((a) => a.id)).size, 3);
+  const keyFirst = all.find((a) => a.key);
+  assert.ok(steps.includes(keyFirst));
+  assert.equal(keyFirst.id, 'ACT_ENROLL_PARTA_WINDOW');
+  // Every action has a short text with resolvable tokens.
+  for (const [id, a] of Object.entries(T.actions)) {
+    assert.ok(a.short && a.short.split(/\s+/).length <= 20, id);
+    assert.doesNotMatch(renderPlain(a.short, { facts: F, vars: run(likely).vars, meta: run(likely).meta }), /\{\{/, id);
+  }
+});
+
+test('H4: result screens keep their default text short; the rest is under More details', () => {
+  const words = (t) => t.replace(/\{\{[^}]+\}\}/g, 'X').split(/\s+/).filter(Boolean).length;
+  for (const n of T.nodes.filter((x) => x.type === 'outcome' && x.id !== 'OUT_SIGNUP_TIMELINE')) {
+    const longestVariant = Math.max(0, ...(n.variants || []).map((v) => words(v.text)));
+    assert.ok(words(n.text || '') + longestVariant <= 110, n.id + ' ' + (words(n.text || '') + longestVariant));
+    assert.equal(n.bullets, undefined, n.id + ' still has bullets shown by default');
+  }
+  for (const r of T.nodes.find((x) => x.id === 'OUT_SIGNUP_TIMELINE').timeline) assert.ok(words(r.text) <= 32 && r.detail, r.date);
 });

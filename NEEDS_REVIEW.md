@@ -100,6 +100,18 @@ Everything here is a choice, assumption or open question a person should confirm
 | M3 coverage end | A6b is answered "assume the last day of the month" automatically, and A6 says so with a Change button. A6b still shows when opened from Change or the summary. |
 | Check | 20,000 random complete answer sets (seed 777, today 2026-11-03) plus 8,000 each at 2027-02-15 and 2026-12-31, compared with commit a8fb7c4: 0 differences in outcome screens, dated actions, summary questions, key deadlines and the COBRA, Part B and Medigap dates, with both forks answered yes. Every old outcome screen is still reached. |
 
+### UX review, presentation pass (2026-11-04)
+
+| Item | Change |
+|---|---|
+| X3 + H3 labels | Fact badges and Source links are no longer inside the text. Each screen has one "Why trust this?" list with every fact used on it (label badge, plain-word label, source and "also" links) and the dates we worked out, each with how. A fact that is not settled keeps a word in the text: UNVERIFIED "(not confirmed)", ASSUMED "(our guess)", PENDING "(not published yet)", INFERRED from a source "(our reading of the rule)". When a fact on the screen is past its review date, one line says so above the buttons. The summary's Sources list keeps every label. |
+| H4 + H5 short screens | Result screens show a short text; the old text and bullets moved, unchanged, into `more` ("More details"). Timeline rows have a short `text` and the old text as `detail`. validate, lint and the Sources list read `more`, `detail` and `subtext`. |
+| Rewrites | Questions, results, glossary, messages and footer follow REVIEW_UX section 4, with these differences. OUT_WORKING_OK keeps "If your company has 20 or more employees" (conditional, as before). OUT_WIFE_AT_65 says "should sign up … in the 7 months around her 65th birthday month" (not "must"). H1 drops "This step is optional" (the fork already asks). New glossary entries: premium, deductible, copays, network, pays first, HSA, Get Covered NJ. "creditable" opens the creditable-coverage entry. |
+| H2 next step | A line at the top shows the first step on the path once the stop-work month is known. To show it after three questions, ACT_ASK_HR_PARTA_OK is now also added by A6, with `when: part_a = no` (it was only ever reached on that path). 20,000 random answer sets give the same set of dated steps as a60900a; only the order of two steps due on the same day can change. |
+| H6 summary | "Do these first" (3 steps: overdue, then the earliest key step, then the earliest) comes first, then Print, then folded sections. Printing opens every section. With retire 2027-12 the three are the drug letter, "ask HR" and the Part A window; the Part B filing (November 2027) is fourth. Every action has a `short` text, and 11 are marked `key`. |
+| M1, M5, M6, L1, L2 | "Step N · section" with shorter section names. Shorter footer; "Today's date used" only with `?today=`. "Start over" is a button at the top. A few icons, always next to words. Timeline deadlines say "Deadline" in the page. |
+| Storage | The health answer (F2) is never stored, even with "Remember my answers" on. |
+
 Not done from the review: M1, M3, M4 (partly: only the condition), M9-M13, M19, L2-L8, L11-L12, the full redesign tokens in section 6, and the section 7 watch metadata and source-check script.
 
 ## 3. Lint hits accepted (not converted to tokens)
@@ -110,6 +122,9 @@ Not done from the review: M1, M3, M4 (partly: only the condition), M9-M13, M19, 
 |---|---|---|
 | A7 | `1` ("born on the 1st", in the checkbox label) | restates `medicare_start_month`, linked on the same screen |
 | OUT_WORKING_OK | `20` | restates `employer_size_20`, linked on the same screen |
+| H1 | `2 years` | restates `irmaa_lookback` ("usually"), linked under More details |
+| H2 | `SSA-44` | form name (`ssa44_form`) |
+| ACT_HR_EMPLOYEES | `20` (short text) | restates `employer_size_20`, linked in the action |
 | OUT_RETIREE_COV, OUT_WIFE_NOT_ON_PLAN, D2, OUT_WIFE_AT_65 | `65` | Medicare age (`medicare_start_month`) |
 | D2, OUT_LEAN_MA, G2, OUT_PLAN_G, OUT_PLAN_HDG | `2026` / `2027` | labels which year a linked fact applies to |
 | OUT_BRIDGE_GAP, F1 | `1`-`4` | list numbering |

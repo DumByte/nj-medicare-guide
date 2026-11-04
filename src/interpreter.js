@@ -95,7 +95,7 @@ export function formatVarValue(v) {
   return null;
 }
 
-export const NOT_ENTERED = '[not entered yet]';
+export const NOT_ENTERED = '(not answered yet)';
 
 // ctx: { facts, vars, meta, log(msg) }. Returns segments for the UI.
 export function renderSegments(text, ctx) {
@@ -170,15 +170,15 @@ function figIdsIn(text, facts, vars) {
 
 // ---------- inputs ----------
 export function validateInput(node, value) {
-  if (value === 'unknown') return node.allow_unknown ? null : 'Please enter a value.';
-  if (value === 'default') return node.default_from ? null : 'Please enter a value.';
+  if (value === 'unknown') return node.allow_unknown ? null : 'Pick an answer.';
+  if (value === 'default') return node.default_from ? null : 'Pick an answer.';
   if (node.input === 'month') {
-    if (!isValidMonth(value)) return 'Please choose a month and year.';
-    if (node.validate && node.validate.min && value < node.validate.min) return `Please choose ${formatMonth(node.validate.min)} or later.`;
-    if (node.validate && node.validate.max && value > node.validate.max) return `Please choose ${formatMonth(node.validate.max)} or earlier.`;
+    if (!isValidMonth(value)) return 'Pick a month and a year.';
+    if (node.validate && node.validate.min && value < node.validate.min) return `Pick ${formatMonth(node.validate.min)} or later.`;
+    if (node.validate && node.validate.max && value > node.validate.max) return `Pick ${formatMonth(node.validate.max)} or earlier.`;
     return null;
   }
-  if (node.input === 'date') return isValidDate(value) ? null : 'Please enter a full date.';
+  if (node.input === 'date') return isValidDate(value) ? null : 'Pick a month, a day and a year.';
   return null;
 }
 
@@ -311,9 +311,9 @@ export function collectPath(tree, w, facts, today) {
 
 // All renderable strings of a node, including matching variants.
 export function nodeTexts(n, vars) {
-  const out = [n.title, n.text, n.help, ...(n.bullets || [])];
+  const out = [n.title, n.text, n.help, n.subtext, ...(n.bullets || []), ...(n.more || [])];
   for (const v of n.variants || []) if (evalWhen(v.when, vars)) out.push(v.text);
-  for (const t of n.timeline || []) out.push(t.date, t.text);
+  for (const t of n.timeline || []) out.push(t.date, t.text, t.detail);
   for (const o of n.options || []) out.push(o.label);
   return out.filter((t) => typeof t === 'string');
 }
@@ -322,4 +322,33 @@ export function modulesOf(tree) {
   const mods = [];
   for (const n of tree.nodes) if (n.module && !mods.includes(n.module)) mods.push(n.module);
   return mods;
+}
+
+// ---------- presentation helpers (UX review) ----------
+// X3: the plain word shown right after a fact that is not settled, since its badge is no longer in the text.
+const CONF_WORDS = { UNVERIFIED: 'not confirmed', ASSUMED: 'our guess', PENDING: 'not published yet' };
+export function confidenceWord(fact) {
+  if (!fact) return null;
+  if (CONF_WORDS[fact.label]) return CONF_WORDS[fact.label];
+  // INFERRED from a law or rule (it has a source) is our reading of it; INFERRED from his answers needs no word.
+  if (fact.label === 'INFERRED' && fact.source) return 'our reading of the rule';
+  return null;
+}
+
+// H6: the three steps shown first on the summary. Overdue steps first, then the earliest key step, then
+// the earliest of the rest; shown in date order. `actions` is collectPath(...).actions (already date-sorted).
+export function topSteps(actions, n = 3) {
+  const out = [];
+  const add = (a) => { if (a && out.length < n && !out.includes(a)) out.push(a); };
+  actions.filter((a) => a.past).sort((a, b) => (a.ruleDate < b.ruleDate ? -1 : a.ruleDate > b.ruleDate ? 1 : 0)).forEach(add);
+  add(actions.find((a) => a.key));
+  actions.forEach(add);
+  return out.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+}
+
+// H2: the step for the "Next step" line at the top: the first step on the path so far, once the guide
+// knows when his job plan ends.
+export function nextStep(tree, w, facts, today) {
+  if (!w.vars.job_cov_end) return null;
+  return collectPath(tree, w, facts, today).actions[0] || null;
 }

@@ -133,7 +133,8 @@ test('H10: yearly dollar figures say which year they are from', () => {
 
 test('H12/H13: Advantage trial-right wording and the Part B-held Medigap trade-off', () => {
   const ma = T.nodes.find((n) => n.id === 'OUT_LEAN_MA');
-  assert.ok(ma.bullets.some((b) => /no trial right/.test(b)));
+  assert.ok(ma.more.some((b) => /no trial right/.test(b)));
+  assert.match(ma.text, /probably does not apply to you \(our reading of the rule\)/);
   const w = run({ ss_collecting: 'no', part_a: 'yes', part_a_date: '2026-09', part_b: 'yes', part_b_date: '2026-09', last_work_month: '2028-06',
     job_cov_end: 'default', wife_birth: '1964-06-15', wife_on_his_plan: 'yes', health_needs: 'yes', doctor_choice: 'very', predictability: 'fixed' });
   assert.ok(w.screens.includes('OUT_LEAN_MEDIGAP'));

@@ -1,7 +1,7 @@
 // UI layer: renders the current screen from the interpreter's walk. All math lives in engine.js.
 import { indexFacts, isStale, isValidDate, formatDate, formatUSD, irmaaSchedule, irmaaTableFor, partBPenalty,
   partDPenalty, medigapCompare, makeDate, yearOf, formatMonth } from './engine.js';
-import { walk, collectPath, renderSegments, renderPlain, validateInput, evalWhen, modulesOf } from './interpreter.js';
+import { walk, collectPath, renderSegments, renderPlain, validateInput, evalWhen, modulesOf, confidenceWord, topSteps, nextStep } from './interpreter.js';
 
 const FACTS_DOC = JSON.parse(document.getElementById('facts-data').textContent);
 const TREE = JSON.parse(document.getElementById('tree-data').textContent);
@@ -17,10 +17,11 @@ function localToday() {
   const d = new Date();
   return makeDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
 }
+let TODAY_FROM_URL = false;
 const TODAY = (() => {
   try {
     const q = new URLSearchParams(window.location.search).get('today');
-    if (q && isValidDate(q)) return q;
+    if (q && isValidDate(q)) { TODAY_FROM_URL = true; return q; }
   } catch (e) { /* ignore */ }
   return localToday();
 })();
@@ -37,8 +38,10 @@ function storageGet() {
 }
 function storageSet() {
   if (!remember) return true;
-  try { window.localStorage.setItem(STORE_KEY, JSON.stringify(state)); return true; } catch (e) {
-    note('Could not save on this device (storage is blocked). The guide still works.');
+  const answers = { ...state.answers };
+  delete answers.health_needs; // never stored
+  try { window.localStorage.setItem(STORE_KEY, JSON.stringify({ ...state, answers })); return true; } catch (e) {
+    note('This browser will not save your answers. The guide still works. Print your list at the end.');
     return false;
   }
 }
@@ -112,19 +115,60 @@ function badgeForFact(f) {
   f.label + (f.label === 'UNVERIFIED' && f.confidence ? ` (${f.confidence})` : ''));
 }
 
+// UX review H3/X3: no badges or Source links inside the text. Every fact and estimate used on a screen is
+// listed once, with its label and source, under "Why trust this?" at the bottom. A fact that is not settled
+// keeps a plain word right after it: (not confirmed), (our guess), (not published yet), (our reading of the rule).
+let SCREEN = { facts: new Set(), vars: new Map() };
+function confMark(f) {
+  const w = confidenceWord(f);
+  return w ? [' ', h('span', { class: 'conf' }, `(${w})`)] : [];
+}
 function factMarks(f) {
-  const out = [' ', badgeForFact(f)];
-  if (f.source) out.push(srcLink(f.source));
-  if (isStale(f, TODAY)) out.push(h('span', { class: 'stale' }, 'This number may be out of date — check the source'));
-  return out;
+  if (!f) return [];
+  SCREEN.facts.add(f.id);
+  return confMark(f);
 }
 
+// Calculator estimates: a small "(estimate)" button that explains how the number was worked out.
 function badgeForVar(name, meta) {
   const m = meta || { label: 'INFERRED', how: '' };
-  return h('button', { type: 'button', class: 'badge ' + m.label, 'aria-label': `${m.label}: how we got this`,
-    onclick: () => openPop('How we got this', h('p', {}, h('strong', {}, m.label), m.confidence ? ` (confidence: ${m.confidence})` : ''),
-      h('p', {}, m.how || 'Computed from your answers.'), h('p', { class: 'small' }, 'This is an estimate from your answers, not an official figure.')) },
-  m.label);
+  return h('button', { type: 'button', class: 'gloss conf', 'aria-label': 'Estimate: how we got this',
+    onclick: () => openPop('How we got this', h('p', {}, m.how || 'Worked out from your answers.'),
+      h('p', { class: 'small' }, 'This is an estimate from your answers, not an official figure.')) }, '(estimate)');
+}
+
+const LABEL_WORDS = { VERIFIED: 'Checked with the source', UNVERIFIED: 'Not fully confirmed', INFERRED: 'Our estimate',
+  ASSUMED: 'Our guess', PENDING: 'Not published yet' };
+const labelWord = (f) => (f.label === 'INFERRED' && f.source ? 'Our reading of the rule' : LABEL_WORDS[f.label] || f.label);
+
+function trustBlock(node, ctx) {
+  for (const id of node.fact_refs || []) SCREEN.facts.add(id);
+  const facts = [...SCREEN.facts].map((id) => FACTS[id]).filter(Boolean);
+  const vars = [...SCREEN.vars].filter(([, m]) => m && m.how);
+  if (!facts.length && !vars.length) return [];
+  const stale = facts.some((x) => isStale(x, TODAY));
+  return [
+    stale ? h('p', { class: 'stale-line' }, icon('i-alert'), ' A number on this page may be out of date. Tap "Why trust this?"') : null,
+    h('details', { class: 'trust' }, h('summary', {}, icon('i-check'), ' Why trust this?'),
+      h('p', { class: 'small' }, 'Dates are estimates from your answers. Each fact below links to its official source.'),
+      facts.length ? h('ul', {}, facts.map((x) => h('li', {},
+        h('span', { class: 'badge ' + x.label }, x.label), ' ', h('strong', {}, labelWord(x) + ': '), x.plain, ' ',
+        x.source ? srcLink(x.source, x.source.title) : null,
+        ...(x.also || []).flatMap((a) => [' Also: ', srcLink(a, a.title)]),
+        isStale(x, TODAY) ? h('span', { class: 'stale' }, ' May be out of date.') : null))) : null,
+      vars.length ? [h('h3', {}, 'Dates and numbers we worked out'), h('ul', {}, vars.map(([name, m]) => h('li', {},
+        h('strong', {}, renderPlain(`{{${name}}}`, ctx)), ': ', m.how, m.label === 'ASSUMED' ? ' (our guess)' : '')))] : null)
+  ];
+}
+
+// L1: a few icons, always next to words that carry the meaning.
+function icon(id) {
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('class', 'ico'); svg.setAttribute('aria-hidden', 'true');
+  const use = document.createElementNS(ns, 'use'); use.setAttribute('href', '#' + id);
+  svg.append(use);
+  return svg;
 }
 
 // ---------- glossary ----------
@@ -136,7 +180,7 @@ const GLOSS = Object.entries(TREE.glossary || {}).map(([key, g]) => {
 
 function glossaryDialog(g) {
   const f = FACTS[g.fact];
-  openPop(g.term, h('p', {}, g.text), f ? h('p', { class: 'small' }, 'Related fact: ', f.plain, ...factMarks(f)) : null);
+  openPop(g.term, h('p', {}, g.text), f ? h('p', { class: 'small' }, 'Related fact: ', f.plain, ' ', ...confMark(f), ' ', f.source ? srcLink(f.source, f.source.title) : null) : null);
 }
 
 function withGlossary(text, used) {
@@ -173,14 +217,14 @@ function rich(text, ctx, used, opts = {}) {
     if (s.type === 'text') out.push(...(opts.noGloss ? [s.text] : withGlossary(s.text, used)));
     else if (s.type === 'fact') {
       const f = FACTS[s.id];
-      out.push(h('span', { class: 'fact' }, ...(opts.noGloss ? [s.text] : withGlossary(s.text, used)), ...(opts.noMarks ? [] : factMarks(f))));
+      out.push(h('span', { class: 'fact' }, ...(opts.noGloss ? [s.text] : withGlossary(s.text, used)), ...factMarks(f)));
     } else {
       // Keep a hyphenated suffix ("17-month") with its number, before the badge.
       const next = segs[i + 1];
       const suffix = next && next.type === 'text' ? (/^-\w+/.exec(next.text) || [''])[0] : '';
       if (suffix) next.text = next.text.slice(suffix.length);
       out.push(h('strong', {}, s.text + suffix));
-      if (s.meta && !opts.noMarks) out.push(' ', badgeForVar(s.name, s.meta));
+      if (s.meta) SCREEN.vars.set(s.name, s.meta);
     }
   }
   return out;
@@ -189,15 +233,9 @@ function rich(text, ctx, used, opts = {}) {
 // Headings hold plain text only (M20): their fact/estimate marks and glossary buttons go on a line below.
 function heading(text, ctx, used) {
   const segs = renderSegments(text, ctx);
-  const marks = [];
-  for (const s of segs) {
-    if (s.type === 'fact') marks.push(...factMarks(FACTS[s.id]));
-    else if (s.type === 'var' && s.meta) marks.push(h('span', { class: 'mark-label' }, s.text), ' ', badgeForVar(s.name, s.meta), ' ');
-  }
   const terms = withGlossary(segs.map((s) => s.text).join(''), used).filter((x) => x instanceof Node);
-  return [h('h1', { tabindex: '-1' }, ...rich(text, ctx, used, { noMarks: true, noGloss: true })),
-    marks.length || terms.length ? h('p', { class: 'heading-marks' }, ...marks,
-      terms.length ? [h('span', { class: 'mark-label' }, 'What these words mean:'), ' ', ...terms.flatMap((b) => [b, ' '])] : null) : null];
+  return [h('h1', { tabindex: '-1' }, ...rich(text, ctx, used, { noGloss: true })),
+    terms.length ? h('p', { class: 'heading-marks' }, h('span', { class: 'mark-label' }, 'Words:'), ' ', ...terms.flatMap((b) => [b, ' '])) : null];
 }
 
 // Years that have a figure for any of these year-keyed prefixes, plus the decision year.
@@ -211,8 +249,10 @@ function yearsFor(prefixes, extra) {
 function renderProgress(node) {
   const i = Math.max(0, MODULES.indexOf(node.module));
   const nav = document.getElementById('progress');
+  // Step number counts the screens he actually sees (forks and auto-answered screens are not counted).
+  const step = W.screens.slice(0, state.pos + 1).filter((id) => !skippable(id)).length;
   nav.replaceChildren(
-    h('p', { class: 'progress-line' }, `Part ${i + 1} of ${MODULES.length}: `, h('strong', {}, node.module)),
+    h('p', { class: 'progress-line' }, `Step ${step} · `, h('strong', {}, node.module)),
     h('div', { class: 'bar', role: 'progressbar', 'aria-label': 'Progress through the guide', 'aria-valuemin': 0,
       'aria-valuemax': MODULES.length, 'aria-valuenow': i + 1 }, h('span', { style: `width:${Math.round(((i + 1) / MODULES.length) * 100)}%` })));
 }
@@ -220,8 +260,9 @@ function renderProgress(node) {
 function renderFooter() {
   const ship = FACTS.nj_ship_contact;
   document.getElementById('footer').replaceChildren(
-    h('p', {}, `Unofficial guide. Not Medicare, CMS or Social Security. Not legal, tax or financial advice. Confirm with NJ SHIP, ${ship.value}.`, ...factMarks(ship)),
-    h('p', { class: 'small' }, `Facts as of ${formatDate(FACTS_DOC.meta.as_of)}. Today's date used: ${formatDate(TODAY)}. Nothing you enter leaves this device.`));
+    h('p', {}, 'Unofficial guide, not from Medicare or Social Security. Not legal, tax or money advice. Free help: NJ SHIP, ', icon('i-phone'), ' ', ship.value, '.'),
+    h('p', { class: 'small' }, `Your answers stay on this device. Facts as of ${formatDate(FACTS_DOC.meta.as_of)}.`,
+      TODAY_FROM_URL ? ` Today's date used: ${formatDate(TODAY)}.` : ''));
 }
 
 // ---------- screens ----------
@@ -275,7 +316,7 @@ function helpToggle(node, ctx, used) {
   return h('details', {}, h('summary', {}, 'Why we ask'), h('p', {}, ...rich(node.help, ctx, used)));
 }
 
-function factList(ids, title = 'Facts on this screen') {
+function factList(ids, title = 'Facts') {
   const list = (ids || []).map((id) => FACTS[id]).filter(Boolean);
   if (!list.length) return null;
   return h('details', {}, h('summary', {}, title),
@@ -308,11 +349,11 @@ function screenQuestion(node, ctx, used) {
   return [
     node.intro && state.pos === 0 ? h('p', { class: 'intro' }, node.intro) : null,
     ...heading(node.text, ctx, used),
+    node.subtext ? h('p', {}, ...rich(node.subtext, ctx, used)) : null,
     helpToggle(node, ctx, used),
     h('div', { role: 'group', 'aria-label': 'Choose one' },
       node.options.map((o) => h('button', { type: 'button', class: 'option', 'aria-pressed': String(current === o.value),
         onclick: () => answer(node, o.value) }, renderPlain(o.label, ctx)))),
-    factList(node.fact_refs),
     navButtons(node)
   ];
 }
@@ -363,7 +404,6 @@ function screenInput(node, ctx, used) {
     err,
     h('div', { class: 'nav' }, h('button', { type: 'button', onclick: submit }, 'Save and continue'), extra),
     cur === 'unknown' || cur === 'default' ? h('p', { class: 'small' }, 'Your answer so far: ', cur === 'unknown' ? "I don't know" : 'assume the last day of the month') : null,
-    factList(node.fact_refs),
     navButtons(node)
   ];
 }
@@ -389,15 +429,22 @@ function screenOutcome(node, ctx, used, w) {
     kids.push(h('ol', { class: 'timeline' }, rows.map((t) => {
       const when = renderSegments(t.date, ctx);
       const isPast = when.some((s) => s.type === 'var' && w.vars[s.name] && w.vars[s.name] < TODAY);
-      return h('li', { class: t.deadline ? 'deadline' : null }, h('span', { class: 'when' }, ...rich(t.date, ctx, used, { noGloss: true }), isPast ? h('span', { class: 'past' }, ' (this date has passed: act as soon as possible)') : null),
-        ...rich(t.text, ctx, used));
+      // L2: "Deadline" is a word in the page (printed and read aloud), not only a color.
+      return h('li', { class: t.deadline ? 'deadline' : null },
+        t.deadline ? h('span', { class: 'dl' }, icon('i-alert'), ' Deadline') : null,
+        h('span', { class: 'when' }, ...rich(t.date, ctx, used, { noGloss: true }), isPast ? h('span', { class: 'past' }, ' (this date has passed: act as soon as possible)') : null),
+        ...rich(t.text, ctx, used),
+        t.detail ? h('details', {}, h('summary', {}, 'Details'), h('p', {}, ...rich(t.detail, ctx, used))) : null);
     })));
     if (node.id === 'OUT_SIGNUP_TIMELINE') kids.push(penaltyCalc(w));
   }
   if (['OUT_LEAN_MEDIGAP', 'OUT_LEAN_MA', 'OUT_CLOSE_CALL', 'OUT_NO_MEDIGAP_WINDOW'].includes(node.id)) kids.push(whyList(w));
   if (node.calculator === 'MEDIGAP_COMPARE') kids.push(medigapCalc(w));
   if (node.type === 'calculator' && node.calculator === 'IRMAA') kids.push(irmaaCalc(w));
-  kids.push(factList(node.fact_refs), navButtons(node, { continue: true }));
+  // H4: everything beyond the short text is one tap away.
+  if (node.more && node.more.length) kids.push(h('details', { class: 'more' }, h('summary', {}, 'More details'),
+    h('ul', {}, node.more.map((b) => h('li', {}, ...rich(b, ctx, used))))));
+  kids.push(navButtons(node, { continue: true }));
   return kids;
 }
 
@@ -557,53 +604,93 @@ function irmaaCalc(w) {
 }
 
 // ---------- summary ----------
+// When a step is due, in words. A range of months (X2) prints as "Between January 2027 and December 2027".
+function whenText(a) {
+  if (a.past) return 'As soon as possible';
+  if (a.range) return `Between ${formatMonth(a.range.start.slice(0, 7))} and ${formatMonth(a.range.end.slice(0, 7))}`;
+  return a.date === TODAY ? 'Today' : 'By ' + formatDate(a.date);
+}
+// "(in about 12 months)", only in the 3-step box; computed from the same engine date.
+function relText(a) {
+  if (a.past) return '';
+  const days = Math.round((Date.parse(a.date) - Date.parse(TODAY)) / 86400000);
+  if (days < 14) return '';
+  const months = Math.ceil(days / 30.44);
+  return months >= 2 ? `(in about ${months} months)` : `(in ${Math.round(days / 7)} weeks)`;
+}
+
+function nextStepsBox(steps, ctx, used) {
+  if (!steps.length) return null;
+  return h('section', { class: 'next-steps', 'aria-labelledby': 'ns-h' }, h('h2', { id: 'ns-h' }, 'Do these first'),
+    h('ol', { class: 'ns-list' }, steps.map((a) => h('li', { class: 'ns-item' + (a.past ? ' past' : '') },
+      h('p', { class: 'ns-date' }, icon('i-cal'), h('span', {}, whenText(a)), relText(a) ? h('span', { class: 'ns-rel' }, relText(a)) : null),
+      h('p', { class: 'ns-text' }, ...rich(a.short || a.text, ctx, used, { noGloss: true }))))),
+    h('p', { class: 'small' }, 'Your full to-do list is below.'));
+}
+
+// H2: the next step, kept at the top of every screen once the guide knows when his job plan ends.
+function renderNextStep(node) {
+  const el = document.getElementById('next-step');
+  const a = node.type === 'summary' ? null : nextStep(TREE, W, FACTS, TODAY);
+  if (!a) { el.hidden = true; el.replaceChildren(); return; }
+  el.hidden = false;
+  el.replaceChildren(icon('i-cal'), ' ', h('strong', {}, 'Next step: '), renderPlain(a.short || a.text, ctxFor(W)), ' ',
+    h('span', { class: 'when' }, whenText(a)));
+}
+
 function screenSummary(node, ctx, used, w) {
   const p = collectPath(TREE, w, FACTS, TODAY);
   const kids = [h('h1', { tabindex: '-1' }, node.title), h('p', {}, node.text)];
-  if (p.stale.length) kids.push(h('div', { class: 'warn', role: 'note' }, h('strong', {}, 'Some numbers may be out of date. '),
-    `${p.stale.length} facts on your path are past their review date. Check the source links before relying on them.`));
+  kids.push(nextStepsBox(topSteps(p.actions), ctx, used));
   kids.push(h('div', { class: 'nav no-print' }, h('button', { type: 'button', onclick: () => window.print() }, 'Print this page'),
     state.pos > 0 ? h('button', { type: 'button', class: 'secondary', onclick: () => go(state.pos - 1) }, 'Back') : null));
-
-  const outcomes = w.screens.map((id) => BY_ID[id]).filter((n) => n.type === 'outcome');
-  kids.push(h('h2', {}, 'Your results'), h('ul', {}, outcomes.map((n) => h('li', {}, renderPlain(n.title, ctx)))));
+  if (p.stale.length) kids.push(h('div', { class: 'warn', role: 'note' }, icon('i-alert'), ' ', h('strong', {}, 'Some numbers may be out of date. '),
+    `${p.stale.length} facts on your path are past their review date. Check the source links before relying on them.`));
+  // Everything else is folded; printing opens every section.
+  const fold = (title, ...content) => h('details', { class: 'sum' }, h('summary', {}, title), ...content);
+  const sections = [];
 
   // H7: the dates that carry penalties, printed first.
   const deadlines = (TREE.key_deadlines || []).filter((d) => isValidDate(w.vars[d.var]) && evalWhen(d.when, w.vars))
     .map((d) => ({ ...d, date: w.vars[d.var] })).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
   if (deadlines.length) {
-    kids.push(h('h2', {}, 'Key deadlines'), h('table', { class: 'deadlines' },
+    sections.push(fold('All my dates', h('table', { class: 'deadlines' },
       h('thead', {}, h('tr', {}, h('th', { scope: 'col' }, 'Date'), h('th', { scope: 'col' }, 'What happens'))),
       h('tbody', {}, deadlines.map((d) => h('tr', { class: d.deadline ? 'deadline' : null },
         h('td', { class: 'num' }, formatDate(d.date)),
         h('td', {}, d.deadline ? h('strong', {}, 'Deadline: ') : '', renderPlain(d.text, ctx), d.date < TODAY ? ' (this date has passed)' : ''))))),
-    h('p', { class: 'small' }, 'Dates are estimates from your answers. Each one is explained, with its source, on the screens before this one.'));
+    h('p', { class: 'small' }, 'Dates are estimates from your answers. Each one is explained on the screens before this one.')));
   }
 
-  kids.push(h('h2', {}, 'Your dated to-do list'), h('ul', { class: 'acts' }, p.actions.map((a) => h('li', {},
+  const todo = [h('ul', { class: 'acts' }, p.actions.map((a) => h('li', {},
     // X2: a range of months prints as "Between January 2027 and December 2027", never as one day.
     a.range && !a.past ? h('strong', {}, `Between ${formatMonth(a.range.start.slice(0, 7))} and ${formatMonth(a.range.end.slice(0, 7))}`) : h('strong', {}, a.past ? 'As soon as possible' : formatDate(a.date)),
     a.range && !a.past ? ': ' : ` (${renderPlain(a.when_text, ctx)}${a.past ? `; the suggested date, ${formatDate(a.ruleDate)}, has passed` : ''}): `,
-    ...rich(a.text, ctx, used, { noGloss: true }), ...(a.fact_refs || []).map((id) => FACTS[id]).filter(Boolean).flatMap(factMarks)))));
-  for (const n of p.notes) kids.push(h('p', { class: 'warn' }, `We need ${n.needs} to compute this: `, renderPlain(TREE.actions[n.action].text, ctx)));
+    ...rich(a.text, ctx, used, { noGloss: true }), ...(a.fact_refs || []).map((id) => FACTS[id]).filter(Boolean).flatMap(factMarks))))];
+  for (const n of p.notes) todo.push(h('p', { class: 'warn' }, `To put a date on this step, we need ${n.needs}: `, renderPlain(TREE.actions[n.action].text, ctx)));
+  sections.push(fold('My full to-do list', ...todo));
+  const outcomes = w.screens.map((id) => BY_ID[id]).filter((n) => n.type === 'outcome');
+  sections.push(fold('What the guide found', h('ul', {}, outcomes.map((n) => h('li', {}, renderPlain(n.title, ctx))))));
 
-  kids.push(h('h2', {}, 'Questions to ask'));
+  const qkids = [];
   for (const who of ['HR', 'NJ SHIP', 'Social Security']) {
     const qs = p.questions[who] || [];
     if (!qs.length) continue;
-    kids.push(h('h3', {}, who === 'NJ SHIP' ? `NJ SHIP (${FACTS.nj_ship_contact.value})` : who),
+    qkids.push(h('h3', {}, who === 'NJ SHIP' ? `NJ SHIP (${FACTS.nj_ship_contact.value})` : who),
       h('ul', { class: 'qs' }, qs.map((q) => h('li', {}, ...rich(q.text, ctx, used, { noGloss: true })))));
   }
 
-  kids.push(h('h2', {}, 'Open items'), h('ul', {}, (TREE.open_items || []).map((o) => h('li', {}, o.text,
-    ...o.fact_refs.map((id) => FACTS[id]).filter(Boolean).flatMap(factMarks)))));
+  sections.push(fold('Questions to ask', ...qkids));
+  sections.push(fold('Open items', h('ul', {}, (TREE.open_items || []).map((o) => h('li', {}, o.text,
+    ...o.fact_refs.map((id) => FACTS[id]).filter(Boolean).flatMap(factMarks))))));
 
-  kids.push(h('h2', {}, 'Sources'), h('ol', {}, p.factIds.map((id) => FACTS[id]).filter(Boolean).map((f) => h('li', {},
+  sections.push(fold('Sources', h('ol', {}, p.factIds.map((id) => FACTS[id]).filter(Boolean).map((f) => h('li', {},
     h('span', {}, f.plain), ' ', h('span', { class: 'badge ' + f.label }, f.label), ' ',
     f.source ? h('a', { href: f.source.url, target: '_blank', rel: 'noopener noreferrer' }, f.source.title) : h('span', { class: 'small' }, '(no outside source: ' + f.label.toLowerCase() + ')'),
-    isStale(f, TODAY) ? h('span', { class: 'stale' }, ' may be out of date') : ''))));
+    isStale(f, TODAY) ? h('span', { class: 'stale' }, ' may be out of date') : '')))));
+  kids.push(...sections);
 
-  kids.push(h('details', { class: 'no-print' }, h('summary', {}, 'Change my answers'),
+  kids.push(h('details', { class: 'no-print sum' }, h('summary', {}, 'Change my answers'),
     h('ul', {}, w.screens.map((id, i) => [BY_ID[id], i]).filter(([n]) => n.type === 'question' || n.type === 'input').map(([n, i]) => {
       const a = state.answers[n.var];
       const shown = n.type === 'question' ? renderPlain((n.options.find((o) => o.value === a) || {}).label || '', ctx)
@@ -623,15 +710,19 @@ function render(moveFocus) {
   const node = BY_ID[W.screens[state.pos]];
   const ctx = ctxFor(W);
   const used = new Set();
+  SCREEN = { facts: new Set(), vars: new Map() };
   let kids;
   if (node.type === 'question') kids = screenQuestion(node, ctx, used);
   else if (node.type === 'input') kids = screenInput(node, ctx, used);
   else if (node.type === 'summary') kids = screenSummary(node, ctx, used, W);
   else kids = screenOutcome(node, ctx, used, W);
+  // H3: one "Why trust this?" per screen, just above the buttons (the summary keeps its Sources list).
+  if (node.type !== 'summary') kids.splice(kids.length - 1, 0, ...trustBlock(node, ctx));
   const main = document.getElementById('main');
   main.replaceChildren(...kids.filter(Boolean));
   main.dataset.node = node.id;
   renderProgress(node);
+  renderNextStep(node);
   tabSet();
   if (moveFocus) {
     const h1 = main.querySelector('h1');
@@ -676,10 +767,11 @@ function init() {
     remember = false;
     box.checked = false;
     state = freshState();
-    note('Your answers were cleared, and saving on this device is off.');
+    note('Your answers were cleared.');
     render(true);
     historySet(false);
   });
+  window.addEventListener('beforeprint', () => document.querySelectorAll('details').forEach((d) => { d.open = true; }));
   renderFooter();
   render(false);
   historySet(false);

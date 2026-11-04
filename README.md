@@ -7,7 +7,7 @@ A single-page guide for a New Jersey worker near retirement who is already past 
 - the spouse's coverage bridge until her own Medicare starts,
 - questions to ask HR, Social Security and NJ SHIP.
 
-Every fact on screen shows a label badge (VERIFIED / UNVERIFIED / INFERRED / ASSUMED / PENDING) and a link to its source.
+Each screen lists every fact it uses under "Why trust this?", with its label (VERIFIED / UNVERIFIED / INFERRED / ASSUMED / PENDING) and a link to its source. A fact that is not settled also says so in the text: "(not confirmed)", "(our guess)", "(not published yet)" or "(our reading of the rule)". The summary prints every source with its label.
 
 **Unofficial.** Not Medicare, CMS or Social Security. Not legal, tax or financial advice. Confirm with NJ SHIP (free counseling).
 

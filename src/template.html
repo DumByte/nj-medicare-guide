@@ -11,18 +11,29 @@
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-cal" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></g></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" d="M5 4h4l2 5-3 2a11 11 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 21h20z"/><path d="M12 10v5M12 18h.01"/></g></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.5" d="M5 12l5 5 9-10"/></symbol>
+</svg>
 <a class="skip" href="#main">Skip to the question</a>
 <header class="top">
   <p class="brand">Medicare decision guide <span class="unofficial">(unofficial, New Jersey)</span></p>
-  <nav id="progress" aria-label="Progress"></nav>
+  <div class="top-row">
+    <nav id="progress" aria-label="Progress"></nav>
+    <span class="no-print start-over">
+      <button type="button" id="clear" class="secondary">Start over</button>
+      <span id="clear-confirm" class="confirm" hidden><span>Clear every answer on this device?</span>
+        <button type="button" id="clear-yes" class="danger">Yes, start over</button>
+        <button type="button" id="clear-no" class="secondary">No</button></span>
+    </span>
+  </div>
+  <p id="next-step" class="next-step" role="status" hidden></p>
 </header>
 <main id="main" tabindex="-1"></main>
 <section class="tools no-print" aria-label="Your answers on this device">
-  <label class="remember"><input type="checkbox" id="remember"> Remember my answers on this device</label>
-  <button type="button" id="clear" class="tertiary">Clear my answers</button>
-  <span id="clear-confirm" class="confirm" hidden><span>Clear every answer?</span>
-    <button type="button" id="clear-yes" class="danger">Yes, clear</button>
-    <button type="button" id="clear-no" class="secondary">Cancel</button></span>
+  <label class="remember"><input type="checkbox" id="remember"> Remember my answers on this device (not your health answer)</label>
   <p id="storage-note" class="small" role="status"></p>
 </section>
 <footer id="footer" class="footer"></footer>
