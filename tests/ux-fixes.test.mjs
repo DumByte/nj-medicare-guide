@@ -198,3 +198,19 @@ test('H4: result screens keep their default text short; the rest is under More d
   }
   for (const r of T.nodes.find((x) => x.id === 'OUT_SIGNUP_TIMELINE').timeline) assert.ok(words(r.text) <= 32 && r.detail, r.date);
 });
+
+test('H2: under 20 employees, "call NJ SHIP" is the next step before the stop-work month', () => {
+  const w = walk(T, { part_a: 'no', employer_20: 'no' }, F, TODAY);
+  assert.ok(w.screens.includes('OUT_SMALL_EMPLOYER'));
+  assert.equal(nextStep(T, w, F, TODAY).id, 'ACT_SHIP_NOW');
+});
+
+test('H2: an overdue step comes before a step due today', () => {
+  const later = '2026-12-13';
+  // He stops working this month: the Part B filing date (December 1) has passed.
+  const w = walk(T, { ...tail, ...likely, last_work_month: '2026-12' }, F, later);
+  const all = collectPath(T, w, F, later).actions;
+  assert.ok(all.some((x) => x.past) && all.some((x) => !x.past && x.date === later));
+  const a = nextStep(T, w, F, later);
+  assert.equal(a.past, true);
+});

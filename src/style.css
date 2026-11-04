@@ -169,3 +169,5 @@ main p { margin: 0 0 .9rem; }
 .start-over #clear { padding: .4rem .8rem; }
 .start-over .confirm { flex-wrap: wrap; }
 .top-row .progress-line { margin: 0 0 .3rem; }
+.note-banner { margin: .6rem 0; padding: .5rem .8rem; border: 2px solid var(--accent); border-radius: 8px; display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+.note-banner[hidden] { display: none; }

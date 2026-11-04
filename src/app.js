@@ -36,11 +36,17 @@ let remember = false;
 function storageGet() {
   try { const s = window.localStorage.getItem(STORE_KEY); return s ? JSON.parse(s) : null; } catch (e) { return null; }
 }
+// What is stored: answers (never the health answer), calculator settings without income amounts, the
+// current screen by id (stable when the guide changes), the day it was saved and the facts date.
+function savedCopy() {
+  const answers = { ...state.answers };
+  delete answers.health_needs;
+  return { answers, pos: state.pos, node: W ? W.screens[state.pos] : null, savedOn: TODAY, asOf: FACTS_DOC.meta.as_of,
+    calc: { ...state.calc, irmaa: { ...state.calc.irmaa, magi: {}, oneTime: {} } } };
+}
 function storageSet() {
   if (!remember) return true;
-  const answers = { ...state.answers };
-  delete answers.health_needs; // never stored
-  try { window.localStorage.setItem(STORE_KEY, JSON.stringify({ ...state, answers })); return true; } catch (e) {
+  try { window.localStorage.setItem(STORE_KEY, JSON.stringify(savedCopy())); return true; } catch (e) {
     note('This browser will not save your answers. The guide still works. Print your list at the end.');
     return false;
   }
@@ -51,13 +57,8 @@ function storageClear() {
 }
 // A refresh or a Back gesture should not lose his place. This copy lives only in this tab (sessionStorage)
 // and leaves out the health answer and the income amounts; it is gone when the tab closes.
-function tabCopy() {
-  const answers = { ...state.answers };
-  delete answers.health_needs;
-  return { answers, pos: state.pos, calc: { ...state.calc, irmaa: { ...state.calc.irmaa, magi: {}, oneTime: {} } } };
-}
 function tabSet() {
-  try { window.sessionStorage.setItem(TAB_KEY, JSON.stringify(tabCopy())); } catch (e) { /* storage blocked: guide still works */ }
+  try { window.sessionStorage.setItem(TAB_KEY, JSON.stringify(savedCopy())); } catch (e) { /* storage blocked: guide still works */ }
 }
 function tabGet() {
   try { const s = window.sessionStorage.getItem(TAB_KEY); return s ? JSON.parse(s) : null; } catch (e) { return null; }
@@ -66,7 +67,36 @@ function tabGet() {
 function historySet(push) {
   try { window.history[push ? 'pushState' : 'replaceState']({ pos: state.pos }, ''); } catch (e) { /* e.g. some file:// pages */ }
 }
-function note(msg) { document.getElementById('storage-note').textContent = msg; }
+function note(...msg) {
+  const el = document.getElementById('storage-note');
+  el.replaceChildren(...msg);
+  el.hidden = !msg.length || (msg.length === 1 && !msg[0]);
+}
+
+// Section 6: on return, land on the saved screen (by id); if it is no longer on the path, on the first
+// unanswered question. Returns the step number he lands on.
+function restore(saved) {
+  state = { ...freshState(), answers: saved.answers || {}, calc: { ...freshState().calc, ...(saved.calc || {}) },
+    pos: saved.pos | 0 };
+  W = walk(TREE, state.answers, FACTS, TODAY);
+  if (saved.node) {
+    const i = W.screens.indexOf(saved.node);
+    state.pos = i >= 0 ? i : W.screens.length - 1;
+  }
+  state.pos = Math.min(Math.max(0, state.pos), W.screens.length - 1);
+  return W.screens.slice(0, state.pos + 1).filter((id) => !skippable(id)).length;
+}
+
+// The lines shown when he comes back on another day. Both recompute from today's engine; nothing stored is trusted.
+function welcomeLines(saved) {
+  const lines = [];
+  const p = collectPath(TREE, W, FACTS, TODAY);
+  const passed = saved.savedOn && (Date.parse(TODAY) - Date.parse(saved.savedOn) > 30 * 86400000
+    || p.actions.some((a) => a.ruleDate > saved.savedOn && a.ruleDate <= TODAY));
+  if (passed) lines.push('Some dates passed since your last visit. Steps marked "As soon as possible" need you now.');
+  if (saved.asOf && saved.asOf !== FACTS_DOC.meta.as_of) lines.push('The guide was updated since your last visit. Your dates were checked again.');
+  return lines;
+}
 
 // ---------- DOM helper ----------
 function h(tag, attrs, ...kids) {
@@ -733,13 +763,16 @@ function render(moveFocus) {
 
 function init() {
   const saved = storageGet();
-  if (saved && saved.answers) {
-    state = { ...freshState(), ...saved, calc: { ...freshState().calc, ...(saved.calc || {}) } };
+  const tab = tabGet();
+  if (tab && tab.answers) {
+    restore(tab); // a refresh in the same tab: just keep his place
+    remember = !!(saved && saved.answers);
+  } else if (saved && saved.answers) {
+    const step = restore(saved);
     remember = true;
-    note('Your saved answers were loaded from this device.');
-  } else {
-    const tab = tabGet();
-    if (tab && tab.answers) state = { ...freshState(), ...tab, calc: { ...freshState().calc, ...(tab.calc || {}) } };
+    const lines = welcomeLines(saved);
+    note(h('strong', {}, `Welcome back. You were on step ${step}.`), ...lines.map((l) => [' ', l]).flat(),
+      ' ', h('button', { type: 'button', class: 'secondary', onclick: () => document.getElementById('clear').click() }, 'Start over'));
   }
   window.addEventListener('popstate', (e) => {
     if (e.state && typeof e.state.pos === 'number') go(e.state.pos, true);

@@ -112,6 +112,23 @@ Everything here is a choice, assumption or open question a person should confirm
 | M1, M5, M6, L1, L2 | "Step N · section" with shorter section names. Shorter footer; "Today's date used" only with `?today=`. "Start over" is a button at the top. A few icons, always next to words. Timeline deadlines say "Deadline" in the page. |
 | Storage | The health answer (F2) is never stored, even with "Remember my answers" on. |
 
+### UX review, last items (2026-11-04)
+
+| Item | Change |
+|---|---|
+| Section 6 resume | Saved answers (opt-in) and the tab-only copy store the current screen by id, the day saved and the facts date. On return he lands on that screen; if it is no longer on his path, on the first unanswered question. Income amounts are not stored either way. |
+| Section 6 welcome back | On a new visit with saved answers: "Welcome back. You were on step N." with a Start over button. It adds "Some dates passed since your last visit…" when more than 30 days passed or a dated step fell between the two visits, and "The guide was updated…" when the facts date changed. All dates are recomputed; nothing stored is trusted. Messages show in a banner above the screen. |
+| H2 next step | Overdue steps come first. Under 20 employees, "Call NJ SHIP this week" shows before the stop-work month. |
+| Section 7.1 `partd_sep_effective_date` | Re-opened 42 CFR 423.38(c)(11)(ii) on 2026-11-04. It says the person "may choose an effective date that is not earlier than the first of the month following the month in which the election is made and no later than up to 3 months after". The fact is right as written; the reviewer opened only 423.40. No change. |
+
+### Not done from REVIEW_UX
+
+- **Saving on by default (H7, section 6 items 2 and 6).** Saving across visits stays opt-in, with the "Remember my answers" box. A refresh or Back gesture in the same tab keeps his place without it. Turning it on by default is the owner's privacy call.
+- **"Do these first" above one phone screen.** It ends at about 1.17 screens at 390 px (the top bar takes the rest).
+- **Primary button within one screen on every result screen.** Most result screens are now 1.1-1.7 screens; the sign-up timeline (8 rows plus the penalty helper) is about 3.5.
+- **`**bold**` markup in tree text** (section 5b). Not added.
+- **Reading-grade checks.** `review-ux/scripts/readability.mjs` was not re-run against the new `more` field; word counts above come from the browser.
+
 Not done from the review: M1, M3, M4 (partly: only the condition), M9-M13, M19, L2-L8, L11-L12, the full redesign tokens in section 6, and the section 7 watch metadata and source-check script.
 
 ## 3. Lint hits accepted (not converted to tokens)

@@ -349,6 +349,10 @@ export function topSteps(actions, n = 3) {
 // H2: the step for the "Next step" line at the top: the first step on the path so far, once the guide
 // knows when his job plan ends.
 export function nextStep(tree, w, facts, today) {
-  if (!w.vars.job_cov_end) return null;
-  return collectPath(tree, w, facts, today).actions[0] || null;
+  const actions = collectPath(tree, w, facts, today).actions;
+  // Under 20 employees, Medicare may already pay first: that call comes before any other date.
+  if (!w.vars.job_cov_end) return actions.find((a) => a.id === 'ACT_SHIP_NOW') || null;
+  // Overdue steps first (oldest first), then the earliest.
+  const past = actions.filter((a) => a.past).sort((a, b) => (a.ruleDate < b.ruleDate ? -1 : a.ruleDate > b.ruleDate ? 1 : 0));
+  return past[0] || actions[0] || null;
 }
