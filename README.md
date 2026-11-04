@@ -14,7 +14,7 @@ Every fact on screen shows a label badge (VERIFIED / UNVERIFIED / INFERRED / ASS
 ## How it works
 
 - `index.html` is the whole app: one file, no network calls (except source links you click), no frameworks, no CDN, no fonts, no analytics. It works opened from disk or from a GitHub Pages subpath.
-- Nothing you enter leaves the device. Saving answers is off by default. The "Remember my answers on this device" box saves them in this browser only; "Clear my answers" deletes them and turns saving off.
+- Nothing you enter leaves the device. While the tab is open, a refresh or the Back gesture keeps your place: answers are kept in this tab only (not the health answer or income amounts) and the browser deletes them when the tab closes. Saving across visits is off by default; the "Remember my answers on this device" box saves them in this browser only. "Clear my answers" deletes both and turns saving off.
 - Source files:
   - `src/engine.js`: dates, computed values, scoring, calculators (pure, no DOM)
   - `src/interpreter.js`: conditions, routing, `{{ }}` tokens, actions and questions (pure, no DOM)

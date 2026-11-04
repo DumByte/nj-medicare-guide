@@ -54,7 +54,7 @@ All dates are calendar dates. "+Nm" adds months; "end of month" = last calendar 
 | `gi_right` | false (federal right does not apply to a primary plan ending, `gi_primary_plan_not_federal`). The NJ state right is UNVERIFIED and must not set this to true | — |
 | `partb_sep_end` | End of the 8th month after the month that employment or job coverage ended, whichever is earlier (`partb_sep`) | INFERRED, high |
 | `irmaa_first_year_jan` | January 1 of the year `partb_start` falls in; if `partb_start` is in Oct–Dec, show both that date and the next Jan 1 | INFERRED |
-| `gcnj_oe_before_retire` | The Nov 1–Jan 31 Get Covered NJ window that ends before `job_cov_end` (`gcnj_oe_2027`; later years assumed to use the same dates — ASSUMED) | — |
+| `gcnj_oe_before_retire` | The last Nov 1–Jan 31 Get Covered NJ window that opens on or before `job_cov_end` (and has not closed) (`gcnj_oe_2027`; later years assumed to use the same dates — ASSUMED) | — |
 
 ## 4. Medigap vs. Advantage scoring (`F7`)
 

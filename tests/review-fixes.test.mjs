@@ -27,7 +27,7 @@ test('C1: retiring after the 36-month cutoff shows the later sign-up window', ()
   assert.equal(x.wife_cobra_end_if_parta_latest, '2030-05-31');
   const w = run(likely);
   const texts = shownVariants(w, 'OUT_ENROLL_PARTA').map((s) => s.text);
-  assert.ok(texts.some((t) => /too early to lengthen/.test(t)));
+  assert.ok(texts.some((t) => /too early to help her/.test(t)));
   const ids = actionsOf(w).map((a) => a.id);
   assert.ok(ids.includes('ACT_ENROLL_PARTA_WINDOW') && !ids.includes('ACT_ENROLL_PARTA'));
   assert.equal(actionsOf(w).find((a) => a.id === 'ACT_ENROLL_PARTA_WINDOW').date, '2027-01-01');

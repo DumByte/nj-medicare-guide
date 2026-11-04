@@ -163,7 +163,9 @@ export function gcnjWindowBefore(facts, jobCovEnd, today) {
   let pick = null;
   for (let k = -1; k <= 10; k++) {
     const start = addMonths(base.start, 12 * k), end = addMonths(base.end, 12 * k);
-    if (end < jobCovEnd && end >= today) pick = { start, end, assumed: k !== 0 };
+    // The latest window that opens by the day job coverage ends (and has not closed yet): its prices
+    // are the ones she would pay right after, and she can still enroll in it before the coverage ends.
+    if (start <= jobCovEnd && end >= today) pick = { start, end, assumed: k !== 0 };
   }
   return pick;
 }
@@ -200,7 +202,7 @@ const LABEL = {
   medigap_window_open: ['INFERRED', 'high', 'Compares today with the end of your 6-month Medigap window.'],
   partb_sep_end: ['INFERRED', 'high', 'End of the 8th month after the month your job or job coverage ends, whichever is earlier (fact partb_sep).'],
   irmaa_first_year_jan: ['INFERRED', 'medium', 'January 1 of the year your Part B starts.'],
-  gcnj_oe_before_retire: ['INFERRED', 'medium', 'The Get Covered NJ open enrollment (Nov 1 - Jan 31) that ends before your job coverage ends (fact gcnj_oe_2027).']
+  gcnj_oe_before_retire: ['INFERRED', 'medium', 'The last Get Covered NJ open enrollment (Nov 1 - Jan 31) that opens by the day your job coverage ends (fact gcnj_oe_2027).']
 };
 
 // answers: effective answers on the current path. today: ISO date.
@@ -252,8 +254,9 @@ export function compute(answers, facts, today) {
       if (v.retire_after_36_cutoff) {
         const latest = firstOfMonth(lastDayWorked);
         const earliest = addMonths(latest, -11);
-        set('parta_signup_earliest_for_36', earliest);
-        set('parta_signup_latest_for_36', latest);
+        // X2: these are months (any day in the month works), shown as "December 2027".
+        set('parta_signup_earliest_for_36', earliest, { format: 'month' });
+        set('parta_signup_latest_for_36', latest, { format: 'month' });
         set('wife_cobra_end_if_parta_latest', addDays(addMonths(addMonths(latest, -6), 36), -1));
       }
     }

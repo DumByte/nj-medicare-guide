@@ -1,6 +1,6 @@
 // UI layer: renders the current screen from the interpreter's walk. All math lives in engine.js.
 import { indexFacts, isStale, isValidDate, formatDate, formatUSD, irmaaSchedule, irmaaTableFor, partBPenalty,
-  partDPenalty, medigapCompare, makeDate, yearOf } from './engine.js';
+  partDPenalty, medigapCompare, makeDate, yearOf, formatMonth } from './engine.js';
 import { walk, collectPath, renderSegments, renderPlain, validateInput, evalWhen, modulesOf } from './interpreter.js';
 
 const FACTS_DOC = JSON.parse(document.getElementById('facts-data').textContent);
@@ -9,6 +9,7 @@ const FACTS = indexFacts(FACTS_DOC);
 const BY_ID = Object.fromEntries(TREE.nodes.map((n) => [n.id, n]));
 const MODULES = modulesOf(TREE);
 const STORE_KEY = 'nj-medicare-guide-answers-v1';
+const TAB_KEY = 'nj-medicare-guide-tab-v1'; // this tab only; the browser deletes it when the tab closes
 const LOG = [];
 
 // ---------- today (?today=YYYY-MM-DD test hook; never changes facts) ----------
@@ -43,6 +44,24 @@ function storageSet() {
 }
 function storageClear() {
   try { window.localStorage.removeItem(STORE_KEY); } catch (e) { /* storage blocked: nothing saved */ }
+  try { window.sessionStorage.removeItem(TAB_KEY); } catch (e) { /* storage blocked: nothing saved */ }
+}
+// A refresh or a Back gesture should not lose his place. This copy lives only in this tab (sessionStorage)
+// and leaves out the health answer and the income amounts; it is gone when the tab closes.
+function tabCopy() {
+  const answers = { ...state.answers };
+  delete answers.health_needs;
+  return { answers, pos: state.pos, calc: { ...state.calc, irmaa: { ...state.calc.irmaa, magi: {}, oneTime: {} } } };
+}
+function tabSet() {
+  try { window.sessionStorage.setItem(TAB_KEY, JSON.stringify(tabCopy())); } catch (e) { /* storage blocked: guide still works */ }
+}
+function tabGet() {
+  try { const s = window.sessionStorage.getItem(TAB_KEY); return s ? JSON.parse(s) : null; } catch (e) { return null; }
+}
+// Each screen is a browser history entry, so the phone's Back gesture goes to the previous screen.
+function historySet(push) {
+  try { window.history[push ? 'pushState' : 'replaceState']({ pos: state.pos }, ''); } catch (e) { /* e.g. some file:// pages */ }
 }
 function note(msg) { document.getElementById('storage-note').textContent = msg; }
 
@@ -208,10 +227,11 @@ function renderFooter() {
 // ---------- screens ----------
 let W = null;
 
-function go(pos) {
+function go(pos, fromHistory) {
   state.pos = pos;
   storageSet();
   render(true);
+  if (!fromHistory) historySet(true);
 }
 
 function answer(node, value) {
@@ -523,7 +543,9 @@ function screenSummary(node, ctx, used, w) {
   }
 
   kids.push(h('h2', {}, 'Your dated to-do list'), h('ul', { class: 'acts' }, p.actions.map((a) => h('li', {},
-    h('strong', {}, a.past ? 'As soon as possible' : formatDate(a.date)), ` (${renderPlain(a.when_text, ctx)}${a.past ? `; the suggested date, ${formatDate(a.ruleDate)}, has passed` : ''}): `,
+    // X2: a range of months prints as "Between January 2027 and December 2027", never as one day.
+    a.range && !a.past ? h('strong', {}, `Between ${formatMonth(a.range.start.slice(0, 7))} and ${formatMonth(a.range.end.slice(0, 7))}`) : h('strong', {}, a.past ? 'As soon as possible' : formatDate(a.date)),
+    a.range && !a.past ? ': ' : ` (${renderPlain(a.when_text, ctx)}${a.past ? `; the suggested date, ${formatDate(a.ruleDate)}, has passed` : ''}): `,
     ...rich(a.text, ctx, used, { noGloss: true }), ...(a.fact_refs || []).map((id) => FACTS[id]).filter(Boolean).flatMap(factMarks)))));
   for (const n of p.notes) kids.push(h('p', { class: 'warn' }, `We need ${n.needs} to compute this: `, renderPlain(TREE.actions[n.action].text, ctx)));
 
@@ -570,6 +592,7 @@ function render(moveFocus) {
   main.replaceChildren(...kids.filter(Boolean));
   main.dataset.node = node.id;
   renderProgress(node);
+  tabSet();
   if (moveFocus) {
     const h1 = main.querySelector('h1');
     if (h1) h1.focus();
@@ -583,7 +606,13 @@ function init() {
     state = { ...freshState(), ...saved, calc: { ...freshState().calc, ...(saved.calc || {}) } };
     remember = true;
     note('Your saved answers were loaded from this device.');
+  } else {
+    const tab = tabGet();
+    if (tab && tab.answers) state = { ...freshState(), ...tab, calc: { ...freshState().calc, ...(tab.calc || {}) } };
   }
+  window.addEventListener('popstate', (e) => {
+    if (e.state && typeof e.state.pos === 'number') go(e.state.pos, true);
+  });
   const box = document.getElementById('remember');
   box.checked = remember;
   box.addEventListener('change', () => {
@@ -591,16 +620,14 @@ function init() {
     if (remember) { if (storageSet()) note('Your answers will be saved on this device only.'); }
     else { storageClear(); note('Answers are no longer saved on this device.'); }
   });
-  // M8: clearing takes a second, deliberate click; the confirm buttons go away after 10 seconds.
+  // M8: clearing takes a second, deliberate click. No timer: the choice stays until he picks one.
   const clearBtn = document.getElementById('clear');
   const confirmBox = document.getElementById('clear-confirm');
-  let confirmTimer = null;
-  const hideConfirm = () => { confirmBox.hidden = true; clearBtn.hidden = false; clearTimeout(confirmTimer); };
+  const hideConfirm = () => { confirmBox.hidden = true; clearBtn.hidden = false; };
   clearBtn.addEventListener('click', () => {
     clearBtn.hidden = true;
     confirmBox.hidden = false;
     document.getElementById('clear-no').focus(); // the safe choice gets focus
-    confirmTimer = setTimeout(() => { hideConfirm(); clearBtn.focus(); }, 10000);
   });
   document.getElementById('clear-no').addEventListener('click', () => { hideConfirm(); clearBtn.focus(); });
   document.getElementById('clear-yes').addEventListener('click', () => {
@@ -611,9 +638,11 @@ function init() {
     state = freshState();
     note('Your answers were cleared, and saving on this device is off.');
     render(true);
+    historySet(false);
   });
   renderFooter();
   render(false);
+  historySet(false);
 }
 
 init();

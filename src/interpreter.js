@@ -133,6 +133,7 @@ export function renderSegments(text, ctx) {
       const name = tok;
       const raw = ctx.vars[name];
       let shown = formatVarValue(raw);
+      if (ctx.meta && ctx.meta[name] && ctx.meta[name].format === 'month' && isValidDate(raw)) shown = formatMonth(raw.slice(0, 7));
       if (raw === 'unknown' || (shown === null && ctx.meta && ctx.meta[name] && ctx.meta[name].unknown)) shown = 'unknown';
       if (shown === null) {
         ctx.log && ctx.log(`Unresolved variable {{${name}}}`);
@@ -289,8 +290,10 @@ export function collectPath(tree, w, facts, today) {
       notes.push({ action: aid, needs: NEEDS[r.missing] || r.missing });
       continue;
     }
-    const past = r.date < today;
-    actions.push({ id: aid, date: past ? today : r.date, ruleDate: r.date, past, ...a });
+    // X2: an action with date_end_rule is a range of months; it sorts by its start.
+    const end = a.date_end_rule ? resolveActionDate(a.date_end_rule, w.vars, today).date : null;
+    const past = end ? end < today : r.date < today;
+    actions.push({ id: aid, date: past ? today : r.date, ruleDate: r.date, past, ...(end ? { range: { start: r.date, end } } : {}), ...a });
   }
   actions.sort((x, y) => (x.date < y.date ? -1 : x.date > y.date ? 1 : 0));
 

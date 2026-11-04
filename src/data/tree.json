@@ -698,7 +698,7 @@
               "value": 0
             }
           ],
-          "text": "You plan to stop working after {{retire_by_for_36}}, so signing up now is too early to lengthen your wife's COBRA. A sign-up between {{parta_signup_earliest_for_36}} and {{parta_signup_latest_for_36}} can lengthen it: the later in that window you sign up, the longer it lasts, up to about {{wife_cobra_end_if_parta_latest}} (instead of {{wife_cobra_end}}) with a sign-up in the month you stop working. Confirm with the plan administrator and Social Security before choosing a month."
+          "text": "Part A is backdated to a start before the month you sign up, and that start date sets how long your wife can keep COBRA. Signing up now would be too early to help her. Sign up between {{parta_signup_earliest_for_36}} and {{parta_signup_latest_for_36}} instead. The later you sign up in that time, the longer her COBRA: up to about {{wife_cobra_end_if_parta_latest}}, instead of {{wife_cobra_end}}. Confirm with the plan administrator and Social Security before choosing a month."
         },
         {
           "when": [
@@ -1362,15 +1362,15 @@
       "module": "Medigap or Medicare Advantage?",
       "type": "question",
       "var": "predictability",
-      "text": "Which would bother you more?",
+      "text": "Which do you prefer?",
       "options": [
         {
-          "label": "A higher bill every month, but almost no surprise bills",
+          "label": "Pay more each month, with almost no surprise bills",
           "value": "fixed",
           "next": "F6"
         },
         {
-          "label": "A low monthly bill, but maybe a few thousand dollars in a bad year",
+          "label": "Pay less each month, but some years have bills of a few thousand dollars",
           "value": "variable",
           "next": "F6"
         }
@@ -1977,11 +1977,12 @@
       ],
       "when_text": "Between {{parta_signup_earliest_for_36}} and {{parta_signup_latest_for_36}}",
       "date_rule": "parta_signup_earliest_for_36",
-      "text": "Sign up for Part A only, at ssa.gov/medicare/sign-up, in this window if you want your wife's COBRA to last longer: the later in the window, the longer it lasts. If her regular COBRA already reaches her Medicare start, the month doesn't matter for her. Confirm with the plan administrator first, and note the start date on your card.",
+      "text": "Sign up for Part A only, at ssa.gov/medicare/sign-up. The later you sign up in this time, the longer your wife's COBRA can last. If her regular COBRA already reaches her Medicare start, the month doesn't matter for her. Ask the plan administrator to confirm first, and note the start date on your card.",
       "fact_refs": [
         "parta_retro",
         "cobra_36_month_rule"
-      ]
+      ],
+      "date_end_rule": "parta_signup_latest_for_36"
     },
     "ACT_MEDIGAP_APPLY": {
       "when": [
@@ -2212,7 +2213,7 @@
           "value": true
         }
       ],
-      "text": "If I apply for Part A only, what start date will my card show? If I apply in the month of {{parta_signup_latest_for_36}} instead of now, what start date would I get?"
+      "text": "If I apply for Part A only, what start date will my card show? If I apply in {{parta_signup_latest_for_36}} instead of now, what start date would I get?"
     },
     "Q_HR_PARTA_ENTITLEMENT": {
       "to": "HR",

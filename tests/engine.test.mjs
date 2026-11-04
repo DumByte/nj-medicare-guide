@@ -160,12 +160,18 @@ test('Leap-year coverage end (2028-02-29)', () => {
 test('Get Covered NJ window before retirement (requirement 8)', () => {
   const at = (jce, today) => compute({ part_a: 'yes', part_a_date: '2026-05', part_b: 'no',
     last_work_month: jce.slice(0, 7), job_cov_end: jce }, F, today).values;
+  // The last window that opens by the day job coverage ends (UX review: price the year she will buy).
   let v = at('2027-12-31', TODAY);
+  assert.deepEqual(v.gcnj_window, { start: '2027-11-01', end: '2028-01-31', assumed: true });
+  assert.equal(v.gcnj_oe_before_retire, '2027-11-01');
+  v = at('2027-06-30', TODAY);
   assert.deepEqual(v.gcnj_window, { start: '2026-11-01', end: '2027-01-31', assumed: false });
   assert.equal(v.gcnj_oe_before_retire, TODAY);
   v = at('2029-06-30', TODAY);
   assert.deepEqual(v.gcnj_window, { start: '2028-11-01', end: '2029-01-31', assumed: true });
   v = at('2027-01-15', TODAY);
+  assert.equal(v.gcnj_window.start, '2026-11-01');
+  v = at('2026-10-31', TODAY);
   assert.equal(v.gcnj_window, undefined);
   v = at('2028-06-30', '2027-03-01');
   assert.equal(v.gcnj_window.start, '2027-11-01');

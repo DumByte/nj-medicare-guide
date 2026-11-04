@@ -23,6 +23,7 @@ Everything here is a choice, assumption or open question a person should confirm
 | A15 | **Drug-plan dates.** No gap: join by the last day of the month before the month containing the day after job coverage ends. No penalty: the latest join date whose plan start (the 1st of the next month) comes less than 63 days after coverage ends, and within the enrollment window. | INFERRED (high) | From facts `partd_sep_effective_date` and `partd_penalty`. |
 | A16 | **New Jersey 63-day right** is dated as job coverage end + 63 days. The regulation counts from the effective date of disenrollment, so this may be one day early (the safe side). | INFERRED (medium) | The fact itself is UNVERIFIED-high (see section 4). |
 | A17 | **Yearly dollar figures** ({{fig:…}}) use the year Part B starts (never earlier than this year). A year with no published figure shows the latest earlier one, labeled "(2026 figure; the 2028 amount isn't published yet)". | design | |
+| A18 | **Get Covered NJ pricing window** (changed after the UX review). `gcnj_oe_before_retire` is now the last Nov 1 - Jan 31 open enrollment that *opens* on or before job coverage ends and has not closed. It used to be the one that *ends* before coverage ends. For a December 2027 retirement that moves the step from November 2026 (2027 prices) to November 2027 (2028 prices, when she can also enroll for a January 1 start). SPEC §3 was updated to match. | INFERRED | A guide timing choice, not a rule. Later years' dates are ASSUMED to repeat the 2026-27 dates. |
 
 ## 2. Changes made to `src/data/` (originals in `inputs/` untouched)
 
@@ -75,6 +76,17 @@ Everything here is a choice, assumption or open question a person should confirm
 | H12 Trial right | New fact `ma_trial_right_at_your_age` (INFERRED-high, 42 U.S.C. 1395ss(s)(3)(B)(v)-(vi), N.J.A.C. 11:4-23.12(c)7). The OUT_LEAN_MA bullet was rewritten. |
 | H13 Part B held, window open | A variant on OUT_LEAN_MEDIGAP about paying early. `ACT_MEDIGAP_QUOTES_HAS_B` replaces "apply so it starts with Part B" on that path. |
 | M2, M5, M6, M7, M8, M14, M15, M16 (part), M17, M18, M20, L1, L9, L10 | COBRA "may" end early. A Part B-unknown variant. Hand-written labels removed. Print hides Source links and prints URLs only in the Sources list. "Clear" asks to confirm (focus on Cancel). Poverty-line note. Wife-without-coverage variant. Year lists come from the data. SSA facts re-opened (both kept VERIFIED). Marks and glossary buttons moved out of headings. POMS wording. `wife_65_window` removed. COBRA election wording. |
+
+
+### UX review, correctness pass (2026-11-04)
+
+| Item | Change |
+|---|---|
+| X1 F5 wording | The question was "Which would bother you more?", but the code scored the pick as a preference. It is now "Which do you prefer?", with "Pay more each month…" / "Pay less each month…". The values and scoring are unchanged (T4-T6). |
+| X2 Part A sign-up months | `parta_signup_earliest_for_36` and `parta_signup_latest_for_36` carry `format: 'month'` and print as "December 2027". `ACT_ENROLL_PARTA_WINDOW` has `date_end_rule`, and the summary prints "Between January 2027 and December 2027" instead of the earliest day, which gives no extra COBRA. Q_SSA_PARTA_START no longer says "the month of December 1, 2027". The late-retirement Part A variant no longer opens with "You plan to stop working after {cutoff}". |
+| Get Covered NJ window | See A18. |
+| Refresh and Back | Each screen is a history entry, so the phone's Back gesture goes to the previous screen. A tab-only copy (sessionStorage, deleted when the tab closes) keeps his place on refresh. It leaves out the health answer and the income amounts. Saving across visits is still opt-in. |
+| Clear confirmation | The 10-second auto-hide was removed. |
 
 Not done from the review: M1, M3, M4 (partly: only the condition), M9-M13, M19, L2-L8, L11-L12, the full redesign tokens in section 6, and the section 7 watch metadata and source-check script.
 

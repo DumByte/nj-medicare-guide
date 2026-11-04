@@ -110,8 +110,12 @@ test('Actions sort by date; past dates become "now"; GCNJ omitted when no window
   assert.equal(t2.actions.find((a) => a.id === 'ACT_PRICE_GCNJ').date, TODAY);
 
   const soon = collectPath(T, run({ ...T1, last_work_month: '2026-12', job_cov_end: '2026-12-31' }), F, TODAY);
-  const ids = soon.actions.map((a) => a.id);
-  assert.ok(!ids.includes('ACT_PRICE_GCNJ'));
+  // The window open today (Nov 1, 2026 - Jan 31, 2027) opens before coverage ends Dec 31, 2026: price now.
+  assert.equal(soon.actions.find((a) => a.id === 'ACT_PRICE_GCNJ').date, TODAY);
+  // No window opens between today and coverage end (Feb 15 - Jun 30, 2027): the action is omitted.
+  const later = '2027-02-15';
+  const none = collectPath(T, walk(T, { ...tail, ...T1, last_work_month: '2027-06', job_cov_end: '2027-06-30', bridge_income: '400_600' }, F, later), F, later);
+  assert.ok(!none.actions.map((a) => a.id).includes('ACT_PRICE_GCNJ'));
   const file = soon.actions.find((a) => a.id === 'ACT_PARTB_FILE');
   assert.equal(file.ruleDate, '2026-11-01');
   assert.equal(file.past, true);
