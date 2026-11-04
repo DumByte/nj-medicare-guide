@@ -23,7 +23,6 @@ const PHRASES = ['most complete plan you can buy', 'You have no HSA', 'causes no
 
 // Accepted hits: [nodeOrKey, exact match, reason]. Keep in sync with NEEDS_REVIEW.md.
 export const ALLOW = [
-  ['A1', 'answer simple questions', 'not a fact'],
   ['OUT_WORKING_OK', '20 or more workers', 'restates fact employer_size_20, which is linked in the same screen'],
   ['OUT_WIFE_AT_65', '20+ employer', 'restates fact employer_size_20, linked in the same bullet'],
   ['OUT_WIFE_AT_65', 'fewer than 20 workers', 'restates fact employer_size_20, linked in the same bullet'],
@@ -59,7 +58,6 @@ export const ALLOW = [
   ['G1', '5-10', 'answer bucket, not a fact'],
   ['G1', 'More than 10', 'answer bucket, not a fact'],
   ['F2', 'next few years', 'not a fact'],
-  ['A2', 'SSA-1099', 'form name'],
   ['A7', 'born on the 1st', 'restates fact medicare_start_month, linked on the same screen'],
   ['OUT_RETIREE_COV', 'turns 65', 'Medicare age, fact medicare_start_month'],
   ['OUT_WIFE_NOT_ON_PLAN', '65th-birthday', 'Medicare age, fact medicare_start_month'],

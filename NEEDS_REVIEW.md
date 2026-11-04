@@ -88,6 +88,18 @@ Everything here is a choice, assumption or open question a person should confirm
 | Refresh and Back | Each screen is a history entry, so the phone's Back gesture goes to the previous screen. A tab-only copy (sessionStorage, deleted when the tab closes) keeps his place on refresh. It leaves out the health answer and the income amounts. Saving across visits is still opt-in. |
 | Clear confirmation | The 10-second auto-hide was removed. |
 
+### UX review, flow pass (2026-11-04)
+
+| Item | Change |
+|---|---|
+| H1 order | The welcome screen (A1) and the Social Security question (A2, `ss_collecting`) were removed. A2 was read by nothing but its own `sets: part_a = yes`, and people getting Social Security have the card A3 asks about. The new order is A3 card › A10 20+ employees › A6 stop-work month › A8 › A7 › [A3b] › [A4 › A4b] › A5 › [A9] › A11 › B1. A3 shows a one-line intro. |
+| H1 card date | A3b is asked only when `parta_date_can_matter`: he stops working less than 21 months after the start of this month. The 36-month rule needs the last day worked within 18 months after the Part A start, and a card's start is allowed to be up to 3 months ahead (INFERRED-high). When it is skipped, `his_entitlement` is "not needed", not ASSUMED. |
+| H1 conditional questions | A9 only when the wife is not on his plan. G2 only when visits = few. G3 only when visits is few or some (G4 reads them only then). |
+| H1 forks | `F_FORK` (after the sign-up timeline: "Help me choose now" / "Not now. Show my to-do list") and `H_FORK` (before the IRMAA calculator: "Yes, check it" / "Skip"). Both are drawn as two buttons on the screen before them. "Not now" goes to the new OUT_DECIDE_LATER (book NJ SHIP) and leaves out the Medigap price steps (ACT_MEDIGAP_QUOTES, ACT_MEDIGAP_APPLY, ACT_MEDIGAP_QUOTES_HAS_B). The screen says so. |
+| M2 wife's birth | Month and year, plus "She was born on the 1st of the month". Stored as the 1st or the 15th; only the 1st changes her Medicare month (fact `medicare_start_month`). |
+| M3 coverage end | A6b is answered "assume the last day of the month" automatically, and A6 says so with a Change button. A6b still shows when opened from Change or the summary. |
+| Check | 20,000 random complete answer sets (seed 777, today 2026-11-03) plus 8,000 each at 2027-02-15 and 2026-12-31, compared with commit a8fb7c4: 0 differences in outcome screens, dated actions, summary questions, key deadlines and the COBRA, Part B and Medigap dates, with both forks answered yes. Every old outcome screen is still reached. |
+
 Not done from the review: M1, M3, M4 (partly: only the condition), M9-M13, M19, L2-L8, L11-L12, the full redesign tokens in section 6, and the section 7 watch metadata and source-check script.
 
 ## 3. Lint hits accepted (not converted to tokens)
@@ -96,8 +108,7 @@ Not done from the review: M1, M3, M4 (partly: only the condition), M9-M13, M19, 
 
 | Node | Text | Reason |
 |---|---|---|
-| A2 | `1099` | form name |
-| A7 | `1` ("born on the 1st") | restates `medicare_start_month`, linked on the same screen |
+| A7 | `1` ("born on the 1st", in the checkbox label) | restates `medicare_start_month`, linked on the same screen |
 | OUT_WORKING_OK | `20` | restates `employer_size_20`, linked on the same screen |
 | OUT_RETIREE_COV, OUT_WIFE_NOT_ON_PLAN, D2, OUT_WIFE_AT_65 | `65` | Medicare age (`medicare_start_month`) |
 | D2, OUT_LEAN_MA, G2, OUT_PLAN_G, OUT_PLAN_HDG | `2026` / `2027` | labels which year a linked fact applies to |

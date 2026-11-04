@@ -227,7 +227,19 @@ function renderFooter() {
 // ---------- screens ----------
 let W = null;
 
-function go(pos, fromHistory) {
+// UX review H1/M3: some screens are not shown on their own. A fork's buttons are drawn on the screen
+// before it, and a question answered "assume" automatically (A6b) opens only through a Change button.
+function skippable(id) {
+  const n = BY_ID[id];
+  return !!n && (!!n.fork || (!!n.auto_default && state.answers[n.var] === 'default'));
+}
+
+// explicit: open exactly this screen (a Change button), even one that is normally skipped.
+function go(pos, fromHistory, explicit) {
+  if (!explicit && !fromHistory && W) {
+    const dir = pos < state.pos ? -1 : 1;
+    while (skippable(W.screens[pos]) && pos + dir >= 0 && pos + dir < W.screens.length) pos += dir;
+  }
   state.pos = pos;
   storageSet();
   render(true);
@@ -236,6 +248,8 @@ function go(pos, fromHistory) {
 
 function answer(node, value) {
   state.answers[node.var] = value;
+  const nx = BY_ID[node.next];
+  if (nx && nx.auto_default && state.answers[nx.var] === undefined) state.answers[nx.var] = 'default';
   W = walk(TREE, state.answers, FACTS, TODAY);
   const i = W.screens.indexOf(node.id);
   go(i + 1);
@@ -243,6 +257,14 @@ function answer(node, value) {
 
 function navButtons(node, opts = {}) {
   const kids = [];
+  const fork = opts.continue && BY_ID[node.next] && BY_ID[node.next].fork ? BY_ID[node.next] : null;
+  if (fork) {
+    // The fork's question and its two answers replace Continue (never more than 2 primary buttons).
+    return h('div', { class: 'fork' }, h('p', { class: 'fork-q' }, renderPlain(fork.text, ctxFor(W))),
+      h('div', { class: 'nav' }, fork.options.map((o, k) => h('button', { type: 'button', class: k ? 'secondary' : null,
+        onclick: () => answer(fork, o.value) }, renderPlain(o.label, ctxFor(W))))),
+      state.pos > 0 ? h('div', { class: 'nav' }, h('button', { type: 'button', class: 'secondary', onclick: () => go(state.pos - 1) }, 'Back')) : null);
+  }
   if (state.pos > 0) kids.push(h('button', { type: 'button', class: 'secondary', onclick: () => go(state.pos - 1) }, 'Back'));
   if (opts.continue) kids.push(h('button', { type: 'button', onclick: () => go(state.pos + 1) }, opts.continueLabel || 'Continue'));
   return h('div', { class: 'nav' }, kids);
@@ -284,6 +306,7 @@ function whyList(w) {
 function screenQuestion(node, ctx, used) {
   const current = state.answers[node.var];
   return [
+    node.intro && state.pos === 0 ? h('p', { class: 'intro' }, node.intro) : null,
     ...heading(node.text, ctx, used),
     helpToggle(node, ctx, used),
     h('div', { role: 'group', 'aria-label': 'Choose one' },
@@ -312,16 +335,19 @@ function screenInput(node, ctx, used) {
     h('select', { id }, h('option', { value: '' }, 'Choose'), opts.map(([v, t]) => h('option', { value: v, selected: v === value }, t))));
   const curParts = typeof cur === 'string' && /^\d{4}-\d{2}/.test(cur) ? cur.split('-') : [];
   const fields = [sel(idp + '-m', 'Month', MONTHS.map((m, i) => [String(i + 1).padStart(2, '0'), m]), curParts[1])];
-  if (node.input === 'date') fields.push(sel(idp + '-d', 'Day', Array.from({ length: 31 }, (_, i) => [String(i + 1).padStart(2, '0'), String(i + 1)]), curParts[2]));
+  const fullDate = node.input === 'date' && !node.birth_month;
+  if (fullDate) fields.push(sel(idp + '-d', 'Day', Array.from({ length: 31 }, (_, i) => [String(i + 1).padStart(2, '0'), String(i + 1)]), curParts[2]));
   const years = [];
   for (let y = y1; y >= y0; y--) years.push([String(y), String(y)]);
   fields.push(sel(idp + '-y', 'Year', years, curParts[0]));
   const err = h('p', { class: 'error', role: 'alert', hidden: true });
   const submit = () => {
     const m = document.getElementById(idp + '-m').value, yv = document.getElementById(idp + '-y').value;
-    const d = node.input === 'date' ? document.getElementById(idp + '-d').value : null;
-    const value = node.input === 'date' ? `${yv}-${m}-${d}` : `${yv}-${m}`;
-    const problem = validateInput(node, value);
+    const d = fullDate ? document.getElementById(idp + '-d').value : null;
+    // M2: only the month and year matter, unless she was born on the 1st. Store the 1st or the 15th.
+    const first = node.birth_month && document.getElementById(idp + '-first').checked;
+    const value = fullDate ? `${yv}-${m}-${d}` : node.birth_month ? `${yv}-${m}-${first ? '01' : '15'}` : `${yv}-${m}`;
+    const problem = node.birth_month ? validateInput({ input: 'month' }, `${yv}-${m}`) : validateInput(node, value);
     if (problem) { err.textContent = problem; err.hidden = false; err.focus && err.setAttribute('tabindex', '-1'); err.focus(); return; }
     answer(node, value);
   };
@@ -332,12 +358,24 @@ function screenInput(node, ctx, used) {
     ...heading(node.text, ctx, used),
     helpToggle(node, ctx, used),
     h('div', { class: 'row' }, fields),
+    node.birth_month ? h('label', { class: 'remember' }, h('input', { type: 'checkbox', id: idp + '-first', checked: curParts[2] === '01' }), ' ', node.first_label) : null,
+    node.default_note ? defaultNote(node) : null,
     err,
     h('div', { class: 'nav' }, h('button', { type: 'button', onclick: submit }, 'Save and continue'), extra),
     cur === 'unknown' || cur === 'default' ? h('p', { class: 'small' }, 'Your answer so far: ', cur === 'unknown' ? "I don't know" : 'assume the last day of the month') : null,
     factList(node.fact_refs),
     navButtons(node)
   ];
+}
+
+// M3: under A6, say what we assume about the coverage end, with a Change button once A6 is answered.
+function defaultNote(node) {
+  const nx = BY_ID[node.next];
+  const i = W.screens.indexOf(nx && nx.id);
+  const a = nx && state.answers[nx.var];
+  const shown = a && a !== 'default' ? `Your job health plan ends ${formatDate(a)}.` : node.default_note;
+  return h('p', { class: 'small default-note' }, shown, ' ',
+    i >= 0 ? h('button', { type: 'button', class: 'secondary', onclick: () => go(i, false, true) }, 'Change') : null);
 }
 
 function screenOutcome(node, ctx, used, w) {
@@ -569,9 +607,11 @@ function screenSummary(node, ctx, used, w) {
     h('ul', {}, w.screens.map((id, i) => [BY_ID[id], i]).filter(([n]) => n.type === 'question' || n.type === 'input').map(([n, i]) => {
       const a = state.answers[n.var];
       const shown = n.type === 'question' ? renderPlain((n.options.find((o) => o.value === a) || {}).label || '', ctx)
-        : a === 'unknown' ? "I don't know" : a === 'default' ? 'assumed' : renderPlain(`{{${n.var}}}`, { ...ctx, vars: { [n.var]: a } });
+        : a === 'unknown' ? "I don't know" : a === 'default' ? 'assumed'
+        : n.birth_month ? formatMonth(a.slice(0, 7)) + (a.slice(8) === '01' ? ', born on the 1st' : '')
+        : renderPlain(`{{${n.var}}}`, { ...ctx, vars: { [n.var]: a } });
       return h('li', {}, renderPlain(n.text, ctx), ' — ', h('strong', {}, shown), ' ',
-        h('button', { type: 'button', class: 'secondary', onclick: () => go(i) }, 'Change'));
+        h('button', { type: 'button', class: 'secondary', onclick: () => go(i, false, true) }, 'Change'));
     }))));
   return kids;
 }

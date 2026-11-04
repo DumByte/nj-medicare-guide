@@ -15,7 +15,7 @@ export const COMPUTED = ['as_of', 'today', 'job_cov_end', 'wife_medicare_start',
   'wife_cobra_end_if_parta_now', 'partb_start', 'partb_file_by', 'ma_window_open', 'ma_window_close', 'drug_deadline',
   'medigap_window_close', 'medigap_window_open', 'medigap_window_status', 'gi_right', 'partb_sep_end',
   'irmaa_first_year_jan', 'gcnj_oe_before_retire', 'path_score', 'last_day_worked', 'irmaa_second_year_jan',
-  'parta_signup_by', 'retire_after_36_cutoff', 'parta_signup_earliest_for_36', 'parta_signup_latest_for_36',
+  'parta_signup_by', 'retire_after_36_cutoff', 'parta_signup_earliest_for_36', 'parta_signup_latest_for_36', 'parta_date_can_matter',
   'wife_cobra_end_if_parta_latest', 'drug_enroll_by_no_gap', 'drug_enroll_by_no_penalty',
   'nj_gi_window_close', 'ssa44_date', 'wife_on_medicare_at_retire', 'wife_partb_start', 'wife_partb_file_by',
   'wife_medigap_window_close', 'months_until_retire', 'decision_year'];

@@ -9,7 +9,8 @@ const F = facts();
 const T = tree();
 const tail = { employer_20: 'yes', drug_creditable: 'yes', hsa: 'no', retiree_cov: 'no', wife_own_offer: 'no',
   health_needs: 'skip', doctor_choice: 'somewhat', travel: 'no', predictability: 'fixed', budget_ok: 'yes',
-  visits: 'some', hd_ok: 'no', assignment: 'unsure', bridge_income: 'unsure' };
+  visits: 'some', hd_ok: 'no', assignment: 'unsure', bridge_income: 'unsure',
+  choose_now: 'yes', irmaa_now: 'yes' };
 const run = (answers, today = TODAY) => walk(T, { ...tail, ...answers }, F, today);
 const likely = { ss_collecting: 'no', part_a: 'no', last_work_month: '2027-12', job_cov_end: 'default',
   wife_birth: '1964-10-10', wife_on_his_plan: 'yes' };
@@ -60,7 +61,7 @@ test('C2: drug enrollment dates for month-end, mid-month and leap-day coverage e
 
 test('C2: every completed path has a drug-enrollment action', () => {
   const paths = [likely, { ...likely, last_work_month: '2027-06' },
-    { ss_collecting: 'yes', part_a_date: '2024-09', part_b: 'yes', part_b_date: '2025-03', last_work_month: '2028-06', job_cov_end: 'default', wife_birth: '1964-06-15', wife_on_his_plan: 'yes' },
+    { part_a: 'yes', part_a_date: '2024-09', part_b: 'yes', part_b_date: '2025-03', last_work_month: '2028-06', job_cov_end: 'default', wife_birth: '1964-06-15', wife_on_his_plan: 'yes' },
     { ...likely, wife_on_his_plan: 'no' }];
   for (const p of paths) {
     const w = run(p);
@@ -70,7 +71,7 @@ test('C2: every completed path has a drug-enrollment action', () => {
 });
 
 test('C3: NJ 63-day right is dated when the Medigap window has closed', () => {
-  const w = run({ ss_collecting: 'yes', part_a_date: '2024-09', part_b: 'yes', part_b_date: '2025-03', last_work_month: '2028-06',
+  const w = run({ part_a: 'yes', part_a_date: '2024-09', part_b: 'yes', part_b_date: '2025-03', last_work_month: '2028-06',
     job_cov_end: 'default', wife_birth: '1964-06-15', wife_on_his_plan: 'yes' });
   assert.equal(w.vars.nj_gi_window_close, '2028-09-01');
   assert.ok(w.screens.includes('OUT_NO_MEDIGAP_WINDOW'));
@@ -103,11 +104,11 @@ test('H2: wife already on Medicare at his retirement gets her own Part B and dru
 });
 
 test('H3: the HSA question is asked when he already has Part A or Part B', () => {
-  for (const p of [{ ss_collecting: 'yes', part_a_date: '2026-05', part_b: 'no' }, { ss_collecting: 'no', part_a: 'yes', part_a_date: '2026-05', part_b: 'yes', part_b_date: '2026-05' }]) {
+  for (const p of [{ part_a: 'yes', part_a_date: '2026-05', part_b: 'no' }, { ss_collecting: 'no', part_a: 'yes', part_a_date: '2026-05', part_b: 'yes', part_b_date: '2026-05' }]) {
     const w = walk(T, { ...tail, hsa: undefined, ...likely, ...p }, F, TODAY);
     assert.equal(w.screens.at(-1), 'B_HSA', JSON.stringify(p));
   }
-  const w = run({ ss_collecting: 'yes', part_a_date: '2026-05', part_b: 'no', last_work_month: '2027-12', job_cov_end: 'default',
+  const w = run({ part_a: 'yes', part_a_date: '2026-05', part_b: 'no', last_work_month: '2027-12', job_cov_end: 'default',
     wife_birth: '1964-10-10', wife_on_his_plan: 'yes', hsa: 'yes' });
   assert.ok(w.screens.includes('OUT_HSA_WARNING') && !w.screens.includes('OUT_ENROLL_PARTA'));
   assert.ok(shownVariants(w, 'OUT_HSA_WARNING').some((s) => /already have Medicare/.test(s.text)));

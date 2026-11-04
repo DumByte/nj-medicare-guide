@@ -236,6 +236,12 @@ export function compute(answers, facts, today) {
   // Wife's Medicare start
   if (isValidDate(a.wife_birth)) set('wife_medicare_start', wifeMedicareStart(a.wife_birth));
 
+  // UX review H1: the Part A card date can change the wife's COBRA only through the 36-month rule, which
+  // needs the last day worked within 18 months after the Part A start. A card's start date is at most a few
+  // months ahead (cards arrive before coverage starts; 3 months allowed), so if he stops working 21 or more
+  // months after this month starts, no card date can matter and the question is skipped.
+  v.parta_date_can_matter = lastDayWorked ? lastDayWorked < addMonths(firstOfMonth(today), 21) : true;
+
   // Part A
   if (a.part_a === 'no') {
     // "Now" = by the end of the month two weeks out (after the HR check), so the action date and the
@@ -262,6 +268,11 @@ export function compute(answers, facts, today) {
     }
   } else if (isValidMonth(a.part_a_date)) {
     set('his_entitlement', monthToFirst(a.part_a_date));
+  } else if (a.part_a === 'yes' && a.part_a_date === undefined && v.parta_date_can_matter === false) {
+    // Not asked: no card date could change anything (see parta_date_can_matter above).
+    v.his_entitlement = null;
+    meta.his_entitlement = { label: 'INFERRED', confidence: 'high',
+      how: 'Not needed: you stop working more than 18 months after any Part A start date your card could show.' };
   } else if (a.part_a === 'yes') {
     // Date unknown: treat as more than 18 months before retirement (no 36-month rule).
     v.his_entitlement = null;

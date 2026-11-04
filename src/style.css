@@ -119,3 +119,9 @@ ul.qs li, ul.acts li { margin-bottom: 0.6rem; }
   .panel, .warn, table.deadlines tr { break-inside: avoid; }
   h2 { break-after: avoid; }
 }
+
+/* UX review: intro line, fork buttons, the coverage-end note under A6 */
+.intro { font-size: 1.05rem; margin: 0 0 .6rem; }
+.fork { border-top: 1px solid var(--line); margin-top: 1rem; padding-top: .6rem; }
+.fork-q { font-weight: 700; margin: 0 0 .4rem; }
+.default-note { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }

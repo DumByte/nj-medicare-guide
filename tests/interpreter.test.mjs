@@ -10,7 +10,8 @@ const F = facts();
 const T = tree();
 const tail = { employer_20: 'yes', drug_creditable: 'yes', hsa: 'no',
   retiree_cov: 'no', wife_own_offer: 'no', health_needs: 'skip', doctor_choice: 'somewhat', travel: 'no',
-  predictability: 'fixed', budget_ok: 'yes', visits: 'some', hd_ok: 'no', assignment: 'unsure', bridge_income: 'unsure' };
+  predictability: 'fixed', budget_ok: 'yes', visits: 'some', hd_ok: 'no', assignment: 'unsure', bridge_income: 'unsure',
+  choose_now: 'yes', irmaa_now: 'yes' };
 const run = (answers, today = TODAY) => walk(T, { ...tail, ...answers }, F, today);
 const T1 = { ss_collecting: 'no', part_a: 'no', hsa: 'no', last_work_month: '2027-12', job_cov_end: '2027-12-31',
   wife_birth: '1964-06-15', wife_on_his_plan: 'yes' };
@@ -84,16 +85,22 @@ test('Requirement 6: HSA yes/unsure shows the warning and HR question', () => {
 });
 
 test('Changing an early answer drops answers from the old path', () => {
-  const w = walk(T, { ...tail, ...T1, ss_collecting: 'yes', part_a_date: '2026-05', part_b: 'no', job_cov_end: '2027-12-31' }, F, TODAY);
-  assert.equal(w.effective.part_a, 'yes'); // set by A2 "Yes"
-  assert.ok(!w.screens.includes('A3'));
-  assert.ok(!w.screens.includes('OUT_ENROLL_PARTA')); // already has Part A
+  // Answers from the "has a card" branch stay behind when A3 is changed to "No".
+  const w = walk(T, { ...tail, ...T1, part_a: 'no', part_a_date: '2026-05', part_b: 'yes', part_b_date: '2026-05' }, F, TODAY);
+  assert.equal(w.effective.part_a, 'no');
+  assert.equal(w.effective.part_a_date, undefined);
+  assert.notEqual(w.effective.part_b, 'yes');
+  assert.ok(!w.screens.includes('A3b') && !w.screens.includes('A4'));
+  assert.ok(w.screens.includes('OUT_ENROLL_PARTA'));
+  // And with "Yes", the Part A sign-up screen is gone.
+  const y = walk(T, { ...tail, ...T1, part_a: 'yes', part_a_date: '2026-05', part_b: 'no' }, F, TODAY);
+  assert.ok(!y.screens.includes('OUT_ENROLL_PARTA'));
 });
 
 test('Walk stops at the first unanswered question', () => {
-  const w = walk(T, { ss_collecting: 'no' }, F, TODAY);
+  const w = walk(T, {}, F, TODAY);
   assert.equal(w.complete, false);
-  assert.equal(w.screens.at(-1), 'A3');
+  assert.deepEqual(w.screens, ['A3']);
 });
 
 test('Actions sort by date; past dates become "now"; GCNJ omitted when no window', () => {

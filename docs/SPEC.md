@@ -34,7 +34,7 @@ All dates are calendar dates. "+Nm" adds months; "end of month" = last calendar 
 | `as_of` | `facts.meta.as_of` | — |
 | `job_cov_end` | User input; default = last day of `last_work_month` (`his_coverage_end_assumption`) | ASSUMED if defaulted |
 | `wife_medicare_start` | First day of her 65th-birthday month; if born on the 1st, first day of the prior month (`medicare_start_month`) | INFERRED, high |
-| `his_entitlement` | `part_a_date` if known. If `ss_collecting = yes` and date unknown: treat as more than 18 months before retirement (no 36-month rule) and add `Q_SSA_STATUS` | ASSUMED if unknown |
+| `his_entitlement` | `part_a_date` if known. If he has Part A and the date is unknown: treat as more than 18 months before retirement (no 36-month rule) and add `Q_SSA_STATUS`. The card date is asked only when `parta_date_can_matter` (he stops working less than 21 months after the start of this month); otherwise no card date could trigger the 36-month rule | ASSUMED if unknown |
 | `part_a_projected_start` | If `part_a = no`: first day of the month 6 months before the current month (`parta_retro`) | INFERRED, medium |
 | `cobra36_eligible` | `his_entitlement` < last day worked AND (last day worked − `his_entitlement`) < 18 months (`cobra_36_month_rule`) | INFERRED, medium |
 | `wife_cobra_end` | If `cobra36_eligible`: later of (`job_cov_end` + 18m) and (`his_entitlement` + 36m − 1 day). Else `job_cov_end` + 18m | INFERRED, medium (confirm with plan administrator) |
@@ -110,7 +110,7 @@ Routing: window closed and no guaranteed right → `OUT_NO_MEDIGAP_WINDOW`; scor
 | T11 | Part B penalty: 24 months, 2026 | $243.48 → **$243.50/month** (matches Medicare.gov example) |
 | T12 | Medigap compare: G $200, N $150, 8 office visits, 0 ER, 0 excess, Moderate year | G = 2,400 + 283 = **$2,683**; N = 1,800 + 283 + 160 = **$2,243** |
 | T13 | Any fact with today > review_after | stale banner shown |
-| T14 | Validation script | every `{{fact:id}}`, `fact_refs`, `add_actions`, `add_questions`, `next`, `route.next` resolves; every node reachable from `A1`; every fact has `source.url` unless label is ASSUMED or INFERRED-from-inputs |
+| T14 | Validation script | every `{{fact:id}}`, `fact_refs`, `add_actions`, `add_questions`, `next`, `route.next` resolves; every node reachable from the start node (`A3`); every fact has `source.url` unless label is ASSUMED or INFERRED-from-inputs |
 
 ## 7. Changes from the earlier research report (already applied in the data)
 

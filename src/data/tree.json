@@ -1,20 +1,12 @@
 {
   "meta": {
     "as_of": "2026-11-03",
-    "start": "A1",
+    "start": "A3",
     "condition_grammar": "A 'when' is a list of clauses that must ALL be true. Clause: {\"var\": name, \"op\": one of eq|ne|in|lt|lte|gt|gte|set|unset, \"value\": ...}. A 'route' is evaluated top to bottom; the first entry whose 'when' passes wins; an entry with no 'when' is the default.",
     "text_tokens": "{{name}} inside text is replaced by a variable or computed value (see SPEC.md 'Computed values'). {{fact:id}} renders the fact's plain text with its label badge and source link. {{fact:id.value.path}} renders one value with badge and link.",
     "tone": "Plain English, short sentences, second person ('you'), for a 67-year-old non-expert. No jargon without the glossary pop-up."
   },
   "variables": {
-    "ss_collecting": {
-      "type": "enum",
-      "values": [
-        "yes",
-        "no",
-        "unsure"
-      ]
-    },
     "part_a": {
       "type": "enum",
       "values": [
@@ -170,45 +162,23 @@
         "no",
         "unsure"
       ]
+    },
+    "choose_now": {
+      "type": "enum",
+      "values": [
+        "yes",
+        "later"
+      ]
+    },
+    "irmaa_now": {
+      "type": "enum",
+      "values": [
+        "yes",
+        "skip"
+      ]
     }
   },
   "nodes": [
-    {
-      "id": "A1",
-      "module": "Where you stand",
-      "type": "info",
-      "title": "Let's figure out your Medicare plan",
-      "text": "This guide asks simple questions about your situation. At the end you get a dated to-do list and the questions to ask HR, Social Security and New Jersey's free Medicare counselors. Facts are as of {{as_of}}. Each fact has a link to the official source.",
-      "next": "A2"
-    },
-    {
-      "id": "A2",
-      "module": "Where you stand",
-      "type": "question",
-      "var": "ss_collecting",
-      "text": "Are you getting Social Security retirement checks right now?",
-      "help": "If you are not sure, log in at ssa.gov/myaccount or look for an SSA-1099 tax form from last year.",
-      "options": [
-        {
-          "label": "Yes",
-          "value": "yes",
-          "sets": {
-            "part_a": "yes"
-          },
-          "next": "A3b"
-        },
-        {
-          "label": "No",
-          "value": "no",
-          "next": "A3"
-        },
-        {
-          "label": "Not sure",
-          "value": "unsure",
-          "next": "A3"
-        }
-      ]
-    },
     {
       "id": "A3",
       "module": "Where you stand",
@@ -219,7 +189,7 @@
         {
           "label": "Yes",
           "value": "yes",
-          "next": "A3b"
+          "next": "A10"
         },
         {
           "label": "No, I don't have a Medicare card",
@@ -227,6 +197,146 @@
           "sets": {
             "part_b": "no"
           },
+          "next": "A10"
+        }
+      ],
+      "intro": "Answer a few short questions. You get a to-do list with dates."
+    },
+    {
+      "id": "A10",
+      "module": "Where you stand",
+      "type": "question",
+      "var": "employer_20",
+      "text": "Does your employer have 20 or more employees?",
+      "help": "This decides whether your job plan or Medicare pays first while you work. HR can tell you the count it uses for Medicare.",
+      "fact_refs": [
+        "employer_size_20"
+      ],
+      "options": [
+        {
+          "label": "Yes",
+          "value": "yes",
+          "next": "A6"
+        },
+        {
+          "label": "No",
+          "value": "no",
+          "next": "OUT_SMALL_EMPLOYER"
+        },
+        {
+          "label": "Not sure",
+          "value": "unsure",
+          "next": "A6"
+        }
+      ]
+    },
+    {
+      "id": "OUT_SMALL_EMPLOYER",
+      "module": "Where you stand",
+      "type": "outcome",
+      "title": "Medicare probably pays first for you now",
+      "text": "With fewer than 20 employees, Medicare pays first and your job plan pays second. {{fact:employer_size_20}} You may need Part B now, and waiting could mean a late penalty and bills your job plan won't pay. Much of this guide assumes a larger employer, so call NJ SHIP this week before relying on it.",
+      "add_actions": [
+        "ACT_SHIP_NOW"
+      ],
+      "fact_refs": [
+        "employer_size_20",
+        "nj_ship_contact"
+      ],
+      "next": "A6"
+    },
+    {
+      "id": "A6",
+      "module": "Where you stand",
+      "type": "input",
+      "var": "last_work_month",
+      "input": "month",
+      "text": "When do you plan to stop working? A guess is fine.",
+      "validate": {
+        "min": "2026-11",
+        "max": "2030-12"
+      },
+      "next": "A6b",
+      "default_note": "We assume your job health plan ends on the last day of that month."
+    },
+    {
+      "id": "A6b",
+      "module": "Where you stand",
+      "type": "input",
+      "var": "job_cov_end",
+      "input": "date",
+      "text": "When does your job health coverage end after your last day? If you don't know, we'll assume the last day of that month.",
+      "default_from": "his_coverage_end_assumption",
+      "fact_refs": [
+        "his_coverage_end_assumption"
+      ],
+      "next": "A8",
+      "auto_default": true
+    },
+    {
+      "id": "A8",
+      "module": "Where you stand",
+      "type": "question",
+      "var": "wife_on_his_plan",
+      "text": "Is your wife covered by your job's health plan right now?",
+      "options": [
+        {
+          "label": "Yes",
+          "value": "yes",
+          "next": "A7"
+        },
+        {
+          "label": "No",
+          "value": "no",
+          "next": "A7"
+        }
+      ]
+    },
+    {
+      "id": "A7",
+      "module": "Where you stand",
+      "type": "input",
+      "var": "wife_birth",
+      "input": "date",
+      "text": "When was your wife born? Pick the month and year.",
+      "fact_refs": [
+        "medicare_start_month"
+      ],
+      "next": "R_CARD",
+      "birth_month": true,
+      "first_label": "She was born on the 1st of the month"
+    },
+    {
+      "id": "R_CARD",
+      "module": "Where you stand",
+      "type": "route",
+      "route": [
+        {
+          "when": [
+            {
+              "var": "part_a",
+              "op": "eq",
+              "value": "yes"
+            },
+            {
+              "var": "parta_date_can_matter",
+              "op": "eq",
+              "value": true
+            }
+          ],
+          "next": "A3b"
+        },
+        {
+          "when": [
+            {
+              "var": "part_a",
+              "op": "eq",
+              "value": "yes"
+            }
+          ],
+          "next": "A4"
+        },
+        {
           "next": "A5"
         }
       ]
@@ -285,74 +395,37 @@
         {
           "label": "Yes",
           "value": "yes",
-          "next": "A6"
+          "next": "R_WIFE_OFFER"
         },
         {
           "label": "No",
           "value": "no",
-          "next": "A6"
+          "next": "R_WIFE_OFFER"
         },
         {
           "label": "I don't know",
           "value": "unsure",
-          "next": "A6"
+          "next": "R_WIFE_OFFER"
         }
       ]
     },
     {
-      "id": "A6",
+      "id": "R_WIFE_OFFER",
       "module": "Where you stand",
-      "type": "input",
-      "var": "last_work_month",
-      "input": "month",
-      "text": "What month do you plan to stop working? (Your best guess is fine. You can change it later and see what changes.)",
-      "validate": {
-        "min": "2026-11",
-        "max": "2030-12"
-      },
-      "next": "A6b"
-    },
-    {
-      "id": "A6b",
-      "module": "Where you stand",
-      "type": "input",
-      "var": "job_cov_end",
-      "input": "date",
-      "text": "When does your job health coverage end after your last day? If you don't know, we'll assume the last day of that month.",
-      "default_from": "his_coverage_end_assumption",
-      "fact_refs": [
-        "his_coverage_end_assumption"
-      ],
-      "next": "A7"
-    },
-    {
-      "id": "A7",
-      "module": "Where you stand",
-      "type": "input",
-      "var": "wife_birth",
-      "input": "date",
-      "text": "What is your wife's date of birth? (Only the month and year matter, unless she was born on the 1st.)",
-      "fact_refs": [
-        "medicare_start_month"
-      ],
-      "next": "A8"
-    },
-    {
-      "id": "A8",
-      "module": "Where you stand",
-      "type": "question",
-      "var": "wife_on_his_plan",
-      "text": "Is your wife covered by your job's health plan right now?",
-      "options": [
+      "type": "route",
+      "route": [
         {
-          "label": "Yes",
-          "value": "yes",
+          "when": [
+            {
+              "var": "wife_on_his_plan",
+              "op": "eq",
+              "value": "no"
+            }
+          ],
           "next": "A9"
         },
         {
-          "label": "No",
-          "value": "no",
-          "next": "A9"
+          "next": "A11"
         }
       ]
     },
@@ -366,40 +439,12 @@
         {
           "label": "Yes",
           "value": "yes",
-          "next": "A10"
-        },
-        {
-          "label": "No",
-          "value": "no",
-          "next": "A10"
-        },
-        {
-          "label": "Not sure",
-          "value": "unsure",
-          "next": "A10"
-        }
-      ]
-    },
-    {
-      "id": "A10",
-      "module": "Where you stand",
-      "type": "question",
-      "var": "employer_20",
-      "text": "Does your employer have 20 or more employees?",
-      "help": "This decides whether your job plan or Medicare pays first while you work. HR can tell you the count it uses for Medicare.",
-      "fact_refs": [
-        "employer_size_20"
-      ],
-      "options": [
-        {
-          "label": "Yes",
-          "value": "yes",
           "next": "A11"
         },
         {
           "label": "No",
           "value": "no",
-          "next": "OUT_SMALL_EMPLOYER"
+          "next": "A11"
         },
         {
           "label": "Not sure",
@@ -407,21 +452,6 @@
           "next": "A11"
         }
       ]
-    },
-    {
-      "id": "OUT_SMALL_EMPLOYER",
-      "module": "Where you stand",
-      "type": "outcome",
-      "title": "Medicare probably pays first for you now",
-      "text": "With fewer than 20 employees, Medicare pays first and your job plan pays second. {{fact:employer_size_20}} You may need Part B now, and waiting could mean a late penalty and bills your job plan won't pay. Much of this guide assumes a larger employer, so call NJ SHIP this week before relying on it.",
-      "add_actions": [
-        "ACT_SHIP_NOW"
-      ],
-      "fact_refs": [
-        "employer_size_20",
-        "nj_ship_contact"
-      ],
-      "next": "A11"
     },
     {
       "id": "A11",
@@ -1226,7 +1256,7 @@
         "partd_base_2027",
         "partd_sep_effective_date"
       ],
-      "next": "F1"
+      "next": "F_FORK"
     },
     {
       "id": "OUT_SIGNUP_HAS_B",
@@ -1261,7 +1291,7 @@
         "gi_63_days",
         "partd_sep_effective_date"
       ],
-      "next": "F1",
+      "next": "F_FORK",
       "variants": [
         {
           "when": [
@@ -1522,7 +1552,7 @@
         "ma_oep",
         "ma_trial_right_at_your_age"
       ],
-      "next": "H1",
+      "next": "H_FORK",
       "add_questions": [
         "Q_SHIP_TRIAL"
       ]
@@ -1572,7 +1602,7 @@
         "gi_nj_state_extension",
         "gi_after_cobra"
       ],
-      "next": "H1",
+      "next": "H_FORK",
       "variants": [
         {
           "when": [
@@ -1606,12 +1636,12 @@
         {
           "label": "5-10",
           "value": "some",
-          "next": "G2"
+          "next": "G3"
         },
         {
           "label": "More than 10",
           "value": "many",
-          "next": "G2"
+          "next": "G4"
         }
       ]
     },
@@ -1625,7 +1655,7 @@
         {
           "label": "Yes",
           "value": "yes",
-          "next": "G3"
+          "next": "G4"
         },
         {
           "label": "No",
@@ -1729,7 +1759,7 @@
         "partb_deductible_2026",
         "parta_deductible_2026"
       ],
-      "next": "H1"
+      "next": "H_FORK"
     },
     {
       "id": "OUT_PLAN_N_OR_G",
@@ -1751,7 +1781,7 @@
         "plan_n_differences",
         "plan_g_benefits"
       ],
-      "next": "H1"
+      "next": "H_FORK"
     },
     {
       "id": "OUT_PLAN_HDG",
@@ -1773,7 +1803,7 @@
         "hdg_deductible",
         "nj_medigap_rates_jun2026"
       ],
-      "next": "H1"
+      "next": "H_FORK"
     },
     {
       "id": "H1",
@@ -1834,6 +1864,78 @@
         "questions",
         "sources",
         "open_items"
+      ]
+    },
+    {
+      "id": "F_FORK",
+      "module": "Medigap or Medicare Advantage?",
+      "type": "question",
+      "var": "choose_now",
+      "fork": true,
+      "text": "Next: pick a plan type. It takes a few quick questions.",
+      "options": [
+        {
+          "label": "Help me choose now",
+          "value": "yes",
+          "next": "F1"
+        },
+        {
+          "label": "Not now. Show my to-do list",
+          "value": "later",
+          "next": "OUT_DECIDE_LATER"
+        }
+      ]
+    },
+    {
+      "id": "OUT_DECIDE_LATER",
+      "module": "Medigap or Medicare Advantage?",
+      "type": "outcome",
+      "title": "Choose a plan type later, with free help",
+      "text": "Book a free NJ SHIP meeting to choose between Medigap and Medicare Advantage. Until you choose, your to-do list has no Medigap price steps. You can come back and choose at any time.",
+      "fact_refs": [
+        "nj_ship_contact",
+        "medigap_oep",
+        "nj_underwriting_after_window"
+      ],
+      "add_actions": [
+        "ACT_BOOK_SHIP"
+      ],
+      "next": "I1",
+      "variants": [
+        {
+          "when": [
+            {
+              "var": "medigap_window_open",
+              "op": "ne",
+              "value": false
+            },
+            {
+              "var": "medigap_window_close",
+              "op": "set"
+            }
+          ],
+          "text": "If you want Medigap, decide before your Medigap window closes on {{medigap_window_close}}. After that, New Jersey companies can ask about your health and say no."
+        }
+      ]
+    },
+    {
+      "id": "H_FORK",
+      "module": "Income-based premiums (IRMAA)",
+      "type": "question",
+      "var": "irmaa_now",
+      "fork": true,
+      "text": "Optional: check whether your income will raise your Medicare costs.",
+      "options": [
+        {
+          "label": "Yes, check it",
+          "value": "yes",
+          "next": "H1"
+        },
+        {
+          "label": "Skip. Show my to-do list",
+          "value": "skip",
+          "next": "I1"
+        }
       ]
     }
   ],
